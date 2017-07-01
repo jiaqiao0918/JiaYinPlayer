@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fcfcfc"
+    tools:context="jiayinplayer.example.jiaqiao.jiayinplayer.MainActivity">
+    <RelativeLayout
+        android:id="@+id/drawer_center_layout"
+        android:layout_width="match_parent"
+        android:background="#00ff23"
+        android:layout_height="match_parent">
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/drawer_left_layout"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="@android:color/white" >
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/drawer_right_layout"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="@android:color/white" >
+    </RelativeLayout>
+
+
+</android.support.v4.widget.DrawerLayout>

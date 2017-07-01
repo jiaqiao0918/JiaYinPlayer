@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jiayinplayer.example.jiaqiao.View.MyFragmentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fcfcfc"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp">
+
+        <ImageButton
+            android:id="@+id/back_last_fragment"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/click_oval"
+            android:src="@drawable/arrow_left" />
+
+        <TextView
+            android:id="@+id/folder_name"
+            android:paddingLeft="8dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/font_color"
+            android:textSize="16sp" />
+        <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/click_oval"
+            android:src="@drawable/other_icon"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color" />
+
+    <ListView
+        android:id="@+id/show_folder_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@color/fengexian_color"
+        android:dividerHeight="1dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:scrollbars="none">
+
+    </ListView>
+
+</jiayinplayer.example.jiaqiao.View.MyFragmentLayout>
