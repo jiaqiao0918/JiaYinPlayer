@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fcfcfc"
-    tools:context="jiayinplayer.example.jiaqiao.jiayinplayer.MainActivity">
+    tools:context=".MainActivity">
     <RelativeLayout
         android:id="@+id/drawer_center_layout"
         android:layout_width="match_parent"

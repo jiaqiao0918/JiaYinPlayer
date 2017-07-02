@@ -1,0 +1,17 @@
+package com.android.jiaqiao.jiayinplayer;
+
+import com.android.jiaqiao.JavaBean.MusicInfo;
+
+import java.util.ArrayList;
+
+/**
+ * Created by jiaqiao on 2017/6/22/0022.
+ */
+
+public class PublicDate {
+    public static  ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
+    public static  ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
+    public static Boolean is_update_music_sheet_list=false;
+    public static String files_dir="";
+
+}

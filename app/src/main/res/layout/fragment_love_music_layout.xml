@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<jiayinplayer.example.jiaqiao.View.MyFragmentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.android.jiaqiao.View.MyFragmentLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fcfcfc"
@@ -44,4 +44,4 @@
         android:background="@color/fengexian_color" />
 
 
-</jiayinplayer.example.jiaqiao.View.MyFragmentLayout>
+</com.android.jiaqiao.View.MyFragmentLayout>

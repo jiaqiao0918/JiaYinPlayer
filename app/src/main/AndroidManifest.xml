@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="jiayinplayer.example.jiaqiao.jiayinplayer">
+    package="com.android.jiaqiao.jiayinplayer">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 
     <application
@@ -21,6 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.android.jiaqiao.Activity.AddMusicSheetNameActivity"
+            android:theme="@style/DIY_Dialog"></activity>
     </application>
 
 </manifest>

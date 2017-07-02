@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<jiayinplayer.example.jiaqiao.View.MyFragmentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.android.jiaqiao.View.MyFragmentLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fcfcfc"
@@ -258,6 +258,7 @@
                         android:textColor="@color/font_color" />
 
                     <ImageButton
+                        android:id="@+id/add_music_sheet_name"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@drawable/click_oval"
@@ -281,4 +282,4 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-</jiayinplayer.example.jiaqiao.View.MyFragmentLayout>
+</com.android.jiaqiao.View.MyFragmentLayout>
