@@ -15,6 +15,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.jiaqiao.JavaBean.SheetInfo;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
@@ -38,7 +39,6 @@ public class AddMusicSheetNameActivity extends Activity {
     private EditText music_sheet_name;
     private ArrayList<String> music_sheet_name_list = new ArrayList<>();
     private String path = null;
-    private String separate_str = "###";
     private String edit_text_show_str = "";
     private String music_sheet_name_all = "";
 
@@ -46,7 +46,7 @@ public class AddMusicSheetNameActivity extends Activity {
         @Override
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
 //返回null表示接收输入的字符,返回空字符串表示不接受输入的字符
-            if (source.equals(" ")||source.toString().contentEquals("\n")) {//输入空格和回车键无效
+            if (source.equals(" ") || source.toString().contentEquals("\n")) {//输入空格和回车键无效
                 return "";
             } else {
                 return null;
@@ -62,7 +62,6 @@ public class AddMusicSheetNameActivity extends Activity {
         this.overridePendingTransition(R.anim.dialog_enter_anim, 0);//设置ActivityToDialog的进入动画
         // 获取对话框的Window对象
         Window mWindow = this.getWindow();
-
         mWindow.setGravity(Gravity.BOTTOM);//设置Dialog在底部
         //activity to diaolog充满整个屏幕的宽度
         Display display = mWindow.getWindowManager().getDefaultDisplay();
@@ -91,7 +90,7 @@ public class AddMusicSheetNameActivity extends Activity {
         while (true) {
             while_num++;
             edit_text_show_str = "新建歌单" + while_num;
-            String temp = edit_text_show_str + separate_str;
+            String temp = edit_text_show_str + PublicDate.separate_str;
             if (music_sheet_name_all.indexOf(temp) <= -1) {
                 break;
             }
@@ -111,8 +110,10 @@ public class AddMusicSheetNameActivity extends Activity {
         if (music_sheet_name_temp.trim().length() > 0) {
 
             if (music_sheet_name_all.indexOf(music_sheet_name_temp) <= -1) {
-                addTextToFile(path, getNowTime() + separate_str + music_sheet_name_temp);
-                PublicDate.is_update_music_sheet_list=true;
+                String now_time = getNowTime();
+                addTextToFile(path, now_time + PublicDate.separate_str + music_sheet_name_temp);
+                PublicDate.temp_sheet_info = new SheetInfo(now_time, music_sheet_name_temp);
+                PublicDate.is_update_music_sheet_list = true;
                 this.finish();
             } else {
                 Toast.makeText(this, "歌单名重复，请修改！！", Toast.LENGTH_SHORT).show();
@@ -133,10 +134,10 @@ public class AddMusicSheetNameActivity extends Activity {
             String line = "";
             while ((line = br.readLine()) != null) {
                 String temp = line;
-                if (temp.length() > 0 && temp.indexOf(separate_str) > -1) {
-                    String[] name = temp.split(separate_str);
+                if (temp.length() > 0 && temp.indexOf(PublicDate.separate_str) > -1) {
+                    String[] name = temp.split(PublicDate.separate_str);
                     if (name.length >= 2) {
-                        now += name[1] + separate_str;
+                        now += name[1] + PublicDate.separate_str;
                     }
                 }
             }

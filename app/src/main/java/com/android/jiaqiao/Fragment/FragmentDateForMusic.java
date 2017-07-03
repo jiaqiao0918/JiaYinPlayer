@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import java.util.Locale;
 public class FragmentDateForMusic extends Fragment {
 
     private MyExpandableListAdapter adapter;
+    private ExpandableListView show_date_for_music;
 
     private int now_parent_playing_position = 0;
     private int now_child_playing_position = 0;
@@ -50,7 +52,7 @@ public class FragmentDateForMusic extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_date_for_music_layout, null);
         list_child_date_time = listDateTimeToList(PublicDate.music_all);
-        final ExpandableListView show_date_for_music = (ExpandableListView) view.findViewById(R.id.show_date_for_music);
+          show_date_for_music = (ExpandableListView) view.findViewById(R.id.show_date_for_music);
         adapter = new MyExpandableListAdapter(list_parent_date_time, list_child_date_time, mContext);
         show_date_for_music.setAdapter(adapter);
         show_date_for_music.setGroupIndicator(null);//去掉向下的箭头
@@ -69,14 +71,10 @@ public class FragmentDateForMusic extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 //v就是ExpandableListView中单击的ChildView
-
-                updataChildView(show_date_for_music,groupPosition,childPosition,v);
-
+                updateChildView(show_date_for_music,groupPosition,childPosition,v);
                 return true;
             }
         });
-
-
         return view;
     }
 
@@ -134,19 +132,21 @@ public class FragmentDateForMusic extends Fragment {
         }
     }
 
-    public void updataChildView(ExpandableListView show_date_for_music, int groupPosition, int childPosition, View v) {
+    public void updateChildView(ExpandableListView show_date_for_music, int groupPosition, int childPosition, View v) {
         now_parent_playing_position = groupPosition;
         now_child_playing_position = childPosition;
-
-
-        list_child_date_time.get(groupPosition).get(childPosition).setIs_playing(true);
+        Log.i("into","now:"+now_child_playing_position+"   "+"last:"+last_child_playing_position);
         list_child_date_time.get(last_parent_playing_position).get(last_child_playing_position).setIs_playing(false);
-        adapter.updataView(show_date_for_music, groupPosition, childPosition, v);
+        list_child_date_time.get(groupPosition).get(childPosition).setIs_playing(true);
+
         adapter.updataView(show_date_for_music, last_parent_playing_position, last_child_playing_position, last_click_view);
+        adapter.updataView(show_date_for_music, groupPosition, childPosition, v);
         last_parent_playing_position = groupPosition;
         last_child_playing_position = childPosition;
         last_click_view=v;
-
+        Log.i("into","update");
+        Log.i("into","now:"+now_child_playing_position+"   "+"last:"+last_child_playing_position);
+        Log.i("into","------");
     }
 
     public static void listSortDateTime(ArrayList<MusicInfo> resultList) {
@@ -161,4 +161,11 @@ public class FragmentDateForMusic extends Fragment {
         });
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        list_child_date_time.get(last_parent_playing_position).get(last_child_playing_position).setIs_playing(false);
+        adapter.updataView(show_date_for_music, last_parent_playing_position, last_child_playing_position, last_click_view);
+
+    }
 }

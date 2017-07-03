@@ -75,12 +75,20 @@ public class FragmentAllMusic extends Fragment {
 
     public void updateListView(int position) {
         now_playing_position = position;
-        music_all.get(position).setIs_playing(true);
-        music_all.get(last_click_position).setIs_playing(false);
 
+        music_all.get(last_click_position).setIs_playing(false);
+        music_all.get(position).setIs_playing(true);
 //                    adapter.notifyDataSetChanged();
-        adapter.updataView(position, show_all_music_list);
+
         adapter.updataView(last_click_position, show_all_music_list);
+        adapter.updataView(position, show_all_music_list);
         last_click_position = position;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        music_all.get(last_click_position).setIs_playing(false);
+        adapter.updataView(last_click_position, show_all_music_list);
     }
 }

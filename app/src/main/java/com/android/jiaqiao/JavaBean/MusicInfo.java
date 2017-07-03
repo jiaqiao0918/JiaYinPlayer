@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by jiaqiao on 2017/5/26/0026.
  */
 
-public class MusicInfo implements Serializable{
+public class MusicInfo implements Serializable {
     private String music_id;//歌曲ID
     private String music_path;//歌曲物理路径
     private String music_title;//歌曲名
@@ -16,8 +16,9 @@ public class MusicInfo implements Serializable{
     private String music_pinyin;//歌曲名的拼音（用于排序）
     private boolean is_playing;//歌曲是否在播放
     private int add_date_time;
+    private boolean is_selected;
 
-    public MusicInfo(String music_id, String music_path, String music_title, String music_artist, String music_album, int music_duration, String music_pinyin,int add_date_time) {
+    public MusicInfo(String music_id, String music_path, String music_title, String music_artist, String music_album, int music_duration, String music_pinyin, int add_date_time) {
         this.music_id = music_id;
         this.music_path = music_path;
         this.music_title = music_title;
@@ -27,14 +28,25 @@ public class MusicInfo implements Serializable{
         this.music_pinyin = music_pinyin;
         this.is_playing = false;
         this.add_date_time = add_date_time;
+        this.is_selected = false;
     }
+
     public int getAdd_date_time() {
         return add_date_time;
+    }
+
+    public void setIs_selected(boolean is_selected) {
+        this.is_selected = is_selected;
+    }
+
+    public boolean is_selected() {
+        return is_selected;
     }
 
     public void setAdd_date_time(int add_date_time) {
         this.add_date_time = add_date_time;
     }
+
     public void setMusic_id(String music_id) {
         this.music_id = music_id;
     }

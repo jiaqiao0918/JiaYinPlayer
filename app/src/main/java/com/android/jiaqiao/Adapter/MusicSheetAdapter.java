@@ -7,9 +7,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.android.jiaqiao.JavaBean.SheetInfo;
 import com.android.jiaqiao.jiayinplayer.R;
 
-import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -18,9 +19,9 @@ import java.util.List;
 
 public class MusicSheetAdapter extends BaseAdapter {
     private Context mContext;
-    private List<String> list;
+    private ArrayList<SheetInfo> list;
 
-    public MusicSheetAdapter(Context mContext, List<String> list) {
+    public MusicSheetAdapter(Context mContext, ArrayList<SheetInfo> list) {
         this.mContext = mContext;
         this.list = list;
 
@@ -45,7 +46,7 @@ public class MusicSheetAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup parent) {
         view = LayoutInflater.from(mContext).inflate(R.layout.music_list_item,null);
         TextView show_list_item_text = (TextView) view.findViewById(R.id.show_list_item_text);
-        show_list_item_text.setText(list.get(position).toString());
+        show_list_item_text.setText(list.get(position).getSheet_name().toString());
         return view;
     }
 }

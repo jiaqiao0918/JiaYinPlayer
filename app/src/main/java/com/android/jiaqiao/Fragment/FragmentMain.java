@@ -15,10 +15,11 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.jiaqiao.Activity.AddMusicSheetNameActivity;
+import com.android.jiaqiao.Activity.AllMusciAddToSheetActivity;
 import com.android.jiaqiao.Adapter.MusicSheetAdapter;
+import com.android.jiaqiao.JavaBean.SheetInfo;
 import com.android.jiaqiao.Utils.FragmentTransactionExtended;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -32,10 +33,9 @@ import java.util.ArrayList;
 
 public class FragmentMain extends Fragment {
     private Context mContext;
-    private ArrayList<String> music_sheet_name_list = new ArrayList<String>();
+    private ArrayList<SheetInfo> music_sheet_info_list = new ArrayList<SheetInfo>();
 
     private MusicSheetAdapter music_sheet_adapter;
-    private String separate_str = "###";
     private String path = "";
     private ListView music_list_list;
     private ScrollView scroll_view;
@@ -49,18 +49,18 @@ public class FragmentMain extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main_layout, null);
-        path =PublicDate.files_dir + "/music_sheet/music_sheet_name.txt";
-         scroll_view = (ScrollView) view.findViewById(R.id.scroll_view);
-         music_list_list = (ListView) view.findViewById(R.id.show_music_list);
+        path = PublicDate.files_dir + "/music_sheet/music_sheet_name.txt";
+        scroll_view = (ScrollView) view.findViewById(R.id.scroll_view);
+        music_list_list = (ListView) view.findViewById(R.id.show_music_list);
         LinearLayout fragment_to_all_music = (LinearLayout) view.findViewById(R.id.fragment_to_all_music);
         LinearLayout fragment_to_date_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_date_for_music);
         LinearLayout fragment_to_folder_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_folder_for_music);
         TextView music_all_count = (TextView) view.findViewById(R.id.music_all_count);
         ImageButton add_music_sheet_name = (ImageButton) view.findViewById(R.id.add_music_sheet_name);
         music_all_count.setText((PublicDate.music_all.size()) + "首");
-        music_sheet_name_list = getMusicSheetToArrayList(path);
+        music_sheet_info_list = getMusicSheetToArrayList(path);
 
-        music_sheet_adapter = new MusicSheetAdapter(mContext, music_sheet_name_list);
+        music_sheet_adapter = new MusicSheetAdapter(mContext, music_sheet_info_list);
         music_list_list.setAdapter(music_sheet_adapter);
 
         setListViewHeightBasedOnChildren(music_list_list);
@@ -71,7 +71,16 @@ public class FragmentMain extends Fragment {
         music_list_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(mContext, music_sheet_name_list.get(position).toString(), Toast.LENGTH_SHORT).show();
+                FragmentMusicSheet fragment_music_sheet = new FragmentMusicSheet();
+                fragment_music_sheet.setContext(mContext);
+                fragment_music_sheet.setShow_sheet_info(music_sheet_info_list.get(position));
+                FragmentTransaction fragmentTransaction = getFragmentManager()
+                        .beginTransaction();
+                FragmentTransactionExtended fragmentTransactionExtended = new FragmentTransactionExtended(
+                        mContext, fragmentTransaction, new FragmentMain(),
+                        fragment_music_sheet, R.id.fragment_show);
+                fragmentTransactionExtended.setTransition();
+                fragmentTransactionExtended.commit();
             }
         });
 
@@ -131,29 +140,30 @@ public class FragmentMain extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(PublicDate.is_update_music_sheet_list){
-            music_sheet_name_list=getMusicSheetToArrayList(path);
-            music_list_list.setAdapter(new MusicSheetAdapter(mContext, music_sheet_name_list));
-            PublicDate.is_update_music_sheet_list=false;
+        if (PublicDate.is_update_music_sheet_list) {
+            music_sheet_info_list = getMusicSheetToArrayList(path);
+            music_list_list.setAdapter(new MusicSheetAdapter(mContext, music_sheet_info_list));
+            PublicDate.is_update_music_sheet_list = false;
             setListViewHeightBasedOnChildren(music_list_list);
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
 //        scroll_view.smoothScrollTo(0,0);//滑动到顶部，两种方法都可行
-            scroll_view.fullScroll(ScrollView.FOCUS_UP);//滑动到顶部
+            scroll_view.fullScroll(ScrollView.FOCUS_DOWN);//滑动到底部
+            startActivity(new Intent(getActivity(), AllMusciAddToSheetActivity.class));
         }
     }
 
-    public ArrayList<String> getMusicSheetToArrayList(String path_name) {
-        ArrayList<String> list_temp = new ArrayList<>();
+    public ArrayList<SheetInfo> getMusicSheetToArrayList(String path_name) {
+        ArrayList<SheetInfo> list_temp = new ArrayList<>();
         try {
             FileReader fr = new FileReader(path_name);
             BufferedReader br = new BufferedReader(fr);
             String line = "";
             while ((line = br.readLine()) != null) {
                 String temp = line;
-                if (temp.length() > 0 && temp.indexOf(separate_str) > -1) {
-                    String[] name = temp.split(separate_str);
+                if (temp.length() > 0 && temp.indexOf(PublicDate.separate_str) > -1) {
+                    String[] name = temp.split(PublicDate.separate_str);
                     if (name.length >= 2) {
-                        list_temp.add(name[1]);
+                        list_temp.add(new SheetInfo(name[0],name[1]));
                     }
                 }
             }

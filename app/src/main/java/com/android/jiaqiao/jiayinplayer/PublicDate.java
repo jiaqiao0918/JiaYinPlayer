@@ -1,6 +1,7 @@
 package com.android.jiaqiao.jiayinplayer;
 
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.JavaBean.SheetInfo;
 
 import java.util.ArrayList;
 
@@ -9,9 +10,10 @@ import java.util.ArrayList;
  */
 
 public class PublicDate {
-    public static  ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
-    public static  ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
-    public static Boolean is_update_music_sheet_list=false;
-    public static String files_dir="";
-
+    public static ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
+    public static ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
+    public static Boolean is_update_music_sheet_list = false;
+    public static String files_dir = "";
+    public static SheetInfo temp_sheet_info=null;
+    public static String separate_str = "###";
 }
