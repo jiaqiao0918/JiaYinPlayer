@@ -1,6 +1,7 @@
 package com.android.jiaqiao.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
@@ -137,27 +138,44 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter {
 
     //更新ListView中单个Item
     public void updataView(ExpandableListView expandable_list_view, int groupPosition, int childPosition, View view) {
-        //不用判断ChildView是否可见
-//            View view = expandable_list_view.getChildAt(childPosition - visibleFirstPosi);
-        if (view!=null) {
-            ChildHolder child_holder = (ChildHolder) view.getTag();
+if (view != null) {
 
-            MusicInfo music_temp = child_list.get(groupPosition).get(childPosition);
-            child_holder.music_title.setText(music_temp.getMusic_title());
-            String artist_album_str = "";
-            if (music_temp.getMusic_artist() != "" && music_temp.getMusic_artist().length() > 0) {
-                artist_album_str += music_temp.getMusic_artist();
+/*
+* 判断view是否可见
+* 判断原理，getFirstVisiblePosition，getLastVisiblePosition，获取可见项的最小序号和最大序号
+* 获取当前点击的子项的真实位置，（从0开始排序）
+* 当前子项的父项前几个父项之和+当前子项在子项所在的父项的位置+父项的位置+1
+* */
+            int group_position_sum = 0;
+            for (int i = 0; i < groupPosition; i++) {
+                group_position_sum += expandable_list_view.getExpandableListAdapter().getChildrenCount(i);
             }
-            if (music_temp.getMusic_album() != "" && music_temp.getMusic_album().length() > 0) {
-                artist_album_str += " - " + music_temp.getMusic_album();
-            }
-            child_holder.music_artist_album.setText(artist_album_str);
+            group_position_sum = group_position_sum + groupPosition + childPosition + 1;
 
-            if (music_temp.is_playing()) {
-                child_holder.music_is_playing.setVisibility(View.VISIBLE);
-            } else {
-                child_holder.music_is_playing.setVisibility(View.INVISIBLE);
+            if (expandable_list_view.getFirstVisiblePosition() <= group_position_sum && expandable_list_view.getLastVisiblePosition() >= group_position_sum) {
+
+
+                ChildHolder child_holder = (ChildHolder) view.getTag();
+
+                MusicInfo music_temp = child_list.get(groupPosition).get(childPosition);
+                child_holder.music_title.setText(music_temp.getMusic_title());
+                String artist_album_str = "";
+                if (music_temp.getMusic_artist() != "" && music_temp.getMusic_artist().length() > 0) {
+                    artist_album_str += music_temp.getMusic_artist();
+                }
+                if (music_temp.getMusic_album() != "" && music_temp.getMusic_album().length() > 0) {
+                    artist_album_str += " - " + music_temp.getMusic_album();
+                }
+                child_holder.music_artist_album.setText(artist_album_str);
+
+                if (music_temp.is_playing()) {
+                    child_holder.music_is_playing.setVisibility(View.VISIBLE);
+                } else {
+                    child_holder.music_is_playing.setVisibility(View.INVISIBLE);
+                }
             }
+        } else {
+            Log.i("into", "view未null！！");
         }
     }
 
