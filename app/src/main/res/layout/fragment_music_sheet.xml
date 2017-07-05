@@ -30,7 +30,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/test_back"
+
                     android:paddingBottom="8dp"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
@@ -75,11 +75,13 @@
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="68dp"
+                            android:gravity="center_vertical"
                             android:orientation="horizontal">
 
                             <LinearLayout
+                                android:id="@+id/music_sheet_delete"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:background="@drawable/click_rectangle"
                                 android:gravity="center_horizontal"
@@ -103,8 +105,9 @@
                                 android:background="@color/fengexian_color" />
 
                             <LinearLayout
+                                android:id="@+id/music_sheet_modify"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:background="@drawable/click_rectangle"
                                 android:gravity="center_horizontal"
@@ -128,8 +131,9 @@
                                 android:background="@color/fengexian_color" />
 
                             <LinearLayout
+                                android:id="@+id/music_sheet_add"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:background="@drawable/click_rectangle"
                                 android:gravity="center_horizontal"

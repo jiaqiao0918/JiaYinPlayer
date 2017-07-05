@@ -25,5 +25,7 @@
             android:theme="@style/DIY_Dialog"></activity>
         <activity android:name="com.android.jiaqiao.Activity.AllMusciAddToSheetActivity"
             android:theme="@style/DIY_Dialog"></activity>
+        <activity android:name="com.android.jiaqiao.Activity.DeleteMusicSheetActivity"
+            android:theme="@style/DIY_Dialog"></activity>
     </application>
 </manifest>

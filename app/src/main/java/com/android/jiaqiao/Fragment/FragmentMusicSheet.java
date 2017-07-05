@@ -3,6 +3,7 @@ package com.android.jiaqiao.Fragment;
 import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -11,10 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.jiaqiao.Activity.DeleteMusicSheetActivity;
 import com.android.jiaqiao.Adapter.MusicListViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
@@ -72,21 +77,61 @@ public class FragmentMusicSheet extends Fragment {
         show_sheet_name = (TextView) view.findViewById(R.id.show_sheet_name);
         show_sheet_list_size = (TextView) view.findViewById(R.id.show_sheet_list_size);
         show_music_sheet_list = (ListView) view.findViewById(R.id.show_music_sheet_list);
+        ImageButton back_last_fragment = (ImageButton) view.findViewById(R.id.back_last_fragment);
+        LinearLayout music_sheet_delete = (LinearLayout) view.findViewById(R.id.music_sheet_delete);
+        LinearLayout music_sheet_modify = (LinearLayout) view.findViewById(R.id.music_sheet_modify);
+        LinearLayout music_sheet_add = (LinearLayout) view.findViewById(R.id.music_sheet_add);
+
         show_sheet_name.setText(show_sheet_info.getSheet_name().toString());
         path = getPath(show_sheet_info.getSheet_id().toString());
         getMusicSheetToArrayList(path);
         adapter = new MusicListViewAdapter(mContext, music_sheet_list);
         show_music_sheet_list.setAdapter(adapter);
         setListViewHeightBasedOnChildren(show_music_sheet_list);
+
+        show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
+        back_last_fragment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().popBackStack();
+            }
+        });
         show_music_sheet_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                 updateListView(position);
             }
         });
+        music_sheet_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), DeleteMusicSheetActivity.class).putExtra("sheet_id",show_sheet_info.getSheet_id().toString()));
+            }
+        });
+        music_sheet_modify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "编辑按钮", Toast.LENGTH_SHORT).show();
+            }
+        });
+        music_sheet_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "添加按钮", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(PublicDate.delete_sheet_over){
+            getFragmentManager().popBackStack();
+        }
     }
 
     public void getMusicSheetToArrayList(String path_name) {
@@ -268,7 +313,9 @@ public class FragmentMusicSheet extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        music_sheet_list.get(last_click_position).setIs_playing(false);
-        adapter.updataView(last_click_position, show_music_sheet_list);
+        if(music_sheet_list!=null&&music_sheet_list.size()>0) {
+            music_sheet_list.get(last_click_position).setIs_playing(false);
+            adapter.updataView(last_click_position, show_music_sheet_list);
+        }
     }
 }

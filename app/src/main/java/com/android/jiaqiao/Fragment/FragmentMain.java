@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.android.jiaqiao.Activity.AddMusicSheetNameActivity;
 import com.android.jiaqiao.Activity.AllMusciAddToSheetActivity;
+import com.android.jiaqiao.Activity.DeleteMusicSheetActivity;
 import com.android.jiaqiao.Adapter.MusicSheetAdapter;
 import com.android.jiaqiao.JavaBean.SheetInfo;
 import com.android.jiaqiao.Utils.FragmentTransactionExtended;
@@ -37,7 +38,7 @@ public class FragmentMain extends Fragment {
 
     private MusicSheetAdapter music_sheet_adapter;
     private String path = "";
-    private ListView music_list_list;
+    private ListView music_all_sheet_list;
     private ScrollView scroll_view;
 
 
@@ -51,7 +52,7 @@ public class FragmentMain extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main_layout, null);
         path = PublicDate.files_dir + "/music_sheet/music_sheet_name.txt";
         scroll_view = (ScrollView) view.findViewById(R.id.scroll_view);
-        music_list_list = (ListView) view.findViewById(R.id.show_music_list);
+        music_all_sheet_list = (ListView) view.findViewById(R.id.show_music_list);
         LinearLayout fragment_to_all_music = (LinearLayout) view.findViewById(R.id.fragment_to_all_music);
         LinearLayout fragment_to_date_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_date_for_music);
         LinearLayout fragment_to_folder_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_folder_for_music);
@@ -61,14 +62,14 @@ public class FragmentMain extends Fragment {
         music_sheet_info_list = getMusicSheetToArrayList(path);
 
         music_sheet_adapter = new MusicSheetAdapter(mContext, music_sheet_info_list);
-        music_list_list.setAdapter(music_sheet_adapter);
+        music_all_sheet_list.setAdapter(music_sheet_adapter);
 
-        setListViewHeightBasedOnChildren(music_list_list);
+        setListViewHeightBasedOnChildren(music_all_sheet_list);
         //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
 //        scroll_view.smoothScrollTo(0,0);//滑动到顶部，两种方法都可行
         scroll_view.fullScroll(ScrollView.FOCUS_UP);//滑动到顶部
 
-        music_list_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        music_all_sheet_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 FragmentMusicSheet fragment_music_sheet = new FragmentMusicSheet();
@@ -81,6 +82,13 @@ public class FragmentMain extends Fragment {
                         fragment_music_sheet, R.id.fragment_show);
                 fragmentTransactionExtended.setTransition();
                 fragmentTransactionExtended.commit();
+            }
+        });
+        music_all_sheet_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(new Intent(getActivity(), DeleteMusicSheetActivity.class).putExtra("sheet_id",music_sheet_info_list.get(position).getSheet_id().toString()));
+                return true;
             }
         });
 
@@ -140,15 +148,21 @@ public class FragmentMain extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (PublicDate.is_update_music_sheet_list) {
+        if (PublicDate.add_sheet_over || PublicDate.delete_sheet_over) {
             music_sheet_info_list = getMusicSheetToArrayList(path);
-            music_list_list.setAdapter(new MusicSheetAdapter(mContext, music_sheet_info_list));
-            PublicDate.is_update_music_sheet_list = false;
-            setListViewHeightBasedOnChildren(music_list_list);
+            music_all_sheet_list.setAdapter(new MusicSheetAdapter(mContext, music_sheet_info_list));
+            setListViewHeightBasedOnChildren(music_all_sheet_list);
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
-//        scroll_view.smoothScrollTo(0,0);//滑动到顶部，两种方法都可行
+        }
+        if (PublicDate.add_sheet_over) {
+            //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
+            //scroll_view.smoothScrollTo(0,0);//滑动到顶部
             scroll_view.fullScroll(ScrollView.FOCUS_DOWN);//滑动到底部
+            PublicDate.add_sheet_over = false;
             startActivity(new Intent(getActivity(), AllMusciAddToSheetActivity.class));
+        } else if (PublicDate.delete_sheet_over) {
+            PublicDate.delete_sheet_over = false;
+            scroll_view.smoothScrollTo(0, 0);
         }
     }
 
@@ -163,7 +177,7 @@ public class FragmentMain extends Fragment {
                 if (temp.length() > 0 && temp.indexOf(PublicDate.separate_str) > -1) {
                     String[] name = temp.split(PublicDate.separate_str);
                     if (name.length >= 2) {
-                        list_temp.add(new SheetInfo(name[0],name[1]));
+                        list_temp.add(new SheetInfo(name[0], name[1]));
                     }
                 }
             }

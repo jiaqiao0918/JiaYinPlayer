@@ -49,7 +49,7 @@ public class FragmentFolderForMusicItem extends Fragment {
         View view = inflater.inflate(R.layout.fragment_folder_for_music_item_layout, null);
         TextView folder_name = (TextView) view.findViewById(R.id.folder_name);
         ImageButton back_last_fragment = (ImageButton) view.findViewById(R.id.back_last_fragment);
-         show_folder_list = (ListView) view.findViewById(R.id.show_folder_list);
+        show_folder_list = (ListView) view.findViewById(R.id.show_folder_list);
         back_last_fragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,7 +60,7 @@ public class FragmentFolderForMusicItem extends Fragment {
             folder_name.setText(folder_name_str);
         }
         if (folder_list != null && folder_list.size() > 0) {
-             adapter = new MusicListViewAdapter(mContext,folder_list);
+            adapter = new MusicListViewAdapter(mContext, folder_list);
             show_folder_list.setAdapter(adapter);
             show_folder_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -73,6 +73,7 @@ public class FragmentFolderForMusicItem extends Fragment {
 
         return view;
     }
+
     public void updateListView(int position) {
         now_playing_position = position;
 
@@ -88,7 +89,9 @@ public class FragmentFolderForMusicItem extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        folder_list.get(last_click_position).setIs_playing(false);
-        adapter.updataView(last_click_position, show_folder_list);
+        if (folder_list != null && folder_list.size() > 0) {
+            folder_list.get(last_click_position).setIs_playing(false);
+            adapter.updataView(last_click_position, show_folder_list);
+        }
     }
 }

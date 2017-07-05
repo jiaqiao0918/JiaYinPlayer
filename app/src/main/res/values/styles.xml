@@ -29,4 +29,11 @@
         <item name="@android:windowEnterAnimation">@anim/dialog_enter_anim</item>
         <item name="@android:windowExitAnimation">@anim/dialog_exit_anim</item>
     </style>
+    <style name="dialog_linear_layout">
+        <item name="android:background">@drawable/dialog_back_ground</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
 </resources>

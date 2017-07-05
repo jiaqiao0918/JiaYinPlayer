@@ -6,9 +6,11 @@
     <color name="colorAccent">#FF4081</color>
     <color name="font_color">#3a3737</color>
     <color name="font_seccend_color">#757575</color>
-    <color name="image_button_click_color">#e3e3e3</color>
+    <color name="determine_button_color">#06b1cf</color>
+    <color name="image_button_click_color">#e5e5e5</color>
     <color name="fengexian_color">#e6e6e6</color>
     <color name="back_ground">#fcfcfc</color>
     <color name="touming">#00000000</color>
     <color name="stroke_color">#a0a0a0</color>
+    <color name="stroke_sccend_color">#dddddd</color>
 </resources>

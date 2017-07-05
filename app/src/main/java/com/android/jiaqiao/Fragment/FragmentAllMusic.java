@@ -88,7 +88,9 @@ public class FragmentAllMusic extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        music_all.get(last_click_position).setIs_playing(false);
-        adapter.updataView(last_click_position, show_all_music_list);
+        if(music_all!=null&&music_all.size()>0) {
+            music_all.get(last_click_position).setIs_playing(false);
+            adapter.updataView(last_click_position, show_all_music_list);
+        }
     }
 }

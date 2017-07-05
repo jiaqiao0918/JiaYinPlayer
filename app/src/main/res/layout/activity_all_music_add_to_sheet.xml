@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="600dp"
-    android:layout_margin="8dp"
-    android:background="@drawable/dialog_back_ground"
+    style="@style/dialog_linear_layout"
     android:orientation="vertical">
 
     <LinearLayout

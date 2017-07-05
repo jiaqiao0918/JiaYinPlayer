@@ -113,7 +113,7 @@ public class AddMusicSheetNameActivity extends Activity {
                 String now_time = getNowTime();
                 addTextToFile(path, now_time + PublicDate.separate_str + music_sheet_name_temp);
                 PublicDate.temp_sheet_info = new SheetInfo(now_time, music_sheet_name_temp);
-                PublicDate.is_update_music_sheet_list = true;
+                PublicDate.add_sheet_over = true;
                 this.finish();
             } else {
                 Toast.makeText(this, "歌单名重复，请修改！！", Toast.LENGTH_SHORT).show();
@@ -193,7 +193,6 @@ public class AddMusicSheetNameActivity extends Activity {
     @Override
     public void finish() {
         super.finish();
-
         this.overridePendingTransition(R.anim.dialog_exit_anim, 0);
         //设置ActivityToDialog的退出动画，不知道为什么在xml文件中设置退出动画会错位
     }

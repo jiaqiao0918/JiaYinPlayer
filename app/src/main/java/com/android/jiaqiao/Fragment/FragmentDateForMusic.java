@@ -11,7 +11,6 @@ import android.widget.ExpandableListView;
 
 import com.android.jiaqiao.Adapter.MyExpandableListAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
-import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
 import java.text.Collator;
@@ -21,6 +20,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+
+import static com.android.jiaqiao.jiayinplayer.PublicDate.music_all;
 
 /**
  * Created by jiaqiao on 2017/6/24/0024.
@@ -50,7 +51,7 @@ public class FragmentDateForMusic extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_date_for_music_layout, null);
-        list_child_date_time = listDateTimeToList(PublicDate.music_all);
+        list_child_date_time = listDateTimeToList(music_all);
         show_date_for_music = (ExpandableListView) view.findViewById(R.id.show_date_for_music);
         adapter = new MyExpandableListAdapter(list_parent_date_time, list_child_date_time, mContext);
         show_date_for_music.setAdapter(adapter);
@@ -174,8 +175,9 @@ public class FragmentDateForMusic extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        list_child_date_time.get(last_parent_playing_position).get(last_child_playing_position).setIs_playing(false);
-        adapter.updataView(show_date_for_music, last_parent_playing_position, last_child_playing_position, last_click_view);
-
+        if(list_child_date_time!=null&&list_child_date_time.size()>0) {
+            list_child_date_time.get(last_parent_playing_position).get(last_child_playing_position).setIs_playing(false);
+            adapter.updataView(show_date_for_music, last_parent_playing_position, last_child_playing_position, last_click_view);
+        }
     }
 }
