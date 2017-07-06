@@ -1,7 +1,6 @@
 package com.android.jiaqiao.Fragment;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -39,13 +38,9 @@ public class FragmentDateForMusic extends Fragment {
     private View last_click_view = null;
 
 
-    private Context mContext;
     private ArrayList<ArrayList<MusicInfo>> list_child_date_time = new ArrayList<>();
     private ArrayList<String> list_parent_date_time = new ArrayList<>();
 
-    public void setContext(Context mContext) {
-        this.mContext = mContext;
-    }
 
     @Nullable
     @Override
@@ -53,7 +48,7 @@ public class FragmentDateForMusic extends Fragment {
         View view = inflater.inflate(R.layout.fragment_date_for_music_layout, null);
         list_child_date_time = listDateTimeToList(music_all);
         show_date_for_music = (ExpandableListView) view.findViewById(R.id.show_date_for_music);
-        adapter = new MyExpandableListAdapter(list_parent_date_time, list_child_date_time, mContext);
+        adapter = new MyExpandableListAdapter(list_parent_date_time, list_child_date_time, getActivity());
         show_date_for_music.setAdapter(adapter);
         show_date_for_music.setGroupIndicator(null);//去掉向下的箭头
         for (int i = 0; i < adapter.getGroupCount(); i++)//展开所有项

@@ -1,18 +1,17 @@
 package com.android.jiaqiao.Fragment;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.jiaqiao.Adapter.MusicListViewAdapter;
+import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.jiayinplayer.R;
 
@@ -24,19 +23,13 @@ import java.util.ArrayList;
  */
 
 public class FragmentFolderForMusicItem extends Fragment {
-    private Context mContext;
     private String folder_name_str = "";
     private ArrayList<MusicInfo> folder_list = new ArrayList<MusicInfo>();
 
-    private int now_playing_position = 0;
     private int last_click_position = 0;
 
-    private MusicListViewAdapter adapter;
-    private ListView show_folder_list;
-
-    public void setContext(Context mContext) {
-        this.mContext = mContext;
-    }
+    private RecyclerViewAdapter adapter;
+    private RecyclerView show_folder_list;
 
     public void setValues(String folder_name_str, ArrayList<MusicInfo> folder_list) {
         this.folder_name_str = folder_name_str;
@@ -49,7 +42,7 @@ public class FragmentFolderForMusicItem extends Fragment {
         View view = inflater.inflate(R.layout.fragment_folder_for_music_item_layout, null);
         TextView folder_name = (TextView) view.findViewById(R.id.folder_name);
         ImageButton back_last_fragment = (ImageButton) view.findViewById(R.id.back_last_fragment);
-        show_folder_list = (ListView) view.findViewById(R.id.show_folder_list);
+        show_folder_list = (RecyclerView) view.findViewById(R.id.show_folder_list);
         back_last_fragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,38 +53,51 @@ public class FragmentFolderForMusicItem extends Fragment {
             folder_name.setText(folder_name_str);
         }
         if (folder_list != null && folder_list.size() > 0) {
-            adapter = new MusicListViewAdapter(mContext, folder_list);
-            show_folder_list.setAdapter(adapter);
-            show_folder_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            show_folder_list.setNestedScrollingEnabled(false);
+            // 创建默认的线性LayoutManager
+            show_folder_list.setLayoutManager(new LinearLayoutManager(getActivity()));
+            // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+            show_folder_list.setHasFixedSize(true);
+            // 创建并设置Adapter
+            adapter = new RecyclerViewAdapter(folder_list);
+            adapter.setOnItemClickListener(new RecyclerViewAdapter.OnRecyclerViewItemClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    updateListView(position);
+                public void onItemClick(View view, int position) {
+                    //item单击事件
+                    folder_list.get(last_click_position).setIs_playing(false);
+                    folder_list.get(position).setIs_playing(true);
+                    adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    adapter.notifyItemChanged(position);
+                    last_click_position = position;
                 }
             });
+            adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
+                @Override
+                public void onItemLongClick(View view, int position) {
+                    //item长按事件
+                    folder_list.remove(position);
+//                  adapter.notifyItemRemoved(position);//不会刷新RecycleView的高度
+                    adapter.notifyDataSetChanged();
+                    show_folder_list.startLayoutAnimation();//重新开始LayoutAnimation
+
+                }
+            });
+            show_folder_list.setAdapter(adapter);
+
+        }else{
+            TextView no_music=(TextView) view.findViewById(R.id.no_music);
+            no_music.setVisibility(View.GONE);
         }
-
-
         return view;
     }
 
-    public void updateListView(int position) {
-        now_playing_position = position;
-
-        folder_list.get(last_click_position).setIs_playing(false);
-        folder_list.get(position).setIs_playing(true);
-//                    adapter.notifyDataSetChanged();
-
-        adapter.updataView(last_click_position, show_folder_list);
-        adapter.updataView(position, show_folder_list);
-        last_click_position = position;
-    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (folder_list != null && folder_list.size() > 0) {
             folder_list.get(last_click_position).setIs_playing(false);
-            adapter.updataView(last_click_position, show_folder_list);
+            adapter.notifyItemChanged(last_click_position);//刷新单个数据
         }
     }
 }

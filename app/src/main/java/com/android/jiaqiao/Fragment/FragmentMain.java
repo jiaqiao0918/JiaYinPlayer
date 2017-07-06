@@ -2,7 +2,6 @@ package com.android.jiaqiao.Fragment;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 
 
 public class FragmentMain extends Fragment {
-    private Context mContext;
     private ArrayList<SheetInfo> music_sheet_info_list = new ArrayList<SheetInfo>();
 
     private MusicSheetAdapter music_sheet_adapter;
@@ -41,10 +39,6 @@ public class FragmentMain extends Fragment {
     private ListView music_all_sheet_list;
     private ScrollView scroll_view;
 
-
-    public void setContext(Context mContext) {
-        this.mContext = mContext;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,7 +55,7 @@ public class FragmentMain extends Fragment {
         music_all_count.setText((PublicDate.music_all.size()) + "首");
         music_sheet_info_list = getMusicSheetToArrayList(path);
 
-        music_sheet_adapter = new MusicSheetAdapter(mContext, music_sheet_info_list);
+        music_sheet_adapter = new MusicSheetAdapter(getActivity(), music_sheet_info_list);
         music_all_sheet_list.setAdapter(music_sheet_adapter);
 
         setListViewHeightBasedOnChildren(music_all_sheet_list);
@@ -73,12 +67,11 @@ public class FragmentMain extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 FragmentMusicSheet fragment_music_sheet = new FragmentMusicSheet();
-                fragment_music_sheet.setContext(mContext);
                 fragment_music_sheet.setShow_sheet_info(music_sheet_info_list.get(position));
                 FragmentTransaction fragmentTransaction = getFragmentManager()
                         .beginTransaction();
                 FragmentTransactionExtended fragmentTransactionExtended = new FragmentTransactionExtended(
-                        mContext, fragmentTransaction, new FragmentMain(),
+                        getActivity(), fragmentTransaction, new FragmentMain(),
                         fragment_music_sheet, R.id.fragment_show);
                 fragmentTransactionExtended.setTransition();
                 fragmentTransactionExtended.commit();
@@ -87,7 +80,7 @@ public class FragmentMain extends Fragment {
         music_all_sheet_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivity(new Intent(getActivity(), DeleteMusicSheetActivity.class).putExtra("sheet_id",music_sheet_info_list.get(position).getSheet_id().toString()));
+                startActivity(new Intent(getActivity(), DeleteMusicSheetActivity.class).putExtra("sheet_id", music_sheet_info_list.get(position).getSheet_id().toString()));
                 return true;
             }
         });
@@ -96,11 +89,10 @@ public class FragmentMain extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentAllMusic fragment_all_music = new FragmentAllMusic();
-                fragment_all_music.setContext(mContext);
                 FragmentTransaction fragmentTransaction = getFragmentManager()
                         .beginTransaction();
                 FragmentTransactionExtended fragmentTransactionExtended = new FragmentTransactionExtended(
-                        mContext, fragmentTransaction, new FragmentMain(),
+                        getActivity(), fragmentTransaction, new FragmentMain(),
                         fragment_all_music, R.id.fragment_show);
                 fragmentTransactionExtended.setTransition();
                 fragmentTransactionExtended.commit();
@@ -110,11 +102,10 @@ public class FragmentMain extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentDateForMusic fragment_date_for_music = new FragmentDateForMusic();
-                fragment_date_for_music.setContext(mContext);
                 FragmentTransaction fragmentTransaction = getFragmentManager()
                         .beginTransaction();
                 FragmentTransactionExtended fragmentTransactionExtended = new FragmentTransactionExtended(
-                        mContext, fragmentTransaction, new FragmentMain(),
+                        getActivity(), fragmentTransaction, new FragmentMain(),
                         fragment_date_for_music, R.id.fragment_show);
                 fragmentTransactionExtended.setTransition();
                 fragmentTransactionExtended.commit();
@@ -124,11 +115,10 @@ public class FragmentMain extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentFolderForMusic fragment_folder_for_music = new FragmentFolderForMusic();
-                fragment_folder_for_music.setContext(mContext);
                 FragmentTransaction fragmentTransaction = getFragmentManager()
                         .beginTransaction();
                 FragmentTransactionExtended fragmentTransactionExtended = new FragmentTransactionExtended(
-                        mContext, fragmentTransaction, new FragmentMain(),
+                        getActivity(), fragmentTransaction, new FragmentMain(),
                         fragment_folder_for_music, R.id.fragment_show);
                 fragmentTransactionExtended.setTransition();
                 fragmentTransactionExtended.commit();
@@ -150,7 +140,7 @@ public class FragmentMain extends Fragment {
         super.onResume();
         if (PublicDate.add_sheet_over || PublicDate.delete_sheet_over) {
             music_sheet_info_list = getMusicSheetToArrayList(path);
-            music_all_sheet_list.setAdapter(new MusicSheetAdapter(mContext, music_sheet_info_list));
+            music_all_sheet_list.setAdapter(new MusicSheetAdapter(getActivity(), music_sheet_info_list));
             setListViewHeightBasedOnChildren(music_all_sheet_list);
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
         }

@@ -2,7 +2,6 @@ package com.android.jiaqiao.Fragment;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -32,15 +31,10 @@ import java.util.Locale;
 
 public class FragmentFolderForMusic extends Fragment {
 
-    private Context mContext;
     private String sd_path = Environment.getExternalStorageDirectory().getPath();
 
     private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
     private ArrayList<HashMap<String, Object>> list_folder_all = new ArrayList<HashMap<String, Object>>();
-
-    public void setContext(Context mContext) {
-        this.mContext = mContext;
-    }
 
     @Nullable
     @Override
@@ -56,19 +50,19 @@ public class FragmentFolderForMusic extends Fragment {
             }
         });
         list_folder_all = listToFolder(music_all);
-        FolderListViewAdapter adapter = new FolderListViewAdapter(mContext, list_folder_all);
+        FolderListViewAdapter adapter = new FolderListViewAdapter(getActivity(), list_folder_all);
         show_all_folder_of_list.setAdapter(adapter);
 
         show_all_folder_of_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 FragmentFolderForMusicItem fragment_date_for_music_item = new FragmentFolderForMusicItem();
-                fragment_date_for_music_item.setContext(mContext);
+
                 fragment_date_for_music_item.setValues(list_folder_all.get(position).get("folder_name").toString(),(ArrayList<MusicInfo>)list_folder_all.get(position).get("folder_name_list"));
                 FragmentTransaction fragmentTransaction = getFragmentManager()
                         .beginTransaction();
                 FragmentTransactionExtended fragmentTransactionExtended = new FragmentTransactionExtended(
-                        mContext, fragmentTransaction, new FragmentMain(),
+                        getActivity(), fragmentTransaction, new FragmentMain(),
                         fragment_date_for_music_item, R.id.fragment_show);
                 fragmentTransactionExtended.setTransition();
                 fragmentTransactionExtended.commit();

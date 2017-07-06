@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"
+        android:duration="500"/>
+    <!--android:fromXDelta="1000"  1000从右边开始动画，-1000从左边开始动画-->
+    <!--android:fromYDelta="1000"  1000从底部边开始动画，-1000从顶部开始动画-->
+    <translate
+        android:fromYDelta="1000"
+        android:toXDelta="0"
+        android:duration="500"/>
+</set>

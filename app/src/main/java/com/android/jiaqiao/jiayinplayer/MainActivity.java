@@ -82,7 +82,6 @@ public class MainActivity extends Activity {
         drawer_center_view = getLayoutInflater().inflate(
                 R.layout.center_layout, null);
         FragmentMain fragment_main = new FragmentMain();
-        fragment_main.setContext(this);
         FragmentTransaction fragmentTransaction = getFragmentManager()
                 .beginTransaction();
         fragmentTransaction.replace(R.id.fragment_show, fragment_main);

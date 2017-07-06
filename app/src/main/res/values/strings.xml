@@ -5,4 +5,6 @@
     <string name="date_For_music">日期</string>
     <string name="folder_music">文件夹</string>
     <string name="input_music_sheet_name">歌单名称</string>
+    <string name="no_music_list_size_0">无歌曲</string>
+
 </resources>

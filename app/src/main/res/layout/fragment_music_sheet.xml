@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:background="@color/back_ground"
     android:orientation="vertical">
 
@@ -12,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/back_ground"
+        android:fillViewport="true"
         android:scrollbars="none">
 
         <LinearLayout
@@ -55,7 +55,7 @@
                         app:contentPadding="16dp">
 
                         <TextView
-                            android:id="@+id/show_sheet_name"
+                            android:id="@+id/show_all_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="歌单名"
@@ -63,7 +63,7 @@
                             android:textSize="20sp" />
 
                         <TextView
-                            android:id="@+id/show_sheet_list_size"
+                            android:id="@+id/show_all_list_size"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="32dp"
@@ -86,17 +86,19 @@
                                 android:background="@drawable/click_rectangle"
                                 android:gravity="center_horizontal"
                                 android:orientation="vertical">
+
                                 <ImageView
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:src="@drawable/music_delete" />
+
                                 <TextView
-                                    android:layout_marginTop="4dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="10sp"
+                                    android:layout_marginTop="4dp"
+                                    android:text="删除"
                                     android:textColor="@color/font_seccend_color"
-                                    android:text="删除"/>
+                                    android:textSize="10sp" />
                             </LinearLayout>
 
                             <View
@@ -112,17 +114,19 @@
                                 android:background="@drawable/click_rectangle"
                                 android:gravity="center_horizontal"
                                 android:orientation="vertical">
+
                                 <ImageView
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:src="@drawable/music_modify" />
+
                                 <TextView
-                                    android:layout_marginTop="4dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="10sp"
+                                    android:layout_marginTop="4dp"
+                                    android:text="编辑"
                                     android:textColor="@color/font_seccend_color"
-                                    android:text="编辑"/>
+                                    android:textSize="10sp" />
                             </LinearLayout>
 
                             <View
@@ -138,17 +142,19 @@
                                 android:background="@drawable/click_rectangle"
                                 android:gravity="center_horizontal"
                                 android:orientation="vertical">
+
                                 <ImageView
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:src="@drawable/music_add" />
+
                                 <TextView
-                                    android:layout_marginTop="4dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="10sp"
+                                    android:layout_marginTop="4dp"
+                                    android:text="添加"
                                     android:textColor="@color/font_seccend_color"
-                                    android:text="添加"/>
+                                    android:textSize="10sp" />
                             </LinearLayout>
 
                         </LinearLayout>
@@ -164,17 +170,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/fengexian_color" />
-            <ListView
-                android:id="@+id/show_music_sheet_list"
-                android:divider="@color/fengexian_color"
-                android:dividerHeight="1dp"
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/show_all_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
                 android:layout_marginLeft="24dp"
-                android:layout_marginTop="0dp"
                 android:layout_marginRight="24dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_marginTop="0dp"
+                android:layoutAnimation="@anim/anim_recycle_view_item"
+                android:background="@color/touming"
+                android:scrollbars="vertical"/>
 
+
+            <TextView
+                android:id="@+id/no_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="24dp"
+                android:gravity="center"
+                android:text="@string/no_music_list_size_0"
+                android:textColor="@color/fengexian_color"
+                android:textSize="16sp"
+                android:visibility="gone" />
 
 
         </LinearLayout>
