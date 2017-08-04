@@ -6,37 +6,136 @@
     android:background="@color/back_ground"
     android:orientation="vertical">
 
-    <ScrollView
-        android:id="@+id/scroll_view"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/back_ground"
-        android:fillViewport="true"
-        android:scrollbars="none">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbarlayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:scrollbars="none">
+            android:layout_height="200dp"
+            android:fitsSystemWindows="true">
 
-            <RelativeLayout
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar_layout"
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:background="@color/fengexian_color"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                android:minHeight="200dp"
+                app:collapsedTitleGravity="left"
+                app:collapsedTitleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                app:contentScrim="@color/touming"
+                app:expandedTitleMarginEnd="10dp"
+                app:expandedTitleMarginStart="10dp"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="match_parent">
 
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:paddingTop="8dp">
+                    <ImageView
+                        android:id="@+id/all_music_show_album_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/fengexian_color"
+                        android:scaleType="centerCrop"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/touming"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:paddingTop="8dp">
+
+
+                        <ImageButton
+                            android:id="@+id/all_music_back_last_fragment01"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentTop="true"
+                            android:background="@drawable/click_oval"
+                            android:src="@drawable/arrow_left" />
+
+                        <android.support.v7.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
+                            app:cardBackgroundColor="@color/back_ground"
+                            app:cardCornerRadius="4dp"
+                            app:cardElevation="2dp"
+                            app:contentPadding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center_vertical"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/show_all_name"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginBottom="8dp"
+                                        android:text="全部音乐"
+                                        android:textColor="@color/font_color"
+                                        android:textSize="20sp" />
+
+                                    <TextView
+                                        android:id="@+id/show_all_list_size"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="首歌"
+                                        android:textColor="@color/font_seccend_color"
+                                        android:textSize="14sp" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/music_sheet_modify"
+                                    android:layout_width="60dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/click_rectangle"
+                                    android:gravity="center_horizontal"
+                                    android:orientation="vertical">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:src="@drawable/music_modify" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="4dp"
+                                        android:text="编辑"
+                                        android:textColor="@color/font_seccend_color"
+                                        android:textSize="10sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </android.support.v7.widget.CardView>
+
+                    </RelativeLayout>
+                </RelativeLayout>
+
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/fragment_all_music_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:alpha="0"
+                    android:background="@color/back_ground"
+                    app:layout_collapseMode="pin">
 
                     <ImageButton
-                        android:id="@+id/back_last_fragment"
+                        android:id="@+id/all_music_back_last_fragment02"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_alignParentLeft="true"
@@ -44,106 +143,41 @@
                         android:background="@drawable/click_oval"
                         android:src="@drawable/arrow_left" />
 
-                    <android.support.v7.widget.CardView
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/all_music_title"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        app:cardBackgroundColor="@color/back_ground"
-                        app:cardCornerRadius="4dp"
-                        app:cardElevation="2dp"
-                        app:contentPadding="16dp">
+                        android:text="全部音乐"
+                        android:textColor="@color/font_color"
+                        android:textSize="16sp" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                </android.support.v7.widget.Toolbar>
+            </android.support.design.widget.CollapsingToolbarLayout>
 
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center_vertical"
-                                android:orientation="vertical">
+        </android.support.design.widget.AppBarLayout>
 
-                                <TextView
-                                    android:id="@+id/show_all_name"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="全部音乐"
-                                    android:textColor="@color/font_color"
-                                    android:layout_marginBottom="8dp"
-                                    android:textSize="20sp" />
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="615dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                                <TextView
-                                    android:id="@+id/show_all_list_size"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="首歌"
-                                    android:textColor="@color/font_seccend_color"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:id="@+id/music_sheet_modify"
-                                android:layout_width="60dp"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/click_rectangle"
-                                android:gravity="center_horizontal"
-                                android:orientation="vertical">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:src="@drawable/music_modify" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="编辑"
-                                    android:textColor="@color/font_seccend_color"
-                                    android:textSize="10sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </android.support.v7.widget.CardView>
-
-                </RelativeLayout>
-
-            </RelativeLayout>
-
-            <View
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/fengexian_color" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/show_all_music"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="0dp"
-                android:layout_marginLeft="24dp"
-                android:layout_marginRight="24dp"
-                android:layout_marginTop="0dp"
-                android:background="@color/touming"
-                android:layoutAnimation="@anim/anim_recycle_view_item"
-                android:scrollbars="vertical" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
 
-            <TextView
-                android:id="@+id/no_music"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="24dp"
-                android:gravity="center"
-                android:text="@string/no_music_list_size_0"
-                android:textColor="@color/fengexian_color"
-                android:textSize="16sp"
-                android:visibility="gone" />
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/show_all_music"
+                    android:layout_width="match_parent"
+                    android:layout_height="615dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+            </LinearLayout>
 
+        </android.support.v4.widget.NestedScrollView>
 
-        </LinearLayout>
+    </android.support.design.widget.CoordinatorLayout>
 
-    </ScrollView>
 
 </com.android.jiaqiao.View.MyFragmentLayout>

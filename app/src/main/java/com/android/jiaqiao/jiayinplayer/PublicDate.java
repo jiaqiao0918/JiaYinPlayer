@@ -17,4 +17,8 @@ public class PublicDate {
     public static String files_dir = "";
     public static SheetInfo temp_sheet_info=null;
     public static String separate_str = "###";
+    public static boolean is_select_music_over = false;
+
+
+    public static boolean is_service_select_music_destroy=false;
 }

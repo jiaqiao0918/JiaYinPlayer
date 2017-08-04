@@ -1,6 +1,7 @@
 package com.android.jiaqiao.Activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.text.InputType;
 import android.text.Spanned;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -99,6 +101,9 @@ public class AddMusicSheetNameActivity extends Activity {
         music_sheet_name.setInputType(InputType.TYPE_CLASS_TEXT);
         music_sheet_name.setFilters(new InputFilter[]{filter});
         music_sheet_name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(16)});//设置文本最大长度，16个中文或者16个字母
+
+
+
     }
 
     public void cancel_button(View view) {

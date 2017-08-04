@@ -86,6 +86,9 @@ public class AllMusciAddToSheetActivity extends Activity {
                 }
             }
         });
+
+
+
     }
 
     public void cancel_button(View view) {
@@ -113,15 +116,16 @@ public class AllMusciAddToSheetActivity extends Activity {
     public void selected_over(View view) {
         if (selectec_num > 0) {
             path = getPath(PublicDate.temp_sheet_info.getSheet_id());
-            int num=0;
+            int num = 0;
             for (int i = 0; i < music_all.size(); i++) {
                 if (music_all.get(i).is_selected()) {
-                    addTextToFile(path, music_all.get(i).getMusic_id() + PublicDate.separate_str + music_all.get(i).getMusic_title());
                     num++;
+                    addTextToFile(path, music_all.get(i).getMusic_id() + PublicDate.separate_str + music_all.get(i).getMusic_title());
+
                 }
             }
-            if(num>0){
-                Toast.makeText(AllMusciAddToSheetActivity.this,num+"首歌添加成功！！",Toast.LENGTH_SHORT).show();
+            if (num > 0) {
+                Toast.makeText(AllMusciAddToSheetActivity.this, num + "首歌添加成功！！", Toast.LENGTH_SHORT).show();
             }
         }
 
