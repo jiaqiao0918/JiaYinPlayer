@@ -1,6 +1,10 @@
 package com.android.jiaqiao.Fragment;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -27,6 +31,8 @@ import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.jiayinplayer.MainActivity;
+import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
 import java.util.ArrayList;
@@ -40,6 +46,9 @@ import java.util.TimerTask;
 
 public class FragmentFolderForMusicItem extends Fragment {
     private String folder_name_str = "";
+    private int folder_list_position = 0;
+    private String folder_name_path="";
+
     private ArrayList<MusicInfo> folder_list = new ArrayList<MusicInfo>();
 
     private int last_click_position = 0;
@@ -51,6 +60,8 @@ public class FragmentFolderForMusicItem extends Fragment {
 
     private RecyclerViewAdapter adapter;
     private RecyclerView show_folder_list;
+    private TextView show_folder_size;
+
     private Palette.Swatch image_color;
 
     private Handler handler = new Handler() {
@@ -62,10 +73,15 @@ public class FragmentFolderForMusicItem extends Fragment {
             }
         }
     };
+    private boolean is_update_image = true;
 
-    public void setValues(String folder_name_str, ArrayList<MusicInfo> folder_list) {
+    private FragmentFolderForMusicItemReceiver mReceiver;
+    private IntentFilter mFilter;
+
+    public void setValues(String folder_name_str, int folder_list_position,String folder_name_time) {
         this.folder_name_str = folder_name_str;
-        this.folder_list = folder_list;
+        this.folder_list_position = folder_list_position;
+        this.folder_name_path = folder_name_time;
     }
 
     @Nullable
@@ -73,7 +89,7 @@ public class FragmentFolderForMusicItem extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_folder_for_music_item_layout, null);
         TextView folder_name = (TextView) view.findViewById(R.id.folder_name);
-        TextView show_folder_size = (TextView) view.findViewById(R.id.show_folder_size);
+        show_folder_size = (TextView) view.findViewById(R.id.show_folder_size);
         ImageButton back_last_fragment01 = (ImageButton) view.findViewById(R.id.folder_music_item_back_last_fragment01);
         ImageButton back_last_fragment02 = (ImageButton) view.findViewById(R.id.folder_music_item_back_last_fragment02);
         show_folder_list = (RecyclerView) view.findViewById(R.id.show_folder_list);
@@ -83,6 +99,7 @@ public class FragmentFolderForMusicItem extends Fragment {
         folder_name_tittle = (TextView) view.findViewById(R.id.folder_name_tittle);
         folder_music_item_show_album_image = (ImageView) view.findViewById(R.id.folder_music_item_show_album_image);
 
+        folder_list = (ArrayList<MusicInfo>) PublicDate.list_folder_all.get(folder_list_position).get("folder_name_list");
         show_folder_size.setText(folder_list.size() + "首歌");
         back_last_fragment01.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,7 +139,18 @@ public class FragmentFolderForMusicItem extends Fragment {
             }
         });
 
+        //动态注册广播
+        mReceiver = new FragmentFolderForMusicItemReceiver();
+        mFilter = new IntentFilter();
+        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        getActivity().registerReceiver(mReceiver, mFilter);
 
+        update_date();
+
+        return view;
+    }
+
+    public void update_date() {
         if (folder_list != null && folder_list.size() > 0) {
             // 创建默认的线性LayoutManager
             show_folder_list.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -154,20 +182,24 @@ public class FragmentFolderForMusicItem extends Fragment {
             });
             show_folder_list.setAdapter(adapter);
 
+        } else {
+            getFragmentManager().popBackStack();
         }
-        return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.sendEmptyMessage(0x123456);
-            }
-        }, 500);
+        if (is_update_image) {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    handler.sendEmptyMessage(0x123456);
+                }
+            }, 500);
+            is_update_image = false;
+        }
     }
 
     @Override
@@ -177,24 +209,25 @@ public class FragmentFolderForMusicItem extends Fragment {
             folder_list.get(last_click_position).setIs_playing(false);
             adapter.notifyItemChanged(last_click_position);//刷新单个数据
         }
+        getActivity().unregisterReceiver(mReceiver);
     }
 
     public void getMusicAlbumImage() {
         int music_album_num = 0;
         while (music_album_num < folder_list.size()) {
 
-            long songid =  folder_list.get(music_album_num).getMusic_id();
-            long albumid =  folder_list.get(music_album_num).getMusic_album_id();
+            long songid = folder_list.get(music_album_num).getMusic_id();
+            long albumid = folder_list.get(music_album_num).getMusic_album_id();
             Bitmap bitmap = MusicUtils.getArtwork(getActivity(), songid, albumid, true);
             if (bitmap != null) {
-                setImageViewImage(folder_music_item_show_album_image,bitmap);
+                setImageViewImage(folder_music_item_show_album_image, bitmap);
 //                folder_music_item_show_album_image.setImageBitmap(bitmap);
                 Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
                         //获取专辑图片中的亮色
-                        image_color=palette.getMutedSwatch();
-                        if(image_color!=null){
+                        image_color = palette.getMutedSwatch();
+                        if (image_color != null) {
                             collapsingToolbarLayout.setContentScrimColor(image_color.getRgb());
                             fragment_folder_music_item_toolbar.setBackgroundColor(image_color.getRgb());
                         }
@@ -209,12 +242,12 @@ public class FragmentFolderForMusicItem extends Fragment {
 
     // 给一个ImageView设置高斯模糊的图片,并带有渐变
     public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
-		/*
-		 * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
+        /*
+         * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
 		 * 增大blurRadius，可以得到更高程度的虚化，不过会导致CPU更加intensive
 		 */
-        int scaleRatio = 20;
-        int blurRadius = 1;
+        int scaleRatio = PublicDate.scaleRatio;
+        int blurRadius = PublicDate.blurRadius;
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(image_bitmap,
                 image_bitmap.getWidth() / scaleRatio, image_bitmap.getHeight()
                         / scaleRatio, false);
@@ -230,15 +263,28 @@ public class FragmentFolderForMusicItem extends Fragment {
         mTransitionDrawable.setCrossFadeEnabled(true);
         mTransitionDrawable.startTransition(800);//渐变过程持续时间
         image_view.setImageDrawable(mTransitionDrawable);
+    }
 
-
-        /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        blurBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] bytes =  baos.toByteArray();
-        Glide.with(getActivity()).load(bytes).into(image_view);*/
-
-
-//        image_view.setImageBitmap(blurBitmap);
+    class FragmentFolderForMusicItemReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int type = intent.getIntExtra("type", -1);
+            switch (type) {
+                case MainActivity.ALL_MUSIC_UPDATE:
+                    boolean is_update = intent.getBooleanExtra("is_update", false);
+                    if (is_update) {
+                        if(PublicDate.list_folder_all.get(folder_list_position).get("folder_name_path").equals(folder_name_path)) {
+                            folder_list = (ArrayList<MusicInfo>) PublicDate.list_folder_all.get(folder_list_position).get("folder_name_list");
+                            show_folder_size.setText(folder_list.size() + "首歌");
+                            update_date();
+                            handler.sendEmptyMessage(0x123456);
+                        }else{
+                            getFragmentManager().popBackStack();
+                        }
+                    }
+                    break;
+            }
+        }
 
     }
 }

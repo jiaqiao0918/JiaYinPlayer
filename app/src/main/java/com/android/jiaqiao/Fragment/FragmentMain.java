@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -28,7 +27,6 @@ import com.android.jiaqiao.Utils.FragmentTransactionExtended;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
-import com.bumptech.glide.Glide;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -45,7 +43,6 @@ public class FragmentMain extends Fragment {
     private ListView music_all_sheet_list;
     private ScrollView scroll_view;
     private TextView music_all_count;
-    private ImageView loading_gif;
 
     private FragmentMainReceiver mReceiver;
     private IntentFilter mFilter;
@@ -70,12 +67,12 @@ public class FragmentMain extends Fragment {
         LinearLayout fragment_to_folder_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_folder_for_music);
         music_all_count = (TextView) view.findViewById(R.id.music_all_count);
         ImageButton add_music_sheet_name = (ImageButton) view.findViewById(R.id.add_music_sheet_name);
-        loading_gif = (ImageView) view.findViewById(R.id.loading_gif);
-        if (!PublicDate.is_select_music_over) {
-            //使用第三方Glide库，加载GIF图片，后期还可以加载专辑图片，google推荐（R.drawable.loading 资源文件，loading_gif ImageView对象）
-            Glide.with(getActivity()).load(R.drawable.loading).into(loading_gif);
-
-        }
+//        loading_gif = (ImageView) view.findViewById(loading_gif);
+//        if (!PublicDate.is_select_music_over) {
+//            //使用第三方Glide库，加载GIF图片，后期还可以加载专辑图片，google推荐（R.drawable.loading 资源文件，loading_gif ImageView对象）
+//            Glide.with(getActivity()).load(R.drawable.loading).into(loading_gif);
+//
+//        }
         music_all_count.setText((PublicDate.music_all.size()) + "首");
         music_sheet_info_list = getMusicSheetToArrayList(path);
 
@@ -241,6 +238,12 @@ public class FragmentMain extends Fragment {
         listView.setLayoutParams(params);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().unregisterReceiver(mReceiver);
+    }
+
     class FragmentMainReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -250,10 +253,6 @@ public class FragmentMain extends Fragment {
                     boolean is_update = intent.getBooleanExtra("is_update", false);
                     if (is_update) {
                         music_all_count.setText((PublicDate.music_all.size()) + "首");
-                        //清空控件中的资源，在设置控件GONE
-                        Glide.clear(loading_gif);
-                        loading_gif.setVisibility(View.GONE);
-
                     }
                     break;
             }

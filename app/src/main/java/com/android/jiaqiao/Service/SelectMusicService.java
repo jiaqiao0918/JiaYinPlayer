@@ -4,11 +4,14 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Utils.DataInfoCache;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -37,6 +41,7 @@ public class SelectMusicService extends Service {
     private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
     private ArrayList<MusicInfo> all_list = new ArrayList<MusicInfo>();
 
+    private String sd_path = Environment.getExternalStorageDirectory().getPath();
 
     @Nullable
     @Override
@@ -69,14 +74,41 @@ public class SelectMusicService extends Service {
                 music_all.clear();
                 getAllMusic();
                 music_all = listToList(all_list);
-                PublicDate.music_all = music_all;
+                if (PublicDate.music_all.size() != music_all.size()) {
+                    PublicDate.music_all = music_all;
+                    PublicDate.list_folder_all = listToFolder(music_all);
+                    DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
+                    DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
+                    //发送广播
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
+                    temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
+                    temp_intent.putExtra("is_update", true);
+                    sendBroadcast(temp_intent);
+                } else {
+                    boolean is_is = true;
+                    for (int i = 0; i < music_all.size(); i++) {
+                        if (music_all.get(i).getMusic_id() == PublicDate.music_all.get(i).getMusic_id() && music_all.get(i).getMusic_title().equals(PublicDate.music_all.get(i).getMusic_title())) {
+                            is_is = true;
+                        } else {
+                            is_is = false;
+                            break;
+                        }
+                    }
+                    if (!is_is) {
+                        PublicDate.music_all = music_all;
+                        PublicDate.list_folder_all = listToFolder(music_all);
+                        DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
+                        DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
+                        //发送广播
+                        Intent temp_intent = new Intent();
+                        temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
+                        temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
+                        temp_intent.putExtra("is_update", true);
+                        sendBroadcast(temp_intent);
+                    }
+                }
 
-                //发送广播
-                Intent temp_intent = new Intent();
-                temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
-                temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
-                temp_intent.putExtra("is_update", true);
-                sendBroadcast(temp_intent);
 
                 PublicDate.is_select_music_over = true;
                 PublicDate.is_service_select_music_destroy = false;
@@ -320,5 +352,97 @@ public class SelectMusicService extends Service {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             return sdf.format(date);
         }
+    }
+
+    public ArrayList<HashMap<String, Object>> listToFolder(ArrayList<MusicInfo> list_temp) {
+        listSortFolder(list_temp);
+        ArrayList<HashMap<String, Object>> list_folder_all_temp = new ArrayList<>();
+        ArrayList<HashMap<String, Object>> list_folder = new ArrayList<>();
+        for (int i = 0; i < list_temp.size(); i++) {
+            String temp = list_temp.get(i).getMusic_path();
+            String temp002 = "";
+
+            temp = getStringFolder(temp);
+            if (i == 0) {
+                HashMap<String, Object> folder_map = new HashMap<>();
+                folder_map.put("folder_name", temp);
+                folder_map.put("start_position", 0);
+                list_folder.add(folder_map);
+            } else {
+                temp002 = getStringFolder(list_temp.get(i - 1).getMusic_path());
+                if (!temp.equals(temp002)) {
+                    HashMap<String, Object> folder_map = new HashMap<>();
+                    folder_map.put("folder_name", temp);
+                    folder_map.put("start_position", i);
+                    list_folder.add(folder_map);
+                }
+            }
+        }
+
+        for (int i = 0; i < list_folder.size(); i++) {
+            int start_position = (int) list_folder.get(i).get("start_position");
+            int end_position = -1;
+            if (i == list_folder.size() - 1) {
+                end_position = list_temp.size();
+            } else {
+                end_position = (int) list_folder.get(i + 1).get("start_position");
+            }
+            HashMap<String, Object> map_temp = new HashMap<>();
+            ArrayList<MusicInfo> folder_list_temp = new ArrayList<>();
+            for (int j = start_position; j < end_position; j++) {
+                folder_list_temp.add((MusicInfo) list_temp.get(j));
+            }
+            map_temp.put("folder_name", getInfoString(list_folder.get(i).get("folder_name").toString()));
+            map_temp.put("folder_name_list", folder_list_temp);
+            map_temp.put("folder_name_path", list_folder.get(i).get("folder_name").toString());
+            list_folder_all_temp.add(map_temp);
+        }
+
+        return list_folder_all_temp;
+    }
+
+
+
+    public String getInfoString(String string) {
+        if (string.equals(sd_path)) {
+            return "根目录";
+        } else if (string.toLowerCase().indexOf("12530") > -1) {
+            return "咪咕音乐";
+        } else if (string.toLowerCase().indexOf("music") > -1 && string.toLowerCase().indexOf("baidu") > -1) {
+            return "百度音乐";
+        } else if (string.toLowerCase().indexOf("kgmusic") > -1) {
+            return "酷狗音乐";
+        } else if (string.toLowerCase().indexOf("kuwomusic") > -1) {
+            return "酷我音乐";
+        } else if (string.toLowerCase().indexOf("cloudmusic") > -1) {
+            return "网易云音乐";
+        } else if (string.toLowerCase().indexOf("qqmusic") > -1) {
+            return "QQ音乐";
+        } else if (string.toLowerCase().indexOf("xiami") > -1) {
+            return "虾米音乐";
+        } else {
+            return string.substring(string.lastIndexOf("/") + "/".length());
+        }
+
+    }
+
+    public void listSortFolder(ArrayList<MusicInfo> resultList) {
+        Collections.sort(resultList, new Comparator<MusicInfo>() {
+            public int compare(MusicInfo o1, MusicInfo o2) {
+                String name1 = o1.getMusic_path() + "";
+                String name2 = o2.getMusic_path() + "";
+                Collator instance = Collator.getInstance(Locale.CHINA);
+                return instance.compare(name1, name2);
+
+            }
+        });
+    }
+
+    public String getStringFolder(String str) {
+        String string = str;
+        if (str.indexOf("/") > -1) {
+            string = str.substring(0, str.lastIndexOf("/"));
+        }
+        return string;
     }
 }

@@ -1,7 +1,10 @@
 package com.android.jiaqiao.Fragment;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -32,6 +35,7 @@ import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
@@ -46,7 +50,6 @@ import java.util.TimerTask;
 
 import static com.android.jiaqiao.jiayinplayer.PublicDate.music_all;
 import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
-import static com.android.jiaqiao.jiayinplayer.R.id.all_music_show_album_image;
 
 /**
  * Created by jiaqiao on 2017/7/3/0003.
@@ -68,8 +71,12 @@ public class FragmentMusicSheet extends Fragment {
     private RecyclerViewAdapter adapter;
 
     private int last_click_position = 0;
+    private boolean is_update_image = true;
 
     private Palette.Swatch image_color;
+
+    private FragmentMusicSheetReceiver mReceiver;
+    private IntentFilter mFilter;
 
     private Handler handler = new Handler() {
         @Override
@@ -147,6 +154,12 @@ public class FragmentMusicSheet extends Fragment {
             }
         });
 
+        //动态注册广播
+        mReceiver = new FragmentMusicSheetReceiver();
+        mFilter = new IntentFilter();
+        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        getActivity().registerReceiver(mReceiver, mFilter);
+
 
         if (music_sheet_list != null && music_sheet_list.size() > 0) {
             // 创建默认的线性LayoutManager
@@ -223,7 +236,6 @@ public class FragmentMusicSheet extends Fragment {
             }
         }
 
-
         return null;
     }
 
@@ -277,17 +289,21 @@ public class FragmentMusicSheet extends Fragment {
             music_sheet_list.get(last_click_position).setIs_playing(false);
             adapter.notifyItemChanged(last_click_position);//刷新单个数据
         }
+        getActivity().unregisterReceiver(mReceiver);
     }
     @Override
     public void onStart() {
         super.onStart();
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.sendEmptyMessage(0x123456);
-            }
-        }, 500);
+        if (is_update_image) {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    handler.sendEmptyMessage(0x123456);
+                }
+            }, 500);
+            is_update_image = false;
+        }
     }
 
     public void getMusicAlbumImage() {
@@ -322,8 +338,8 @@ public class FragmentMusicSheet extends Fragment {
 		 * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
 		 * 增大blurRadius，可以得到更高程度的虚化，不过会导致CPU更加intensive
 		 */
-        int scaleRatio = 20;
-        int blurRadius = 3;
+        int scaleRatio = PublicDate.scaleRatio;
+        int blurRadius = PublicDate.blurRadius;
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(image_bitmap,
                 image_bitmap.getWidth() / scaleRatio, image_bitmap.getHeight()
                         / scaleRatio, false);
@@ -348,6 +364,26 @@ public class FragmentMusicSheet extends Fragment {
 
 
 //        image_view.setImageBitmap(blurBitmap);
+
+    }
+
+    class FragmentMusicSheetReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int type = intent.getIntExtra("type", -1);
+            switch (type) {
+                case MainActivity.ALL_MUSIC_UPDATE:
+                    boolean is_update = intent.getBooleanExtra("is_update", false);
+                    if (is_update) {
+                        music_sheet_list.clear();
+                        getMusicSheetToArrayList(path);
+                        adapter.notifyDataSetChanged();
+                        show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
+                        handler.sendEmptyMessage(0x123456);
+                    }
+                    break;
+            }
+        }
 
     }
 }

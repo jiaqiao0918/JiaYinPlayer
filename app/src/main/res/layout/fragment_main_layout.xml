@@ -64,11 +64,6 @@
                             android:text="@string/all_music"
                             android:textColor="@color/font_color"
                             android:textSize="16sp" />
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginRight="8dp"
-                            android:id="@+id/loading_gif"/>
 
                         <TextView
                             android:id="@+id/music_all_count"

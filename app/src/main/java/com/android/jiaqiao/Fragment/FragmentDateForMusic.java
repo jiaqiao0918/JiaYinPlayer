@@ -1,6 +1,10 @@
 package com.android.jiaqiao.Fragment;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -10,6 +14,8 @@ import android.widget.ExpandableListView;
 
 import com.android.jiaqiao.Adapter.MyExpandableListAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.jiayinplayer.MainActivity;
+import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
 import java.text.Collator;
@@ -19,8 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-
-import static com.android.jiaqiao.jiayinplayer.PublicDate.music_all;
 
 /**
  * Created by jiaqiao on 2017/6/24/0024.
@@ -37,6 +41,9 @@ public class FragmentDateForMusic extends Fragment {
     private int last_child_playing_position = 0;
     private View last_click_view = null;
 
+    private FragmentAllMusicReceiver mReceiver;
+    private IntentFilter mFilter;
+
 
     private ArrayList<ArrayList<MusicInfo>> list_child_date_time = new ArrayList<>();
     private ArrayList<String> list_parent_date_time = new ArrayList<>();
@@ -46,8 +53,21 @@ public class FragmentDateForMusic extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_date_for_music_layout, null);
-        list_child_date_time = listDateTimeToList(music_all);
         show_date_for_music = (ExpandableListView) view.findViewById(R.id.show_date_for_music);
+        update_date();
+
+        //动态注册广播
+        mReceiver = new FragmentAllMusicReceiver();
+        mFilter = new IntentFilter();
+        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        getActivity().registerReceiver(mReceiver, mFilter);
+
+
+        return view;
+    }
+
+    public void update_date() {
+        list_child_date_time = listDateTimeToList(PublicDate.music_all);
         adapter = new MyExpandableListAdapter(list_parent_date_time, list_child_date_time, getActivity());
         show_date_for_music.setAdapter(adapter);
         show_date_for_music.setGroupIndicator(null);//去掉向下的箭头
@@ -68,11 +88,6 @@ public class FragmentDateForMusic extends Fragment {
 //v就是ExpandableListView中单击的ChildView
 //                Log.i("into", v + "");
 //                Log.i("into", show_date_for_music.+"");
-
-
-
-
-
 //                list_child_date_time.get(last_parent_playing_position).get(last_child_playing_position).setIs_playing(false);
 //                list_child_date_time.get(groupPosition).get(childPosition).setIs_playing(true);
 //                adapter.notifyDataSetChanged();
@@ -82,7 +97,6 @@ public class FragmentDateForMusic extends Fragment {
                 return true;
             }
         });
-        return view;
     }
 
     public ArrayList<ArrayList<MusicInfo>> listDateTimeToList(ArrayList<MusicInfo> list) {
@@ -115,13 +129,7 @@ public class FragmentDateForMusic extends Fragment {
                 date_time_futrue.add(list.get(i));
             }
         }
-        /*listSortDateTime(date_time_futrue);
-        listSortDateTime(date_time_0);
-        listSortDateTime(date_time_1);
-        listSortDateTime(date_time_2);
-        listSortDateTime(date_time_3);
-        listSortDateTime(date_time_7);
-        listSortDateTime(date_time_more);*/
+
         addToList(list_parent_date_time, list_date_time_temp, "未来", date_time_futrue);
         addToList(list_parent_date_time, list_date_time_temp, "今天", date_time_0);
         addToList(list_parent_date_time, list_date_time_temp, "昨天", date_time_1);
@@ -170,9 +178,26 @@ public class FragmentDateForMusic extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(list_child_date_time!=null&&list_child_date_time.size()>0) {
+        if (list_child_date_time != null && list_child_date_time.size() > 0) {
             list_child_date_time.get(last_parent_playing_position).get(last_child_playing_position).setIs_playing(false);
             adapter.updataView(show_date_for_music, last_parent_playing_position, last_child_playing_position, last_click_view);
         }
+        getActivity().unregisterReceiver(mReceiver);
+    }
+
+    class FragmentAllMusicReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int type = intent.getIntExtra("type", -1);
+            switch (type) {
+                case MainActivity.ALL_MUSIC_UPDATE:
+                    boolean is_update = intent.getBooleanExtra("is_update", false);
+                    if (is_update) {
+                        update_date();
+                    }
+                    break;
+            }
+        }
+
     }
 }

@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.android.jiaqiao.Fragment.FragmentMain;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.SelectMusicService;
+import com.android.jiaqiao.Utils.DataInfoCache;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -70,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
         music_all = listToList(all_list);
         PublicDate.music_all = music_all;
         */
+
+        PublicDate.music_all = DataInfoCache.loadListCache(this,"music_all");
+        PublicDate.list_folder_all = DataInfoCache.loadListCache(this,"list_folder_all");
+
         //启动service
         select_music_intent = new Intent(MainActivity.this, SelectMusicService.class);
         startService(select_music_intent);
