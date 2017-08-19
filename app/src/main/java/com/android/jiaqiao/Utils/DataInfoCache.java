@@ -1,7 +1,6 @@
 package com.android.jiaqiao.Utils;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +25,7 @@ public class DataInfoCache {
 
     public static String QzInfo = "Qz_List_Info";
     public static String CyInfo = "Cy_List_Info";
-    private static String DataCache = "Data_Cache_File";
+    private static String DataCache = "list_cache_file";
 
     /**
      * 保存 一组 数据
@@ -58,6 +57,7 @@ public class DataInfoCache {
 
         public void saveGlobal(Context ctx, ArrayList<T> data, String name) {
             save(ctx, data, name, DataCache);
+
         }
 
         private void save(Context ctx, ArrayList<T> data, String name, String folder) {
@@ -77,7 +77,6 @@ public class DataInfoCache {
             if (file.exists()) {
                 file.delete();
             }
-            Log.d("zzzzz", file.getAbsolutePath());
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
                 oos.writeObject(data);
@@ -97,7 +96,6 @@ public class DataInfoCache {
 
         private ArrayList<T> load(Context ctx, String name, String folder) {
             ArrayList<T> data = null;
-
             File file;
             if (!folder.isEmpty()) {
                 File fileDir = new File(ctx.getFilesDir(), folder);
@@ -108,19 +106,15 @@ public class DataInfoCache {
             } else {
                 file = new File(ctx.getFilesDir(), name);
             }
-            Log.d("zzzzz", "file " + file.getAbsolutePath());
             if (file.exists()) {
                 try {
-                    Log.d("zzzzz", "write object");
                     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                     data = (ArrayList<T>) ois.readObject();
                     ois.close();
                 } catch (Exception e) {
-                    Log.d("zzzzz", e.toString());
                 }
             }
             if (data == null) {     /** 如果没有 */
-                Log.d("zzzzz", "data == null");
                 data = new ArrayList<T>();
             }
             return data;

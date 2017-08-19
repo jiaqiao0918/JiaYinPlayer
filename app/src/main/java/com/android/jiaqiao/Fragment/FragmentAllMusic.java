@@ -23,7 +23,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -54,7 +53,7 @@ public class FragmentAllMusic extends Fragment {
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private Toolbar fragment_all_music_toolbar;
     private AppBarLayout appBarLayout;
-    private TextView all_music_title;
+    private TextView all_music_title, show_all_list_size;
     private ImageView all_music_show_album_image;
 
 
@@ -71,7 +70,9 @@ public class FragmentAllMusic extends Fragment {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 0x123456) {
-                getMusicAlbumImage();
+                if(music_all.size()>0) {
+                    getMusicAlbumImage();
+                }
             }
         }
     };
@@ -80,9 +81,10 @@ public class FragmentAllMusic extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_all_music_layout, null);
-        ImageButton back_last_fragment01 = (ImageButton) view.findViewById(R.id.all_music_back_last_fragment01);
-        ImageButton back_last_fragment02 = (ImageButton) view.findViewById(R.id.all_music_back_last_fragment02);
-        TextView show_all_list_size = (TextView) view.findViewById(R.id.show_all_list_size);
+        ImageView back_last_fragment01 = (ImageView) view.findViewById(R.id.all_music_back_last_fragment01);
+        ImageView back_last_fragment02 = (ImageView) view.findViewById(R.id.all_music_back_last_fragment02);
+        ImageView fragment_all_music_modify = (ImageView) view.findViewById(R.id.fragment_all_music_modify);
+        show_all_list_size = (TextView) view.findViewById(R.id.show_all_list_size);
         all_music_show_album_image = (ImageView) view.findViewById(R.id.all_music_show_album_image);
 
         back_last_fragment01.setOnClickListener(new View.OnClickListener() {
@@ -95,6 +97,12 @@ public class FragmentAllMusic extends Fragment {
             @Override
             public void onClick(View v) {
                 getFragmentManager().popBackStack();
+            }
+        });
+        fragment_all_music_modify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
         music_all = PublicDate.music_all;
@@ -265,9 +273,9 @@ public class FragmentAllMusic extends Fragment {
                 case MainActivity.ALL_MUSIC_UPDATE:
                     boolean is_update = intent.getBooleanExtra("is_update", false);
                     if (is_update) {
-                        music_all.clear();
-                        music_all.addAll(PublicDate.music_all);
+                        music_all = PublicDate.music_all;
                         adapter.notifyDataSetChanged();
+                        show_all_list_size.setText((music_all.size()) + "首歌");
                         handler.sendEmptyMessage(0x123456);
                     }
                     break;

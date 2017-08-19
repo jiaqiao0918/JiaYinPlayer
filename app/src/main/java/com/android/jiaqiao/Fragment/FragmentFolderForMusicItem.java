@@ -23,7 +23,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -90,8 +89,9 @@ public class FragmentFolderForMusicItem extends Fragment {
         View view = inflater.inflate(R.layout.fragment_folder_for_music_item_layout, null);
         TextView folder_name = (TextView) view.findViewById(R.id.folder_name);
         show_folder_size = (TextView) view.findViewById(R.id.show_folder_size);
-        ImageButton back_last_fragment01 = (ImageButton) view.findViewById(R.id.folder_music_item_back_last_fragment01);
-        ImageButton back_last_fragment02 = (ImageButton) view.findViewById(R.id.folder_music_item_back_last_fragment02);
+        ImageView back_last_fragment01 = (ImageView) view.findViewById(R.id.folder_music_item_back_last_fragment01);
+        ImageView back_last_fragment02 = (ImageView) view.findViewById(R.id.folder_music_item_back_last_fragment02);
+        ImageView fragment_folder_for_music_item_modify = (ImageView) view.findViewById(R.id.fragment_folder_for_music_item_modify);
         show_folder_list = (RecyclerView) view.findViewById(R.id.show_folder_list);
         collapsingToolbarLayout = (CollapsingToolbarLayout) view.findViewById(R.id.collapsing_toolbar_layout);
         fragment_folder_music_item_toolbar = (Toolbar) view.findViewById(R.id.fragment_folder_music_item_toolbar);
@@ -111,6 +111,12 @@ public class FragmentFolderForMusicItem extends Fragment {
             @Override
             public void onClick(View v) {
                 getFragmentManager().popBackStack();
+            }
+        });
+        fragment_folder_for_music_item_modify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
         if (folder_name_str.length() > 0) {

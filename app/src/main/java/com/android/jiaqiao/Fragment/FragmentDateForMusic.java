@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 
 import com.android.jiaqiao.Adapter.MyExpandableListAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
@@ -54,6 +55,13 @@ public class FragmentDateForMusic extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_date_for_music_layout, null);
         show_date_for_music = (ExpandableListView) view.findViewById(R.id.show_date_for_music);
+        ImageView back_last_fragment = (ImageView) view.findViewById(R.id.back_last_fragment);
+        back_last_fragment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().popBackStack();
+            }
+        });
         update_date();
 
         //动态注册广播

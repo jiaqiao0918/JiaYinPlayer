@@ -28,6 +28,8 @@
             android:theme="@style/DIY_Dialog"></activity>
         <activity android:name="com.android.jiaqiao.Activity.DeleteMusicSheetActivity"
             android:theme="@style/DIY_Dialog"></activity>
+        <activity android:name="com.android.jiaqiao.Activity.MusicEditNeedListActivity"
+            android:theme="@style/DIY_Dialog"></activity>
         <service android:name="com.android.jiaqiao.Service.SelectMusicService"/>
     </application>
 </manifest>

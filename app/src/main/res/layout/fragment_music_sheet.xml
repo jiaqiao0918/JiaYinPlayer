@@ -49,12 +49,13 @@
                         android:paddingTop="8dp">
 
 
-                        <ImageButton
+                        <ImageView
                             android:id="@+id/music_sheet_back_last_fragment01"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentTop="true"
+                            android:padding="10dp"
                             android:background="@drawable/click_oval"
                             android:src="@drawable/arrow_left" />
 
@@ -101,8 +102,11 @@
                                     android:orientation="vertical">
 
                                     <ImageView
-                                        android:layout_width="20dp"
-                                        android:layout_height="20dp"
+                                        android:id="@+id/fragment_music_sheet_delete"
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:padding="5dp"
+                                        android:background="@drawable/click_oval"
                                         android:src="@drawable/music_delete" />
 
                                     <TextView
@@ -129,8 +133,11 @@
                                     android:orientation="vertical">
 
                                     <ImageView
-                                        android:layout_width="20dp"
-                                        android:layout_height="20dp"
+                                        android:id="@+id/fragment_music_sheet_modify"
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:padding="5dp"
+                                        android:background="@drawable/click_oval"
                                         android:src="@drawable/music_modify" />
 
                                     <TextView
@@ -157,8 +164,11 @@
                                     android:orientation="vertical">
 
                                     <ImageView
-                                        android:layout_width="20dp"
-                                        android:layout_height="20dp"
+                                        android:id="@+id/fragment_music_sheet_add"
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:padding="5dp"
+                                        android:background="@drawable/click_oval"
                                         android:src="@drawable/music_add" />
 
                                     <TextView
@@ -185,25 +195,37 @@
                     android:layout_height="?attr/actionBarSize"
                     android:alpha="0"
                     android:background="@color/back_ground"
+                    app:contentInsetLeft="0dp"
+                    app:contentInsetStart="0dp"
                     app:layout_collapseMode="pin">
 
-                    <ImageButton
-                        android:id="@+id/music_sheet_back_last_fragment02"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true"
-                        android:background="@drawable/click_oval"
-                        android:src="@drawable/arrow_left" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="0dp"
+                        android:background="@color/toolbar_linear_back_ground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingLeft="16dp">
 
-                    <TextView
-                        android:id="@+id/music_sheet_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="歌单名"
-                        android:textColor="@color/font_color"
-                        android:textSize="16sp" />
+                        <ImageView
+                            android:id="@+id/music_sheet_back_last_fragment02"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:padding="10dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentTop="true"
+                            android:background="@drawable/click_oval"
+                            android:src="@drawable/arrow_left" />
 
+                        <TextView
+                            android:id="@+id/music_sheet_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="歌单名"
+                            android:textColor="@color/font_color"
+                            android:textSize="16sp" />
+                    </LinearLayout>
                 </android.support.v7.widget.Toolbar>
             </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -211,7 +233,7 @@
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="615dp"
+            android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
@@ -223,7 +245,7 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/music_sheet_music"
                     android:layout_width="match_parent"
-                    android:layout_height="615dp"
+                    android:layout_height="800dp"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp" />
             </LinearLayout>

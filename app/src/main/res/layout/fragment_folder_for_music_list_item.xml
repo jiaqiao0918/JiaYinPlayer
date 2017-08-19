@@ -30,6 +30,7 @@
     <ImageView
         android:layout_width="16dp"
         android:layout_height="16dp"
+        android:padding="1dp"
         android:src="@drawable/arrow_right" />
 
 

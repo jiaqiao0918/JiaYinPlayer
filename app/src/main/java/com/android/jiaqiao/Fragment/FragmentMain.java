@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -66,7 +66,7 @@ public class FragmentMain extends Fragment {
         LinearLayout fragment_to_date_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_date_for_music);
         LinearLayout fragment_to_folder_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_folder_for_music);
         music_all_count = (TextView) view.findViewById(R.id.music_all_count);
-        ImageButton add_music_sheet_name = (ImageButton) view.findViewById(R.id.add_music_sheet_name);
+        ImageView add_music_sheet_name = (ImageView) view.findViewById(R.id.add_music_sheet_name);
 //        loading_gif = (ImageView) view.findViewById(loading_gif);
 //        if (!PublicDate.is_select_music_over) {
 //            //使用第三方Glide库，加载GIF图片，后期还可以加载专辑图片，google推荐（R.drawable.loading 资源文件，loading_gif ImageView对象）

@@ -18,19 +18,26 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Fragment.FragmentMain;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.SelectMusicService;
 import com.android.jiaqiao.Utils.DataInfoCache;
 
 import java.io.File;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     public static final int WRITE_EXTERNAL_STORAGE_QUANXAN = 200000000;
     public static final int ALL_MUSIC_UPDATE = 200000001;
 
     private ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
+
+
     private View drawer_center_view;
     private RelativeLayout drawer_center_layout, drawer_left_layout,
             drawer_right_layout;
@@ -41,7 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private MainActivityReceiver mReceiver;
     private IntentFilter mFilter;
 
-    private Intent select_music_intent ;
+    private String sd_path = Environment.getExternalStorageDirectory().getPath();
+
+
+    private Intent select_music_intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +82,10 @@ public class MainActivity extends AppCompatActivity {
         PublicDate.music_all = music_all;
         */
 
-        PublicDate.music_all = DataInfoCache.loadListCache(this,"music_all");
-        PublicDate.list_folder_all = DataInfoCache.loadListCache(this,"list_folder_all");
+        ArrayList<MusicInfo> music_all_temp = DataInfoCache.loadListCache(this, "music_all");
+        listSortPinYin(music_all_temp);
+        PublicDate.music_all = music_all_temp;
+        PublicDate.list_folder_all = DataInfoCache.loadListCache(this, "list_folder_all");
 
         //启动service
         select_music_intent = new Intent(MainActivity.this, SelectMusicService.class);
@@ -85,7 +97,11 @@ public class MainActivity extends AppCompatActivity {
         mFilter = new IntentFilter();
         mFilter.addAction("com.android.jiaqiao.SelectMusicService");
         this.registerReceiver(mReceiver, mFilter);
+
+        //Test
+        startActivity(new Intent(MainActivity.this, MusicEditNeedListActivity.class));
     }
+
     @Override
     protected void onRestart() {
         super.onRestart();
@@ -124,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     //回值操作
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -139,10 +154,11 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(!PublicDate.is_service_select_music_destroy){
+        if (!PublicDate.is_service_select_music_destroy) {
             stopService(select_music_intent);
         }
     }
@@ -153,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
             int type = intent.getIntExtra("type", -1);
             switch (type) {
                 case MainActivity.ALL_MUSIC_UPDATE:
-                    if(!PublicDate.is_service_select_music_destroy){
+                    if (!PublicDate.is_service_select_music_destroy) {
                         stopService(select_music_intent);
                     }
                     break;
@@ -161,5 +177,30 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    // 自定义的排序
+    public void listSortTitle(ArrayList<MusicInfo> resultList) {
+        Collections.sort(resultList, new Comparator<MusicInfo>() {
+            public int compare(MusicInfo o1, MusicInfo o2) {
+                String name1 = o1.getMusic_title();
+                String name2 = o2.getMusic_title();
+                Collator instance = Collator.getInstance(Locale.CHINA);
+                return instance.compare(name1, name2);
+            }
+        });
+    }
+
+    // 自定义的排序
+    public static void listSortPinYin(ArrayList<MusicInfo> resultList) {
+        Collections.sort(resultList, new Comparator<MusicInfo>() {
+            public int compare(MusicInfo o1, MusicInfo o2) {
+                String name1 = o1.getMusic_pinyin();
+                String name2 = o2.getMusic_pinyin();
+                Collator instance = Collator.getInstance(Locale.CHINA);
+                return instance.compare(name1, name2);
+            }
+        });
+    }
+
 
 }

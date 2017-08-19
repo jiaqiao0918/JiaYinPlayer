@@ -122,6 +122,7 @@
                                 <ImageView
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
+                                    android:padding="1dp"
                                     android:src="@drawable/arrow_right" />
                             </LinearLayout>
                         </LinearLayout>
@@ -142,7 +143,6 @@
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:layout_marginTop="1dp"
-
                             android:src="@drawable/add_time_icon" />
 
                         <LinearLayout
@@ -175,6 +175,7 @@
                                 <ImageView
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
+                                    android:padding="1dp"
                                     android:src="@drawable/arrow_right" />
                             </LinearLayout>
                         </LinearLayout>
@@ -226,6 +227,7 @@
                                 <ImageView
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
+                                    android:padding="1dp"
                                     android:src="@drawable/arrow_right" />
                             </LinearLayout>
                         </LinearLayout>
@@ -261,10 +263,11 @@
                             android:text="歌单"
                             android:textColor="@color/font_color" />
 
-                        <ImageButton
+                        <ImageView
                             android:id="@+id/add_music_sheet_name"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
+                            android:padding="13dp"
                             android:background="@drawable/click_oval"
                             android:src="@drawable/add_music_list_button" />
                     </LinearLayout>

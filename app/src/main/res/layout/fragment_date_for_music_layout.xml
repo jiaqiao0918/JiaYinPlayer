@@ -15,10 +15,11 @@
         android:paddingRight="16dp"
         android:paddingTop="8dp">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/back_last_fragment"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:padding="10dp"
             android:background="@drawable/click_oval"
             android:src="@drawable/arrow_left" />
 

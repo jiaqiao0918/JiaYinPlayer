@@ -23,9 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -103,11 +101,30 @@ public class FragmentMusicSheet extends Fragment {
         show_music_sheet_recycler_view = (RecyclerView) view.findViewById(R.id.music_sheet_music);
         music_sheet_show_album_image = (ImageView) view.findViewById(R.id.music_sheet_show_album_image);
 
-        ImageButton back_last_fragment01 = (ImageButton) view.findViewById(R.id.music_sheet_back_last_fragment01);
-        ImageButton back_last_fragment02 = (ImageButton) view.findViewById(R.id.music_sheet_back_last_fragment02);
-        LinearLayout music_sheet_delete = (LinearLayout) view.findViewById(R.id.music_sheet_delete);
-        LinearLayout music_sheet_modify = (LinearLayout) view.findViewById(R.id.music_sheet_modify);
-        LinearLayout music_sheet_add = (LinearLayout) view.findViewById(R.id.music_sheet_add);
+        ImageView back_last_fragment01 = (ImageView) view.findViewById(R.id.music_sheet_back_last_fragment01);
+        ImageView back_last_fragment02 = (ImageView) view.findViewById(R.id.music_sheet_back_last_fragment02);
+        ImageView music_sheet_delete = (ImageView) view.findViewById(R.id.fragment_music_sheet_delete);
+        ImageView music_sheet_modify = (ImageView) view.findViewById(R.id.fragment_music_sheet_modify);
+        ImageView music_sheet_add = (ImageView) view.findViewById(R.id.fragment_music_sheet_add);
+
+        music_sheet_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        music_sheet_modify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        music_sheet_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         show_sheet_name.setText(show_sheet_info.getSheet_name().toString());
         music_sheet_title.setText(show_sheet_info.getSheet_name().toString());

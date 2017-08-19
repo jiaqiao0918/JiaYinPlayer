@@ -8,7 +8,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Utils.DataInfoCache;
@@ -40,8 +39,9 @@ public class SelectMusicService extends Service {
 
     private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
     private ArrayList<MusicInfo> all_list = new ArrayList<MusicInfo>();
+    private boolean is_update_this = false;
 
-    private String sd_path = Environment.getExternalStorageDirectory().getPath();
+    private String sd_path = Environment.getExternalStorageDirectory().getPath()+"/000/test.txt";
 
     @Nullable
     @Override
@@ -67,16 +67,37 @@ public class SelectMusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-        final Thread thread = new Thread() {
+         Thread thread = new Thread() {
             @Override
             public void run() {
                 super.run();
                 music_all.clear();
                 getAllMusic();
-                music_all = listToList(all_list);
+                listSortPinYin(all_list);
+                music_all = all_list;
                 if (PublicDate.music_all.size() != music_all.size()) {
-                    PublicDate.music_all = music_all;
-                    PublicDate.list_folder_all = listToFolder(music_all);
+                    is_update_this = true;
+                } else {
+                    boolean is_is = true;
+                    for (int i = 0; i < music_all.size(); i++) {
+                        if (music_all.get(i).getMusic_id() == PublicDate.music_all.get(i).getMusic_id() && music_all.get(i).getMusic_title().trim().equals(PublicDate.music_all.get(i).getMusic_title().trim())) {
+                            is_is = true;
+                        } else {
+                            is_is = false;
+                            break;
+                        }
+                    }
+                    if (!is_is) {
+                        is_update_this = true;
+                    }else {
+                        is_update_this = false;
+                    }
+                }
+                if(is_update_this){
+                    PublicDate.music_all.clear();
+                    PublicDate.music_all.addAll(music_all);
+                    PublicDate.list_folder_all.clear();
+                    PublicDate.list_folder_all.addAll(listToFolder(music_all));
                     DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
                     DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
                     //发送广播
@@ -85,31 +106,8 @@ public class SelectMusicService extends Service {
                     temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
                     temp_intent.putExtra("is_update", true);
                     sendBroadcast(temp_intent);
-                } else {
-                    boolean is_is = true;
-                    for (int i = 0; i < music_all.size(); i++) {
-                        if (music_all.get(i).getMusic_id() == PublicDate.music_all.get(i).getMusic_id() && music_all.get(i).getMusic_title().equals(PublicDate.music_all.get(i).getMusic_title())) {
-                            is_is = true;
-                        } else {
-                            is_is = false;
-                            break;
-                        }
-                    }
-                    if (!is_is) {
-                        PublicDate.music_all = music_all;
-                        PublicDate.list_folder_all = listToFolder(music_all);
-                        DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
-                        DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
-                        //发送广播
-                        Intent temp_intent = new Intent();
-                        temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
-                        temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
-                        temp_intent.putExtra("is_update", true);
-                        sendBroadcast(temp_intent);
-                    }
+
                 }
-
-
                 PublicDate.is_select_music_over = true;
                 PublicDate.is_service_select_music_destroy = false;
                 this.interrupt();//中断线程
@@ -117,10 +115,8 @@ public class SelectMusicService extends Service {
         };
         thread.start();
 
-
         return super.onStartCommand(intent, flags, startId);
     }
-
 
     @Override
     public void onDestroy() {
@@ -170,122 +166,6 @@ public class SelectMusicService extends Service {
             }
         }
         cursor.close();
-    }
-
-    public ArrayList<MusicInfo> listToList(ArrayList<MusicInfo> list_list) {
-        ArrayList<MusicInfo> temp_list = new ArrayList<>();
-        ArrayList<MusicInfo> en_list = new ArrayList<>();
-        ArrayList<MusicInfo> cn_list = new ArrayList<>();
-        ArrayList<MusicInfo> other_list = new ArrayList<>();
-
-        char[] en_char = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-                's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-        int[] en_num = new int[en_char.length];
-        int[] cn_num = new int[en_char.length];
-        int cn_start_num = 0;
-        int cn_add_num = 0;
-
-        for (int i = 0; i < en_char.length; i++) {
-            en_num[i] = -1;
-            cn_num[i] = -1;
-        }
-
-        listSortTitle(list_list);
-
-        for (int i = 0; i < list_list.size(); i++) {
-            long music_id = list_list.get(i).getMusic_id();//歌曲ID
-            String url = list_list.get(i).getMusic_path();//path
-            String title = list_list.get(i).getMusic_title();//歌名
-            String artist = list_list.get(i).getMusic_artist();//歌手
-            String album = list_list.get(i).getMusic_album();//专辑
-            long album_id = list_list.get(i).getMusic_album_id();//专辑
-            int duration = list_list.get(i).getMusic_duration();
-            int date_time = list_list.get(i).getAdd_date_time();//添加日期
-
-            if (isEnglish(title.replaceAll(" ", "").toCharArray()[0] + "")) {
-                en_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, getMusic_pinyin(title), date_time));
-                // 英文开头，拼音就是英文
-            } else {
-                String text_pinyin = getMusic_pinyin(title);
-                char pinyin_char = text_pinyin.toLowerCase().trim().toCharArray()[0];
-                if (isEnglish(pinyin_char + "")) {
-                    cn_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, text_pinyin, date_time));
-                } else {
-                    other_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, text_pinyin, date_time));
-
-                }
-            }
-        }
-
-        listSortPinYin(en_list);
-        listSortPinYin(cn_list);
-        listSortPinYin(other_list);
-
-
-        for (int i = 0; i < en_list.size(); i++) {
-            char temp = en_list.get(i).getMusic_pinyin().toString().toLowerCase().trim().toCharArray()[0];
-            for (int j = 0; j < en_num.length; j++) {
-                if (temp == en_char[j]) {
-                    en_num[j] = i;
-                }
-            }
-        }
-
-        for (int i = 0; i < cn_list.size(); i++) {
-            char temp = cn_list.get(i).getMusic_pinyin().toString().toLowerCase().trim().toCharArray()[0];
-            for (int j = 0; j < cn_num.length; j++) {
-                if (temp == en_char[j]) {
-                    cn_num[j] = i;
-                }
-            }
-        }
-
-        if (en_list != null && en_list.size() > 0) {
-            temp_list = en_list;
-            int add_sum = 0;
-            if (cn_list != null && cn_list.size() > 0) {
-                for (int i = 0; i < en_num.length; i++) {
-                    if (en_num[i] > -1 || cn_num[i] > -1) {
-                        if (en_num[i] > -1) {
-                            cn_add_num = en_num[i];
-                        }
-                        if (cn_num[i] > -1) {
-                            int temp = i - 1;
-                            while (temp > 0) {
-                                if (cn_num[temp] > -1) {
-                                    cn_start_num = cn_num[temp];
-                                    break;
-                                }
-                                temp--;
-                            }
-                            if (cn_num[i] > 0) {
-                                for (int j = cn_start_num + 1; j <= cn_num[i]; j++) {
-                                    temp_list.add(cn_add_num + add_sum + 1, cn_list.get(j));
-                                    add_sum++;
-                                }
-                            } else if (cn_num[i] == 0) {
-                                for (int j = cn_start_num; j <= cn_num[i]; j++) {
-                                    temp_list.add(cn_add_num + add_sum + 1, cn_list.get(j));
-                                    add_sum++;
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-
-        } else {
-            temp_list = cn_list;
-        }
-        temp_list.addAll(other_list);
-
-        return temp_list;
-    }
-
-    //判断是不是英文
-    public boolean isEnglish(String charaString) {
-        return charaString.matches("^[a-zA-Z]*");
     }
 
     //获取对应的拼音
@@ -393,6 +273,7 @@ public class SelectMusicService extends Service {
                 folder_list_temp.add((MusicInfo) list_temp.get(j));
             }
             map_temp.put("folder_name", getInfoString(list_folder.get(i).get("folder_name").toString()));
+            listSortPinYin(folder_list_temp);
             map_temp.put("folder_name_list", folder_list_temp);
             map_temp.put("folder_name_path", list_folder.get(i).get("folder_name").toString());
             list_folder_all_temp.add(map_temp);
@@ -400,7 +281,6 @@ public class SelectMusicService extends Service {
 
         return list_folder_all_temp;
     }
-
 
 
     public String getInfoString(String string) {

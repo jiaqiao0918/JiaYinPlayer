@@ -12,7 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.android.jiaqiao.Adapter.FolderListViewAdapter;
@@ -44,7 +44,7 @@ public class FragmentFolderForMusic extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_folder_for_music_layout, null);
-        ImageButton back_last_fragment = (ImageButton) view.findViewById(R.id.back_last_fragment);
+        ImageView back_last_fragment = (ImageView) view.findViewById(R.id.back_last_fragment);
         show_all_folder_of_list = (ListView) view.findViewById(R.id.show_all_folder_of_list);
         back_last_fragment.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="600dp"
+    style="@style/dialog_linear_layout"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="56dp"
+            android:layout_height="24dp"
+            android:background="@drawable/click_button"
+            android:gravity="center"
+            android:onClick="cancel_button"
+            android:text="取消"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="12sp" />
+
+        <TextView
+
+            android:id="@+id/edit_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="编辑名"
+            android:textColor="@color/font_color"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/selected_all_button"
+            android:layout_width="56dp"
+            android:layout_height="24dp"
+            android:background="@drawable/click_button"
+            android:gravity="center"
+            android:onClick="selected_all"
+            android:text="全选"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color" />
+
+    <ListView
+        android:id="@+id/show_all_music_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:divider="@color/fengexian_color"
+        android:dividerHeight="1dp"
+        android:scrollbars="none" />
+
+    <LinearLayout
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="12dp"
+        android:paddingBottom="15dp"
+        android:background="@color/touming"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/test_image_view"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:clickable="true"
+                android:background="@drawable/click_oval"
+                android:src="@drawable/music_edit_love_icon" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="添加"
+                android:textSize="10sp"
+                android:textColor="@color/font_seccend_color"/>
+        </LinearLayout>
+        </LinearLayout>
+
+</LinearLayout>

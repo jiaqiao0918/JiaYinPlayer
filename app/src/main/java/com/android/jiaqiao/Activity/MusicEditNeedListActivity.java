@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -29,10 +30,11 @@ import java.util.ArrayList;
  * Created by jiaqiao on 2017/7/3/0003.
  */
 
-public class AllMusciAddToSheetActivity extends Activity {
+public class MusicEditNeedListActivity extends Activity {
 
     private Button selected_all_button;
     private ListView show_all_music_list;
+    private ImageView test_image_view;
 
     private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
     private MusicSheetListViewAdapter adapter;
@@ -43,7 +45,7 @@ public class AllMusciAddToSheetActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_all_music_add_to_sheet);
+        setContentView(R.layout.activity_music_edit_need_list);
         this.overridePendingTransition(R.anim.dialog_enter_anim, 0);//设置ActivityToDialog的进入动画
         // 获取对话框的Window对象
         Window mWindow = this.getWindow();
@@ -62,6 +64,13 @@ public class AllMusciAddToSheetActivity extends Activity {
         }
         show_all_music_list = (ListView) findViewById(R.id.show_all_music_list);
         selected_all_button = (Button) findViewById(R.id.selected_all_button);
+        test_image_view =(ImageView) findViewById(R.id.test_image_view);
+        test_image_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MusicEditNeedListActivity.this,"单击",Toast.LENGTH_SHORT).show();
+            }
+        });
         adapter = new MusicSheetListViewAdapter(this, music_all);
         show_all_music_list.setAdapter(adapter);
         show_all_music_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -128,7 +137,7 @@ public class AllMusciAddToSheetActivity extends Activity {
                 }
             }
             if (num > 0) {
-                Toast.makeText(AllMusciAddToSheetActivity.this, num + "首歌添加成功！！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MusicEditNeedListActivity.this, num + "首歌添加成功！！", Toast.LENGTH_SHORT).show();
             }
         }
 
