@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Utils.FastBlurUtil;
@@ -116,7 +117,8 @@ public class FragmentFolderForMusicItem extends Fragment {
         fragment_folder_for_music_item_modify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                PublicDate.music_edit_temp = folder_list;
+                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("is_all_music_01",true).putExtra("edit_name_intent", folder_name_tittle.getText().toString()));
             }
         });
         if (folder_name_str.length() > 0) {

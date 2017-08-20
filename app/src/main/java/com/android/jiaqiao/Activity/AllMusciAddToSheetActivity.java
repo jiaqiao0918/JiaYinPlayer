@@ -1,6 +1,7 @@
 package com.android.jiaqiao.Activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,10 +17,14 @@ import android.widget.Toast;
 
 import com.android.jiaqiao.Adapter.MusicSheetListViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -122,13 +127,20 @@ public class AllMusciAddToSheetActivity extends Activity {
             int num = 0;
             for (int i = 0; i < music_all.size(); i++) {
                 if (music_all.get(i).is_selected()) {
-                    num++;
-                    addTextToFile(path, music_all.get(i).getMusic_id() + PublicDate.separate_str + music_all.get(i).getMusic_title());
-
+                    String add_context=music_all.get(i).getMusic_id() + PublicDate.separate_str + music_all.get(i).getMusic_title();
+                    if (!isHavaContextFromPath(path, add_context)) {
+                        addTextToFile(path, add_context);
+                        num++;
+                    }
                 }
             }
             if (num > 0) {
-                Toast.makeText(AllMusciAddToSheetActivity.this, num + "首歌添加成功！！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AllMusciAddToSheetActivity.this, num + "首歌曲添加成功！！", Toast.LENGTH_SHORT).show();
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
+                temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
+                temp_intent.putExtra("is_update_sheet", true);
+                sendBroadcast(temp_intent);
             }
         }
 
@@ -141,6 +153,26 @@ public class AllMusciAddToSheetActivity extends Activity {
         super.finish();
         this.overridePendingTransition(R.anim.dialog_exit_anim, 0);
         //设置ActivityToDialog的退出动画，不知道为什么在xml文件中设置退出动画会错位
+    }
+
+    public boolean isHavaContextFromPath(String path_name, String context) {
+        try {
+            FileReader fr = new FileReader(path_name);
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                if (context.trim().equals(line.trim())) {
+                    return true;
+                }
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public String getPath(String sheet_id) {

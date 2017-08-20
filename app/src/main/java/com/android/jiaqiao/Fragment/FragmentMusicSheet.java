@@ -25,9 +25,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.android.jiaqiao.Activity.AllMusciAddToSheetActivity;
 import com.android.jiaqiao.Activity.DeleteMusicSheetActivity;
+import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
@@ -107,24 +108,6 @@ public class FragmentMusicSheet extends Fragment {
         ImageView music_sheet_modify = (ImageView) view.findViewById(R.id.fragment_music_sheet_modify);
         ImageView music_sheet_add = (ImageView) view.findViewById(R.id.fragment_music_sheet_add);
 
-        music_sheet_delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        music_sheet_modify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        music_sheet_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
         show_sheet_name.setText(show_sheet_info.getSheet_name().toString());
         music_sheet_title.setText(show_sheet_info.getSheet_name().toString());
@@ -177,8 +160,6 @@ public class FragmentMusicSheet extends Fragment {
         mFilter.addAction("com.android.jiaqiao.SelectMusicService");
         getActivity().registerReceiver(mReceiver, mFilter);
 
-
-        if (music_sheet_list != null && music_sheet_list.size() > 0) {
             // 创建默认的线性LayoutManager
             show_music_sheet_recycler_view.setLayoutManager(new LinearLayoutManager(getActivity()));
             // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
@@ -210,8 +191,6 @@ public class FragmentMusicSheet extends Fragment {
             show_music_sheet_recycler_view.setAdapter(adapter);
 
 
-        }
-
         music_sheet_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,13 +200,15 @@ public class FragmentMusicSheet extends Fragment {
         music_sheet_modify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "编辑按钮", Toast.LENGTH_SHORT).show();
+                PublicDate.music_edit_temp = music_sheet_list;
+                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("edit_name_intent", music_sheet_title.getText().toString()).putExtra("music_sheet_id_01",show_sheet_info.getSheet_id().toString()));
             }
         });
         music_sheet_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "添加按钮", Toast.LENGTH_SHORT).show();
+                PublicDate.temp_sheet_info = show_sheet_info;
+                startActivity(new Intent(getActivity(), AllMusciAddToSheetActivity.class));
             }
         });
 
@@ -392,6 +373,16 @@ public class FragmentMusicSheet extends Fragment {
                 case MainActivity.ALL_MUSIC_UPDATE:
                     boolean is_update = intent.getBooleanExtra("is_update", false);
                     if (is_update) {
+                        music_sheet_list.clear();
+                        getMusicSheetToArrayList(path);
+                        adapter.notifyDataSetChanged();
+                        show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
+                        handler.sendEmptyMessage(0x123456);
+                    }
+                    break;
+                case MainActivity.UPDATE_SHEET:
+                    boolean is_update_sheet = intent.getBooleanExtra("is_update_sheet", false);
+                    if (is_update_sheet) {
                         music_sheet_list.clear();
                         getMusicSheetToArrayList(path);
                         adapter.notifyDataSetChanged();

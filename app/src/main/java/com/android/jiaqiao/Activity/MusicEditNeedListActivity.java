@@ -1,6 +1,7 @@
 package com.android.jiaqiao.Activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,7 +13,9 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.jiaqiao.Adapter.MusicSheetListViewAdapter;
@@ -20,11 +23,17 @@ import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+
+import static com.android.jiaqiao.jiayinplayer.PublicDate.music_edit_temp;
+import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
 
 /**
  * Created by jiaqiao on 2017/7/3/0003.
@@ -34,13 +43,18 @@ public class MusicEditNeedListActivity extends Activity {
 
     private Button selected_all_button;
     private ListView show_all_music_list;
-    private ImageView test_image_view;
+    private ImageView activity_muisc_edit_add, activity_muisc_edit_love, activity_muisc_edit_delete;
+    private TextView edit_name;
+    private LinearLayout not_love_music;
 
-    private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
+    private ArrayList<MusicInfo> music_temp = new ArrayList<MusicInfo>();
     private MusicSheetListViewAdapter adapter;
 
     private int selectec_num = 0;
     private String path = "";
+    private String music_sheet_id01="";
+
+    private boolean is_all_music_01 = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,47 +72,116 @@ public class MusicEditNeedListActivity extends Activity {
         lp.width = size.x; //设置dialog的宽度为当前手机屏幕的宽度,getwidth() 过时
         getWindow().setAttributes(lp);
 
-        music_all = PublicDate.music_all;
-        for (int i =0;i<music_all.size();i++){
-            music_all.get(i).setIs_selected(false);
+        is_all_music_01 = getIntent().getBooleanExtra("is_all_music_01",false);
+        music_sheet_id01 = getIntent().getStringExtra("music_sheet_id_01");
+        music_temp = music_edit_temp;
+        for (int i = 0; i < music_temp.size(); i++) {
+            music_temp.get(i).setIs_selected(false);
         }
         show_all_music_list = (ListView) findViewById(R.id.show_all_music_list);
         selected_all_button = (Button) findViewById(R.id.selected_all_button);
-        test_image_view =(ImageView) findViewById(R.id.test_image_view);
-        test_image_view.setOnClickListener(new View.OnClickListener() {
+        activity_muisc_edit_add = (ImageView) findViewById(R.id.activity_muisc_edit_add);
+        activity_muisc_edit_love = (ImageView) findViewById(R.id.activity_muisc_edit_love);
+        activity_muisc_edit_delete = (ImageView) findViewById(R.id.activity_muisc_edit_delete);
+        edit_name = (TextView) findViewById(R.id.edit_name);
+        not_love_music = (LinearLayout) findViewById(R.id.not_love_music);
+
+
+        if(music_sheet_id01.trim().equals("love".trim())){
+            not_love_music.setVisibility(View.GONE);
+        }
+        activity_muisc_edit_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MusicEditNeedListActivity.this,"单击",Toast.LENGTH_SHORT).show();
+                ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                for (int i = 0; i < music_temp.size(); i++) {
+                    if (music_temp.get(i).is_selected()) {
+                        music_edit_select.add(i);
+                    }
+                }
+                if (music_edit_select.size() > 0 && music_edit_select != null) {
+                    PublicDate.music_edit_temp_select = music_edit_select;
+                    startActivity(new Intent(MusicEditNeedListActivity.this, MusicEditAddMusicSheetActivity.class));
+                    finish();
+                }
             }
         });
-        adapter = new MusicSheetListViewAdapter(this, music_all);
+        activity_muisc_edit_love.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                for (int i = 0; i < music_temp.size(); i++) {
+                    if (music_temp.get(i).is_selected()) {
+                        music_edit_select.add(i);
+                    }
+                }
+                if (music_edit_select.size() > 0) {
+                    ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
+                    music_edit_temp = PublicDate.music_edit_temp;
+                    path = getPath("love");
+                    int num = 0;
+                    for (int i = 0; i < music_edit_select.size(); i++) {
+                        String add_context = music_edit_temp.get(music_edit_select.get(i)).getMusic_id() + separate_str + music_edit_temp.get(music_edit_select.get(i)).getMusic_title();
+                        if (!isHavaContextFromPath(path, add_context)) {
+                            addTextToFile(path, add_context);
+                            num++;
+                        }
+                    }
+                    if (num > 0) {
+                        Toast.makeText(MusicEditNeedListActivity.this, num + "首歌曲收藏成功！！", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                music_edit_temp = null;
+                PublicDate.music_edit_temp_select = null;
+                finish();
+            }
+        });
+        activity_muisc_edit_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                for (int i = 0; i < music_temp.size(); i++) {
+                    if (music_temp.get(i).is_selected()) {
+                        music_edit_select.add(i);
+                    }
+                }
+                if (music_edit_select.size() > 0 && music_edit_select != null) {
+                    PublicDate.music_edit_temp_select = music_edit_select;
+                    startActivity(new Intent(MusicEditNeedListActivity.this, MusicEditDeleteActivity.class).putExtra("is_all_music",is_all_music_01).putExtra("music_sheet_id",music_sheet_id01));
+                    finish();
+                }
+            }
+        });
+
+        edit_name.setText(getIntent().getStringExtra("edit_name_intent"));
+
+        adapter = new MusicSheetListViewAdapter(this, music_temp);
         show_all_music_list.setAdapter(adapter);
         show_all_music_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                if (music_all.get(position).is_selected()) {
-                    music_all.get(position).setIs_selected(false);
+                if (music_temp.get(position).is_selected()) {
+                    music_temp.get(position).setIs_selected(false);
                     selectec_num--;
                     if (selectec_num < 0) {
                         selectec_num = 0;
                     }
                 } else {
-                    music_all.get(position).setIs_selected(true);
+                    music_temp.get(position).setIs_selected(true);
                     selectec_num++;
-                    if (selectec_num > music_all.size()) {
-                        selectec_num = music_all.size();
+                    if (selectec_num > music_temp.size()) {
+                        selectec_num = music_temp.size();
                     }
                 }
                 adapter.updataView(position, show_all_music_list);
-                if (selectec_num >= music_all.size()) {
+                if (selectec_num >= music_temp.size()) {
                     selected_all_button.setText("全不选");
                 } else {
                     selected_all_button.setText("全选");
                 }
             }
         });
-
 
 
     }
@@ -108,16 +191,16 @@ public class MusicEditNeedListActivity extends Activity {
     }
 
     public void selected_all(View view) {
-        if (selectec_num != music_all.size()) {
-            for (int i = 0; i < music_all.size(); i++) {
-                music_all.get(i).setIs_selected(true);
+        if (selectec_num != music_temp.size()) {
+            for (int i = 0; i < music_temp.size(); i++) {
+                music_temp.get(i).setIs_selected(true);
                 adapter.updataView(i, show_all_music_list);
             }
-            selectec_num = music_all.size();
+            selectec_num = music_temp.size();
             selected_all_button.setText("全不选");
         } else {
-            for (int i = 0; i < music_all.size(); i++) {
-                music_all.get(i).setIs_selected(false);
+            for (int i = 0; i < music_temp.size(); i++) {
+                music_temp.get(i).setIs_selected(false);
                 adapter.updataView(i, show_all_music_list);
             }
             selectec_num = 0;
@@ -125,25 +208,6 @@ public class MusicEditNeedListActivity extends Activity {
         }
     }
 
-    public void selected_over(View view) {
-        if (selectec_num > 0) {
-            path = getPath(PublicDate.temp_sheet_info.getSheet_id());
-            int num = 0;
-            for (int i = 0; i < music_all.size(); i++) {
-                if (music_all.get(i).is_selected()) {
-                    num++;
-                    addTextToFile(path, music_all.get(i).getMusic_id() + PublicDate.separate_str + music_all.get(i).getMusic_title());
-
-                }
-            }
-            if (num > 0) {
-                Toast.makeText(MusicEditNeedListActivity.this, num + "首歌添加成功！！", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-
-        this.finish();
-    }
 
     @Override
     public void finish() {
@@ -188,5 +252,24 @@ public class MusicEditNeedListActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public boolean isHavaContextFromPath(String path_name, String context) {
+        try {
+            FileReader fr = new FileReader(path_name);
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                if (context.trim().equals(line.trim())) {
+                    return true;
+                }
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

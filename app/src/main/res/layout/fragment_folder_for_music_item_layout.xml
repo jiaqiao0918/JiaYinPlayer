@@ -108,9 +108,9 @@
 
                                     <ImageView
                                         android:id="@+id/fragment_folder_for_music_item_modify"
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
-                                        android:padding="5dp"
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        android:padding="8dp"
                                         android:background="@drawable/click_oval"
                                         android:src="@drawable/music_modify" />
 

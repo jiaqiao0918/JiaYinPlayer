@@ -21,6 +21,7 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
+import java.io.File;
 import java.text.Collator;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -41,7 +42,7 @@ public class SelectMusicService extends Service {
     private ArrayList<MusicInfo> all_list = new ArrayList<MusicInfo>();
     private boolean is_update_this = false;
 
-    private String sd_path = Environment.getExternalStorageDirectory().getPath()+"/000/test.txt";
+    private String sd_path = Environment.getExternalStorageDirectory().getPath();
 
     @Nullable
     @Override
@@ -67,7 +68,7 @@ public class SelectMusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-         Thread thread = new Thread() {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -89,11 +90,11 @@ public class SelectMusicService extends Service {
                     }
                     if (!is_is) {
                         is_update_this = true;
-                    }else {
+                    } else {
                         is_update_this = false;
                     }
                 }
-                if(is_update_this){
+                if (is_update_this) {
                     PublicDate.music_all.clear();
                     PublicDate.music_all.addAll(music_all);
                     PublicDate.list_folder_all.clear();
@@ -162,7 +163,9 @@ public class SelectMusicService extends Service {
                 if (album == "<unknown>" || album.equals("<unknown>")) {
                     album = "";
                 }
-                all_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, getMusic_pinyin(title), date_time));//英文开头，拼音就是英文
+                if (new File(url).exists()) {
+                    all_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, getMusic_pinyin(title), date_time));//英文开头，拼音就是英文
+                }
             }
         }
         cursor.close();

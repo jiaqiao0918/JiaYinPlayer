@@ -19,12 +19,12 @@ public class PublicDate {
     public static Boolean add_sheet_over = false;
     public static Boolean delete_sheet_over = false;
     public static String files_dir = "";
-    public static SheetInfo temp_sheet_info=null;
+    public static SheetInfo temp_sheet_info = null;
     public static String separate_str = "###";
     public static boolean is_select_music_over = false;
 
 
-    public static boolean is_service_select_music_destroy=false;
+    public static boolean is_service_select_music_destroy = false;
 
     /*专辑图片虚化
          * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
@@ -32,4 +32,8 @@ public class PublicDate {
 		 */
     public static int scaleRatio = 20;
     public static int blurRadius = 5;
+
+    public static String music_edit_temp_sheet_id = "";
+    public static ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
+    public static ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
 }

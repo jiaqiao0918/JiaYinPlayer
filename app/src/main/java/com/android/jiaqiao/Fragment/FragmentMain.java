@@ -63,6 +63,7 @@ public class FragmentMain extends Fragment {
         scroll_view = (ScrollView) view.findViewById(R.id.scroll_view);
         music_all_sheet_list = (ListView) view.findViewById(R.id.show_music_list);
         LinearLayout fragment_to_all_music = (LinearLayout) view.findViewById(R.id.fragment_to_all_music);
+        LinearLayout fragment_to_love_music = (LinearLayout) view.findViewById(R.id.fragment_to_love_music);
         LinearLayout fragment_to_date_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_date_for_music);
         LinearLayout fragment_to_folder_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_folder_for_music);
         music_all_count = (TextView) view.findViewById(R.id.music_all_count);
@@ -119,6 +120,19 @@ public class FragmentMain extends Fragment {
                 fragmentTransactionExtended.commit();
             }
         });
+        fragment_to_love_music.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentLoveMusic fragment_love_music = new FragmentLoveMusic();
+                FragmentTransaction fragmentTransaction = getFragmentManager()
+                        .beginTransaction();
+                FragmentTransactionExtended fragmentTransactionExtended = new FragmentTransactionExtended(
+                        getActivity(), fragmentTransaction, new FragmentMain(),
+                        fragment_love_music, R.id.fragment_show);
+                fragmentTransactionExtended.setTransition();
+                fragmentTransactionExtended.commit();
+            }
+        });
         fragment_to_date_for_music.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,7 +163,6 @@ public class FragmentMain extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), AddMusicSheetNameActivity.class));
-
             }
         });
 

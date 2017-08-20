@@ -18,7 +18,6 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Fragment.FragmentMain;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.SelectMusicService;
@@ -34,6 +33,9 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     public static final int WRITE_EXTERNAL_STORAGE_QUANXAN = 200000000;
     public static final int ALL_MUSIC_UPDATE = 200000001;
+
+    public static final int UPDATE_SHEET=300000001;
+
 
     private ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
 
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         this.registerReceiver(mReceiver, mFilter);
 
         //Test
-        startActivity(new Intent(MainActivity.this, MusicEditNeedListActivity.class));
+//        startActivity(new Intent(MainActivity.this, MusicEditNeedListActivity.class));
     }
 
     @Override

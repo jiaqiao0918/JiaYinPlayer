@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/dialog_linear_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="添加到"
+        android:padding="20dp"
+        android:textColor="@color/font_seccend_color"
+        android:textSize="14sp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color"/>
+    <Button
+        android:background="@drawable/click_rectangle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="播放列表"
+        android:gravity="left"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:textColor="@color/font_seccend_color"
+        android:textSize="14sp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="创建新歌单"
+        android:gravity="left"
+        android:onClick="create_new_music_sheet"
+        android:background="@drawable/click_rectangle"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:textColor="@color/font_seccend_color"
+        android:textSize="14sp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color"/>
+    <TextView
+        android:id="@+id/no_music_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="无歌单"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:textColor="@color/font_seccend_color"
+        android:textSize="14sp" />
+    <ListView
+        android:id="@+id/show_music_sheet_name_list"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:scrollbars="none"
+        android:divider="@color/fengexian_color"
+        android:dividerHeight="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="cancel_button"
+        android:padding="16dp"
+        android:background="@drawable/click_sheet_button_left"
+        android:gravity="center"
+        android:textColor="@color/font_seccend_color"
+        android:text="取消" />
+</LinearLayout>
