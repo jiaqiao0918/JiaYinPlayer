@@ -74,7 +74,7 @@ public class FragmentMain extends Fragment {
 //            Glide.with(getActivity()).load(R.drawable.loading).into(loading_gif);
 //
 //        }
-        music_all_count.setText((PublicDate.music_all.size()) + "首");
+        music_all_count.setText((PublicDate.public_music_all.size()) + "首");
         music_sheet_info_list = getMusicSheetToArrayList(path);
 
         music_sheet_adapter = new MusicSheetAdapter(getActivity(), music_sheet_info_list);
@@ -265,7 +265,7 @@ public class FragmentMain extends Fragment {
                 case MainActivity.ALL_MUSIC_UPDATE:
                     boolean is_update = intent.getBooleanExtra("is_update", false);
                     if (is_update) {
-                        music_all_count.setText((PublicDate.music_all.size()) + "首");
+                        music_all_count.setText((PublicDate.public_music_all.size()) + "首");
                     }
                     break;
             }

@@ -188,8 +188,7 @@
                     android:id="@+id/show_all_music"
                     android:layout_width="match_parent"
                     android:layout_height="800dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp" />
+                    />
             </LinearLayout>
 
         </android.support.v4.widget.NestedScrollView>

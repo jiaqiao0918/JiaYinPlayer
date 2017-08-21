@@ -15,6 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private View drawer_center_view;
     private RelativeLayout drawer_center_layout, drawer_left_layout,
             drawer_right_layout;
+    private LinearLayout show_shape_view;
 
     private double start_sd_size = 0;
     private double restart_sd_size = 0;
@@ -77,16 +80,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void activityCreate() {
         drawerCenterLayout();
-        /*
-        music_all.clear();
-        getAllMusic(this);
-        music_all = listToList(all_list);
-        PublicDate.music_all = music_all;
-        */
 
         ArrayList<MusicInfo> music_all_temp = DataInfoCache.loadListCache(this, "music_all");
         listSortPinYin(music_all_temp);
-        PublicDate.music_all = music_all_temp;
+        PublicDate.public_music_all = music_all_temp;
         PublicDate.list_folder_all = DataInfoCache.loadListCache(this, "list_folder_all");
 
         //启动service
@@ -141,6 +138,30 @@ public class MainActivity extends AppCompatActivity {
         drawer_center_layout.addView(drawer_center_view);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //测算控件高度
+        show_shape_view = (LinearLayout) drawer_center_view.findViewById(R.id.show_shape_view);
+        ViewTreeObserver vto = show_shape_view.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                show_shape_view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                PublicDate.public_drawer_center_bottom_view_height=show_shape_view.getHeight();
+            }
+        });
+
+
+//        int view_w = View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);
+//        int view_h = View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);
+//        show_shape_view.measure(view_w, view_h);
+//        int view_height =show_shape_view.getMeasuredHeight();
+//        PublicDate.public_drawer_center_bottom_view_height = view_height;
+//        Log.i("into","public_drawer_center_bottom_view_height:"+view_height);
+
+    }
 
     //回值操作
     @Override

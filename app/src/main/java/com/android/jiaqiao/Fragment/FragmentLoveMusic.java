@@ -24,9 +24,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
 import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
@@ -94,42 +96,6 @@ public class FragmentLoveMusic extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_love_music_layout, null);
-        ImageView back_last_fragment01 = (ImageView) view.findViewById(R.id.love_music_back_last_fragment01);
-        ImageView back_last_fragment02 = (ImageView) view.findViewById(R.id.love_music_back_last_fragment02);
-        ImageView fragment_love_music_modify = (ImageView) view.findViewById(R.id.fragment_love_music_modify);
-        show_love_list_size = (TextView) view.findViewById(R.id.show_all_list_size);
-        love_music_show_album_image = (ImageView) view.findViewById(R.id.love_music_show_album_image);
-
-//        music_love = music_all;
-        show_love_list_size.setText((music_love.size()) + "首歌");
-
-        back_last_fragment01.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getFragmentManager().popBackStack();
-            }
-        });
-        back_last_fragment02.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getFragmentManager().popBackStack();
-            }
-        });
-        fragment_love_music_modify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PublicDate.music_edit_temp = music_love;
-                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("edit_name_intent", love_music_title.getText().toString()).putExtra("music_sheet_id_01", "love"));
-            }
-        });
-
-
-        //动态注册广播
-        mReceiver = new FragmentLoveMusicReceiver();
-        mFilter = new IntentFilter();
-        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
-        getActivity().registerReceiver(mReceiver, mFilter);
-
 
         collapsingToolbarLayout = (CollapsingToolbarLayout) view.findViewById(R.id.collapsing_toolbar_layout);
         fragment_love_music_toolbar = (Toolbar) view.findViewById(R.id.fragment_love_music_toolbar);
@@ -160,6 +126,40 @@ public class FragmentLoveMusic extends Fragment {
 
         path = getPath("love");
         getMusicSheetToArrayList(path);
+        ImageView back_last_fragment01 = (ImageView) view.findViewById(R.id.love_music_back_last_fragment01);
+        ImageView back_last_fragment02 = (ImageView) view.findViewById(R.id.love_music_back_last_fragment02);
+        ImageView fragment_love_music_modify = (ImageView) view.findViewById(R.id.fragment_love_music_modify);
+        show_love_list_size = (TextView) view.findViewById(R.id.show_all_list_size);
+        love_music_show_album_image = (ImageView) view.findViewById(R.id.love_music_show_album_image);
+
+        show_love_list_size.setText((music_love.size()) + "首歌");
+
+        back_last_fragment01.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().popBackStack();
+            }
+        });
+        back_last_fragment02.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().popBackStack();
+            }
+        });
+        fragment_love_music_modify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PublicDate.public_music_edit_temp = music_love;
+                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("edit_name_intent", love_music_title.getText().toString()).putExtra("music_sheet_id_01", "love"));
+            }
+        });
+
+
+        //动态注册广播
+        mReceiver = new FragmentLoveMusicReceiver();
+        mFilter = new IntentFilter();
+        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        getActivity().registerReceiver(mReceiver, mFilter);
 
 
         if (music_love != null && music_love.size() > 0) {
@@ -185,14 +185,37 @@ public class FragmentLoveMusic extends Fragment {
                 @Override
                 public void onItemLongClick(View view, int position) {
                     //item长按事件
-                    music_love.remove(position);
-//                  adapter.notifyItemRemoved(position);//不会刷新RecycleView的高度
-                    adapter.notifyDataSetChanged();
-                    show_love_music_list.startLayoutAnimation();//重新开始LayoutAnimation
+                    ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                    music_edit_select.add(position);
+                    PublicDate.public_music_edit_temp = music_love;
+                    PublicDate.public_music_edit_temp_select = music_edit_select;
+                    getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("is_all_music_01", false).putExtra("music_sheet_id_01", "love"));
 
                 }
             });
             show_love_music_list.setAdapter(adapter);
+
+
+//RecyclerView设置自适应高度，原理：用屏幕的高度-toolbar的高度-activity底部控件的高度-状态栏的高度，单位：像素
+            int view_w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            int view_h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            fragment_love_music_toolbar.measure(view_w, view_h);
+            int view_height = fragment_love_music_toolbar.getMeasuredHeight();
+            WindowManager wm = getActivity().getWindowManager();
+            int mwidth = wm.getDefaultDisplay().getWidth();
+            int mheight = wm.getDefaultDisplay().getHeight();
+            ViewGroup.LayoutParams lp = show_love_music_list.getLayoutParams();
+            //获取状态栏的高度
+            int statusBarHeight1 = -1;
+            //获取status_bar_height资源的ID
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                //根据资源ID获取响应的尺寸值
+                statusBarHeight1 = getResources().getDimensionPixelSize(resourceId);
+            }
+            lp.height = (mheight - view_height - PublicDate.public_drawer_center_bottom_view_height-statusBarHeight1);//单位是像素，不是dp
+            show_love_music_list.setLayoutParams(lp);
+
         }
         show_love_list_size.setText(music_love.size() + "首歌");
 
@@ -254,7 +277,7 @@ public class FragmentLoveMusic extends Fragment {
     // 给一个ImageView设置高斯模糊的图片,并带有渐变
     public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
         /*
-		 * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
+         * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
 		 * 增大blurRadius，可以得到更高程度的虚化，不过会导致CPU更加intensive
 		 */
         int scaleRatio = PublicDate.scaleRatio;
@@ -317,7 +340,7 @@ public class FragmentLoveMusic extends Fragment {
     }
 
     public MusicInfo getFromListGetMusicInfo(String music_id, String music_title) {
-        ArrayList<MusicInfo> list_temp = PublicDate.music_all;
+        ArrayList<MusicInfo> list_temp = PublicDate.public_music_all;
 
         for (int i = 0; i < list_temp.size(); i++) {
             if ((list_temp.get(i).getMusic_id() + "").equals(music_id) && list_temp.get(i).getMusic_title().equals(music_title)) {

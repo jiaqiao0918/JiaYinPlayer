@@ -11,7 +11,7 @@ import java.util.HashMap;
  */
 
 public class PublicDate {
-    public static ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
+    public static ArrayList<MusicInfo> public_music_all = new ArrayList<MusicInfo>();
     public static ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
     public static ArrayList<HashMap<String, Object>> list_folder_all = new ArrayList<HashMap<String, Object>>();
 
@@ -34,6 +34,8 @@ public class PublicDate {
     public static int blurRadius = 5;
 
     public static String music_edit_temp_sheet_id = "";
-    public static ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
-    public static ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
+    public static ArrayList<MusicInfo> public_music_edit_temp = new ArrayList<MusicInfo>();
+    public static ArrayList<Integer> public_music_edit_temp_select = new ArrayList<Integer>();
+
+    public static int public_drawer_center_bottom_view_height =0;
 }

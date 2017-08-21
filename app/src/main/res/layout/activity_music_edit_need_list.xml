@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/dialog_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="600dp"
-    style="@style/dialog_linear_layout"
     android:orientation="vertical">
 
     <LinearLayout
@@ -28,9 +28,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:lines="1"
             android:ellipsize="end"
             android:gravity="center"
+            android:lines="1"
             android:text="编辑名"
             android:textColor="@color/font_color"
             android:textSize="16sp" />
@@ -56,89 +56,98 @@
         android:id="@+id/show_all_music_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
+        android:layout_weight="1"
         android:divider="@color/fengexian_color"
         android:dividerHeight="1dp"
         android:scrollbars="none" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/fengexian_color" />
 
     <LinearLayout
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="7dp"
-        android:paddingBottom="10dp"
         android:background="@color/touming"
-        android:orientation="horizontal">
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingTop="7dp">
+
         <LinearLayout
 
-            android:layout_marginRight="8dp"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
             <ImageView
                 android:id="@+id/activity_muisc_edit_add"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
+                android:background="@drawable/click_oval"
                 android:clickable="true"
                 android:padding="8dp"
-                android:background="@drawable/click_oval"
                 android:src="@drawable/music_edit_add_icon" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="添加"
-                android:textSize="10sp"
-                android:textColor="@color/font_seccend_color"/>
+                android:textColor="@color/font_seccend_color"
+                android:textSize="10sp" />
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/not_love_music"
-            android:layout_marginRight="8dp"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
             <ImageView
                 android:id="@+id/activity_muisc_edit_love"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:padding="8dp"
-                android:clickable="true"
                 android:background="@drawable/click_oval"
+                android:clickable="true"
+                android:padding="8dp"
                 android:src="@drawable/music_edit_love_icon" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="收藏"
-                android:textSize="10sp"
-                android:textColor="@color/font_seccend_color"/>
+                android:textColor="@color/font_seccend_color"
+                android:textSize="10sp" />
         </LinearLayout>
+
         <LinearLayout
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
             <ImageView
                 android:id="@+id/activity_muisc_edit_delete"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:padding="8dp"
-                android:clickable="true"
                 android:background="@drawable/click_oval"
+                android:clickable="true"
+                android:padding="8dp"
                 android:src="@drawable/music_edit_delete_icon" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="删除"
-                android:textSize="10sp"
-                android:textColor="@color/font_seccend_color"/>
+                android:textColor="@color/font_seccend_color"
+                android:textSize="10sp" />
         </LinearLayout>
-        </LinearLayout>
-
+    </LinearLayout>
 </LinearLayout>

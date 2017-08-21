@@ -23,9 +23,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
 import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
@@ -47,7 +49,7 @@ import java.util.TimerTask;
 public class FragmentFolderForMusicItem extends Fragment {
     private String folder_name_str = "";
     private int folder_list_position = 0;
-    private String folder_name_path="";
+    private String folder_name_path = "";
 
     private ArrayList<MusicInfo> folder_list = new ArrayList<MusicInfo>();
 
@@ -78,7 +80,7 @@ public class FragmentFolderForMusicItem extends Fragment {
     private FragmentFolderForMusicItemReceiver mReceiver;
     private IntentFilter mFilter;
 
-    public void setValues(String folder_name_str, int folder_list_position,String folder_name_time) {
+    public void setValues(String folder_name_str, int folder_list_position, String folder_name_time) {
         this.folder_name_str = folder_name_str;
         this.folder_list_position = folder_list_position;
         this.folder_name_path = folder_name_time;
@@ -117,8 +119,8 @@ public class FragmentFolderForMusicItem extends Fragment {
         fragment_folder_for_music_item_modify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PublicDate.music_edit_temp = folder_list;
-                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("is_all_music_01",true).putExtra("edit_name_intent", folder_name_tittle.getText().toString()));
+                PublicDate.public_music_edit_temp = folder_list;
+                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("is_all_music_01", true).putExtra("edit_name_intent", folder_name_tittle.getText().toString()));
             }
         });
         if (folder_name_str.length() > 0) {
@@ -181,14 +183,34 @@ public class FragmentFolderForMusicItem extends Fragment {
                 @Override
                 public void onItemLongClick(View view, int position) {
                     //item长按事件
-                    folder_list.remove(position);
-//                  adapter.notifyItemRemoved(position);//不会刷新RecycleView的高度
-                    adapter.notifyDataSetChanged();
-                    show_folder_list.startLayoutAnimation();//重新开始LayoutAnimation
-
+                    ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                    music_edit_select.add(position);
+                    PublicDate.public_music_edit_temp = folder_list;
+                    PublicDate.public_music_edit_temp_select = music_edit_select;
+                    getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("is_all_music_01", true));
                 }
             });
             show_folder_list.setAdapter(adapter);
+
+            //RecyclerView设置自适应高度，原理：用屏幕的高度-toolbar的高度-activity底部控件的高度-状态栏的高度
+            int view_w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            int view_h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            fragment_folder_music_item_toolbar.measure(view_w, view_h);
+            int view_height = fragment_folder_music_item_toolbar.getMeasuredHeight();
+            WindowManager wm = getActivity().getWindowManager();
+            int mwidth = wm.getDefaultDisplay().getWidth();
+            int mheight = wm.getDefaultDisplay().getHeight();
+            ViewGroup.LayoutParams lp = show_folder_list.getLayoutParams();
+            int statusBarHeight1 = -1;
+            //获取status_bar_height资源的ID
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                //根据资源ID获取响应的尺寸值
+                statusBarHeight1 = getResources().getDimensionPixelSize(resourceId);
+            }
+            lp.height = (mheight - view_height - PublicDate.public_drawer_center_bottom_view_height - statusBarHeight1);//单位是像素，不是dp
+            show_folder_list.setLayoutParams(lp);
+
 
         } else {
             getFragmentManager().popBackStack();
@@ -281,11 +303,24 @@ public class FragmentFolderForMusicItem extends Fragment {
                 case MainActivity.ALL_MUSIC_UPDATE:
                     boolean is_update = intent.getBooleanExtra("is_update", false);
                     if (is_update) {
-                        if(PublicDate.list_folder_all.get(folder_list_position).get("folder_name_path").equals(folder_name_path)) {
-                            folder_list = (ArrayList<MusicInfo>) PublicDate.list_folder_all.get(folder_list_position).get("folder_name_list");
-                            show_folder_size.setText(folder_list.size() + "首歌");
-                            update_date();
-                            handler.sendEmptyMessage(0x123456);
+                        boolean is_have_folder_name = false;
+                        for (int i = 0; i < PublicDate.list_folder_all.size(); i++) {
+                            if (PublicDate.list_folder_all.get(i).get("folder_name_path").equals(folder_name_path)) {
+                                is_have_folder_name = true;
+                                break;
+                            } else {
+                                is_have_folder_name = false;
+                            }
+                        }
+                        if (is_have_folder_name) {
+                            if (PublicDate.list_folder_all.get(folder_list_position).get("folder_name_path").equals(folder_name_path)) {
+                                folder_list = (ArrayList<MusicInfo>) PublicDate.list_folder_all.get(folder_list_position).get("folder_name_list");
+                                show_folder_size.setText(folder_list.size() + "首歌");
+                                update_date();
+                                handler.sendEmptyMessage(0x123456);
+                            } else {
+                                getFragmentManager().popBackStack();
+                            }
                         }else{
                             getFragmentManager().popBackStack();
                         }

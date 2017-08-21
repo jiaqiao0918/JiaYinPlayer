@@ -105,8 +105,8 @@ public class MusicEditDeleteActivity extends Activity {
         if (is_all_music) {
             ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
             ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
-            music_edit_temp = PublicDate.music_edit_temp;
-            music_edit_temp_select = PublicDate.music_edit_temp_select;
+            music_edit_temp = PublicDate.public_music_edit_temp;
+            music_edit_temp_select = PublicDate.public_music_edit_temp_select;
             for (int i = 0; i < music_edit_temp_select.size(); i++) {
                 String need_delete_path = music_edit_temp.get(music_edit_temp_select.get(i)).getMusic_path();
                 deleteFile(need_delete_path);
@@ -116,8 +116,8 @@ public class MusicEditDeleteActivity extends Activity {
         } else {
             ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
             ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
-            music_edit_temp = PublicDate.music_edit_temp;
-            music_edit_temp_select = PublicDate.music_edit_temp_select;
+            music_edit_temp = PublicDate.public_music_edit_temp;
+            music_edit_temp_select = PublicDate.public_music_edit_temp_select;
             for (int i = 0; i < music_edit_temp_select.size(); i++) {
                 String music_id = music_edit_temp.get(music_edit_temp_select.get(i)).getMusic_id()+"";
                 path = getPath(music_sheet_id);
@@ -150,6 +150,8 @@ public class MusicEditDeleteActivity extends Activity {
             startService(select_music_intent);
         }
 
+        PublicDate.public_music_edit_temp =null;
+        PublicDate.public_music_edit_temp_select =null;
         finish();
     }
 

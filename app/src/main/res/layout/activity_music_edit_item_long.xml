@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/dialog_linear_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/touming"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/item_long_music_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:maxWidth="300dp"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color" />
+
+    <LinearLayout
+        android:id="@+id/activity_item_long_add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/click_rectangle"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="2dp"
+            android:padding="7dp"
+            android:src="@drawable/music_edit_add_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="添加"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color" />
+
+    <LinearLayout
+        android:id="@+id/activity_item_long_love"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/click_rectangle"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="2dp"
+            android:padding="7dp"
+            android:src="@drawable/music_edit_love_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="收藏"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/is_love"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/fengexian_color" />
+
+    <LinearLayout
+        android:id="@+id/activity_item_long_delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/click_rectangle"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="2dp"
+            android:padding="7dp"
+            android:src="@drawable/music_edit_delete_icon" />
+
+        <TextView
+            android:id="@+id/is_all_music_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="移除"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

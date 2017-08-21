@@ -21,11 +21,12 @@
                 android:layout_height="match_parent"></FrameLayout>
         </LinearLayout>
 
-        <View
+        <LinearLayout
             android:id="@+id/show_shape_view"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_gravity="bottom"
+            android:orientation="horizontal"
             android:background="#067aaf" />
     </LinearLayout>
 </RelativeLayout>

@@ -76,12 +76,12 @@ public class SelectMusicService extends Service {
                 getAllMusic();
                 listSortPinYin(all_list);
                 music_all = all_list;
-                if (PublicDate.music_all.size() != music_all.size()) {
+                if (PublicDate.public_music_all.size() != music_all.size()) {
                     is_update_this = true;
                 } else {
                     boolean is_is = true;
                     for (int i = 0; i < music_all.size(); i++) {
-                        if (music_all.get(i).getMusic_id() == PublicDate.music_all.get(i).getMusic_id() && music_all.get(i).getMusic_title().trim().equals(PublicDate.music_all.get(i).getMusic_title().trim())) {
+                        if (music_all.get(i).getMusic_id() == PublicDate.public_music_all.get(i).getMusic_id() && music_all.get(i).getMusic_title().trim().equals(PublicDate.public_music_all.get(i).getMusic_title().trim())) {
                             is_is = true;
                         } else {
                             is_is = false;
@@ -95,8 +95,8 @@ public class SelectMusicService extends Service {
                     }
                 }
                 if (is_update_this) {
-                    PublicDate.music_all.clear();
-                    PublicDate.music_all.addAll(music_all);
+                    PublicDate.public_music_all.clear();
+                    PublicDate.public_music_all.addAll(music_all);
                     PublicDate.list_folder_all.clear();
                     PublicDate.list_folder_all.addAll(listToFolder(music_all));
                     DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");

@@ -61,7 +61,7 @@ public class AllMusciAddToSheetActivity extends Activity {
         lp.width = size.x; //设置dialog的宽度为当前手机屏幕的宽度,getwidth() 过时
         getWindow().setAttributes(lp);
 
-        music_all = PublicDate.music_all;
+        music_all = PublicDate.public_music_all;
         for (int i =0;i<music_all.size();i++){
             music_all.get(i).setIs_selected(false);
         }

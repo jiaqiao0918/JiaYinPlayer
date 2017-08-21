@@ -122,8 +122,8 @@ public class MusicEditAddMusicSheetNameActivity extends Activity {
 
                 ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
                 ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
-                music_edit_temp = PublicDate.music_edit_temp;
-                music_edit_select = PublicDate.music_edit_temp_select;
+                music_edit_temp = PublicDate.public_music_edit_temp;
+                music_edit_select = PublicDate.public_music_edit_temp_select;
                 if (music_edit_select.size() > 0) {
                     path = getPath(now_time);
                     int num = 0;
@@ -138,8 +138,8 @@ public class MusicEditAddMusicSheetNameActivity extends Activity {
                         Toast.makeText(MusicEditAddMusicSheetNameActivity.this, num + "首歌曲添加成功！！", Toast.LENGTH_SHORT).show();
                     }
                 }
-                PublicDate.music_edit_temp = null;
-                PublicDate.music_edit_temp_select = null;
+                PublicDate.public_music_edit_temp = null;
+                PublicDate.public_music_edit_temp_select = null;
                 finish();
 
 

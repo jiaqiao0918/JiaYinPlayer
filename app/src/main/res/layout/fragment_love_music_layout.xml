@@ -187,9 +187,7 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/show_love_music"
                     android:layout_width="match_parent"
-                    android:layout_height="800dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp" />
+                    android:layout_height="800dp"/>
             </LinearLayout>
 
         </android.support.v4.widget.NestedScrollView>

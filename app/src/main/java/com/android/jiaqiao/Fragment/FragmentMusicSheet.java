@@ -23,11 +23,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.jiaqiao.Activity.AllMusciAddToSheetActivity;
 import com.android.jiaqiao.Activity.DeleteMusicSheetActivity;
+import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
 import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
@@ -47,8 +49,8 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.android.jiaqiao.jiayinplayer.PublicDate.music_all;
 import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
+import static com.android.jiaqiao.jiayinplayer.R.id.fragment_love_music_toolbar;
 
 /**
  * Created by jiaqiao on 2017/7/3/0003.
@@ -57,7 +59,7 @@ import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
 public class FragmentMusicSheet extends Fragment {
     private SheetInfo show_sheet_info = null;
 
-    private TextView show_sheet_name, show_sheet_list_size,music_sheet_title;
+    private TextView show_sheet_name, show_sheet_list_size, music_sheet_title;
     private ImageView music_sheet_show_album_image;
 
     private String path = "";
@@ -160,35 +162,54 @@ public class FragmentMusicSheet extends Fragment {
         mFilter.addAction("com.android.jiaqiao.SelectMusicService");
         getActivity().registerReceiver(mReceiver, mFilter);
 
-            // 创建默认的线性LayoutManager
-            show_music_sheet_recycler_view.setLayoutManager(new LinearLayoutManager(getActivity()));
-            // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
-            show_music_sheet_recycler_view.setHasFixedSize(true);
-            // 创建并设置Adapter
-            adapter = new RecyclerViewAdapter(music_sheet_list);
-            adapter.setOnItemClickListener(new RecyclerViewAdapter.OnRecyclerViewItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    //item单击事件
-                    music_sheet_list.get(last_click_position).setIs_playing(false);
-                    music_sheet_list.get(position).setIs_playing(true);
-                    adapter.notifyItemChanged(last_click_position);//刷新单个数据
-                    adapter.notifyItemChanged(position);
-                    last_click_position = position;
-                }
-            });
-            adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
-                @Override
-                public void onItemLongClick(View view, int position) {
-                    //item长按事件
-                    music_sheet_list.remove(position);
-//                  adapter.notifyItemRemoved(position);//不会刷新RecyclerView的高度
-                    adapter.notifyDataSetChanged();
-                    show_music_sheet_recycler_view.startLayoutAnimation();//重新开始LayoutAnimation
+        // 创建默认的线性LayoutManager
+        show_music_sheet_recycler_view.setLayoutManager(new LinearLayoutManager(getActivity()));
+        // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+        show_music_sheet_recycler_view.setHasFixedSize(true);
+        // 创建并设置Adapter
+        adapter = new RecyclerViewAdapter(music_sheet_list);
+        adapter.setOnItemClickListener(new RecyclerViewAdapter.OnRecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                //item单击事件
+                music_sheet_list.get(last_click_position).setIs_playing(false);
+                music_sheet_list.get(position).setIs_playing(true);
+                adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                adapter.notifyItemChanged(position);
+                last_click_position = position;
+            }
+        });
+        adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
+            @Override
+            public void onItemLongClick(View view, int position) {
+                //item长按事件
+                ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                music_edit_select.add(position);
+                PublicDate.public_music_edit_temp = music_sheet_list;
+                PublicDate.public_music_edit_temp_select = music_edit_select;
+                getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("music_sheet_id_01", show_sheet_info.getSheet_id().toString()));
+            }
+        });
+        show_music_sheet_recycler_view.setAdapter(adapter);
 
-                }
-            });
-            show_music_sheet_recycler_view.setAdapter(adapter);
+        //RecyclerView设置自适应高度，原理：用屏幕的高度-toolbar的高度-activity底部控件的高度-状态栏的高度
+        int view_w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        int view_h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        fragment_music_sheet_toolbar.measure(view_w, view_h);
+        int view_height = fragment_music_sheet_toolbar.getMeasuredHeight();
+        WindowManager wm = getActivity().getWindowManager();
+        int mwidth = wm.getDefaultDisplay().getWidth();
+        int mheight = wm.getDefaultDisplay().getHeight();
+        ViewGroup.LayoutParams lp = show_music_sheet_recycler_view.getLayoutParams();
+        int statusBarHeight1 = -1;
+        //获取status_bar_height资源的ID
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            //根据资源ID获取响应的尺寸值
+            statusBarHeight1 = getResources().getDimensionPixelSize(resourceId);
+        }
+        lp.height = (mheight - view_height - PublicDate.public_drawer_center_bottom_view_height-statusBarHeight1);//单位是像素，不是dp
+        show_music_sheet_recycler_view.setLayoutParams(lp);
 
 
         music_sheet_delete.setOnClickListener(new View.OnClickListener() {
@@ -200,8 +221,8 @@ public class FragmentMusicSheet extends Fragment {
         music_sheet_modify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PublicDate.music_edit_temp = music_sheet_list;
-                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("edit_name_intent", music_sheet_title.getText().toString()).putExtra("music_sheet_id_01",show_sheet_info.getSheet_id().toString()));
+                PublicDate.public_music_edit_temp = music_sheet_list;
+                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("edit_name_intent", music_sheet_title.getText().toString()).putExtra("music_sheet_id_01", show_sheet_info.getSheet_id().toString()));
             }
         });
         music_sheet_add.setOnClickListener(new View.OnClickListener() {
@@ -216,7 +237,6 @@ public class FragmentMusicSheet extends Fragment {
     }
 
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -226,10 +246,10 @@ public class FragmentMusicSheet extends Fragment {
     }
 
     public MusicInfo getFromListGetMusicInfo(String music_id, String music_title) {
-        ArrayList<MusicInfo> list_temp = music_all;
+        ArrayList<MusicInfo> list_temp = PublicDate.public_music_all;
 
         for (int i = 0; i < list_temp.size(); i++) {
-            if ((list_temp.get(i).getMusic_id()+"").equals(music_id) && list_temp.get(i).getMusic_title().equals(music_title)) {
+            if ((list_temp.get(i).getMusic_id() + "").equals(music_id) && list_temp.get(i).getMusic_title().equals(music_title)) {
                 return list_temp.get(i);
             }
         }
@@ -289,6 +309,7 @@ public class FragmentMusicSheet extends Fragment {
         }
         getActivity().unregisterReceiver(mReceiver);
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -312,13 +333,13 @@ public class FragmentMusicSheet extends Fragment {
             long albumid = music_sheet_list.get(music_album_num).getMusic_album_id();
             Bitmap bitmap = MusicUtils.getArtwork(getActivity(), songid, albumid, true);
             if (bitmap != null) {
-                setImageViewImage(music_sheet_show_album_image,bitmap);
+                setImageViewImage(music_sheet_show_album_image, bitmap);
                 Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
                         //获取专辑图片中的柔和亮色
-                        image_color=palette.getMutedSwatch();
-                        if(image_color!=null){
+                        image_color = palette.getMutedSwatch();
+                        if (image_color != null) {
                             collapsingToolbarLayout.setContentScrimColor(image_color.getRgb());
                             fragment_music_sheet_toolbar.setBackgroundColor(image_color.getRgb());
                         }
@@ -330,9 +351,10 @@ public class FragmentMusicSheet extends Fragment {
         }
 
     }
+
     // 给一个ImageView设置高斯模糊的图片,并带有渐变
     public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
-		/*
+        /*
 		 * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
 		 * 增大blurRadius，可以得到更高程度的虚化，不过会导致CPU更加intensive
 		 */
