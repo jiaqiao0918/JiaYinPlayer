@@ -1,4 +1,4 @@
-package com.android.jiaqiao.Fragment;
+package com.android.jiaqiao.UiFragment;
 
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -32,6 +32,7 @@ import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Utils.FastBlurUtil;
+import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
@@ -152,7 +153,7 @@ public class FragmentFolderForMusicItem extends Fragment {
         //动态注册广播
         mReceiver = new FragmentFolderForMusicItemReceiver();
         mFilter = new IntentFilter();
-        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        mFilter.addAction("com.android.jiaqiao");
         getActivity().registerReceiver(mReceiver, mFilter);
 
         update_date();
@@ -177,6 +178,29 @@ public class FragmentFolderForMusicItem extends Fragment {
                     adapter.notifyItemChanged(last_click_position);//刷新单个数据
                     adapter.notifyItemChanged(position);
                     last_click_position = position;
+
+                    PublicDate.music_play_now = folder_list.get(position);
+                    if(PublicDate.music_play_list_str==null||PublicDate.music_play_list_str.equals("")){
+                        PublicDate.music_play_list_str=folder_list.toString();
+                        PublicDate.music_play = folder_list;
+                        MusicPlayUtil.saveMusicPlayList();
+                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                    }else{
+                        if(!PublicDate.music_play_list_str.equals(folder_list.toString())){
+                            PublicDate.music_play_list_str=folder_list.toString();
+                            PublicDate.music_play = folder_list;
+                            MusicPlayUtil.saveMusicPlayList();
+                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                        }
+                    }
+                    PublicDate.music_play_list_position = position;
+                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position",PublicDate.music_play_list_position).commit();
+                    //发送广播
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
+                    temp_intent.putExtra("is_update_music_play", true);
+                    getActivity().sendBroadcast(temp_intent);
                 }
             });
             adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
@@ -265,7 +289,7 @@ public class FragmentFolderForMusicItem extends Fragment {
                 });
                 break;
             }
-            music_album_num--;
+            music_album_num++;
         }
 
     }
@@ -284,7 +308,9 @@ public class FragmentFolderForMusicItem extends Fragment {
         Bitmap blurBitmap = FastBlurUtil.doBlur(scaledBitmap, blurRadius, true);
         image_view.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        Drawable start_drawable = getResources().getDrawable(R.color.fengexian_color);//渐变前的Drawable
+        image_view.setDrawingCacheEnabled(true);
+        Bitmap image_view_bitmap = image_view.getDrawingCache();
+        Drawable start_drawable = new BitmapDrawable(image_view_bitmap);//渐变前的Drawable
         Drawable end_drawable = new BitmapDrawable(blurBitmap);//渐变后的Drawable，bitmap转drawable
         TransitionDrawable mTransitionDrawable = new TransitionDrawable(new Drawable[]{
                 start_drawable,

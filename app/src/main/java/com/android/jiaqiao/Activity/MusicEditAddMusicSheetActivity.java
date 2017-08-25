@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ public class MusicEditAddMusicSheetActivity extends Activity {
 
     private ListView show_music_sheet_name_list;
     private MusicSheetAdapter music_sheet_adapter;
+    private Button add_to_music_play_list;
 
     private ArrayList<SheetInfo> music_sheet_info_list = new ArrayList<SheetInfo>();
 
@@ -64,6 +66,14 @@ public class MusicEditAddMusicSheetActivity extends Activity {
         path = PublicDate.files_dir + "/music_sheet/music_sheet_name.txt";
         music_sheet_info_list = getMusicSheetToArrayList(path);
         show_music_sheet_name_list = (ListView) findViewById(R.id.show_music_sheet_name_list);
+        add_to_music_play_list=(Button) findViewById(R.id.add_to_music_play_list);
+        if(PublicDate.is_music_play){
+            View add_to_music_play_view=(View) findViewById(R.id.add_to_music_play_view);
+            add_to_music_play_view.setVisibility(View.GONE);
+            add_to_music_play_list.setVisibility(View.GONE);
+            PublicDate.is_music_play=false;
+
+        }
         if (music_sheet_info_list.size() > 0) {
             music_sheet_adapter = new MusicSheetAdapter(this, music_sheet_info_list);
             show_music_sheet_name_list.setAdapter(music_sheet_adapter);

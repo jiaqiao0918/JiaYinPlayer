@@ -6,12 +6,19 @@
     <color name="colorAccent">#FF4081</color>
     <color name="font_color">#3a3737</color>
     <color name="font_seccend_color">#757575</color>
+    <color name="font_thrid_color">#b8b8b8</color>
     <color name="determine_button_color">#06b1cf</color>
-    <color name="image_button_click_color">#c8c8c8</color>
+    <color name="image_button_click_color">#95d6d6d6</color>
     <color name="fengexian_color">#e6e6e6</color>
     <color name="back_ground">#fcfcfc</color>
     <color name="touming">#00000000</color>
     <color name="stroke_color">#a0a0a0</color>
     <color name="stroke_sccend_color">#dddddd</color>
     <color name="toolbar_linear_back_ground">#78ffffff</color>
+    <color name="music_play_font">#ffffff</color>
+    <color name="music_play_seccend_font">#b5b5b5</color>
+    <color name="music_play_fengexian">#ce919191</color>
+    <color name="music_play_list_font_color">#e6e6e6</color>
+    <color name="music_play_list_font_seccend_color">#d9d9d9</color>
+    <color name="music_play_click_rectangle">#3effffff</color>
 </resources>

@@ -13,10 +13,12 @@
         android:textColor="@color/font_seccend_color"
         android:textSize="14sp" />
     <View
+        android:id="@+id/add_to_music_play_view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/fengexian_color"/>
     <Button
+        android:id="@+id/add_to_music_play_list"
         android:background="@drawable/click_rectangle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

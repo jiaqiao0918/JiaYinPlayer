@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -18,6 +17,7 @@ import android.widget.Toast;
 
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.SelectMusicService;
+import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -37,7 +37,6 @@ import java.util.ArrayList;
  */
 
 public class MusicEditDeleteActivity extends Activity {
-
 
 
     private boolean is_all_music = false;
@@ -93,6 +92,7 @@ public class MusicEditDeleteActivity extends Activity {
                 }
             });
         }
+
     }
 
     public void cancel_button(View view) {
@@ -100,58 +100,75 @@ public class MusicEditDeleteActivity extends Activity {
     }
 
     public void determine_button(View view) {
-        boolean is_delete_yuan_over=false;
         int num = 0;
-        if (is_all_music) {
+        if (PublicDate.is_music_play) {
             ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
             ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
             music_edit_temp = PublicDate.public_music_edit_temp;
             music_edit_temp_select = PublicDate.public_music_edit_temp_select;
             for (int i = 0; i < music_edit_temp_select.size(); i++) {
-                String need_delete_path = music_edit_temp.get(music_edit_temp_select.get(i)).getMusic_path();
-                deleteFile(need_delete_path);
-                is_delete_yuan_over=true;
-                num++;
+                music_edit_temp.remove((int)music_edit_temp_select.get(i));
             }
+            int temp_position = MusicPlayUtil.selectMusicPosition(music_edit_temp,PublicDate.music_play_now);
+            if(temp_position>-1){
+                PublicDate.music_play_list_position = temp_position;
+            }
+            PublicDate.music_play = music_edit_temp;
+            PublicDate.music_play_now = PublicDate.music_play.get(PublicDate.music_play_list_position);
+            MusicPlayUtil.saveMusicPlayList();
+            PublicDate.update_music_play = true;
         } else {
-            ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
-            ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
-            music_edit_temp = PublicDate.public_music_edit_temp;
-            music_edit_temp_select = PublicDate.public_music_edit_temp_select;
-            for (int i = 0; i < music_edit_temp_select.size(); i++) {
-                String music_id = music_edit_temp.get(music_edit_temp_select.get(i)).getMusic_id()+"";
-                path = getPath(music_sheet_id);
-                deleteSelectStr(path, music_id);
-                num++;
-                Log.i("into",is_delete_yuan+"");
-                if (is_delete_yuan) {
+            boolean is_delete_yuan_over = false;
+
+            if (is_all_music) {
+                ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
+                ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
+                music_edit_temp = PublicDate.public_music_edit_temp;
+                music_edit_temp_select = PublicDate.public_music_edit_temp_select;
+                for (int i = 0; i < music_edit_temp_select.size(); i++) {
                     String need_delete_path = music_edit_temp.get(music_edit_temp_select.get(i)).getMusic_path();
                     deleteFile(need_delete_path);
-                    is_delete_yuan_over=true;
+                    is_delete_yuan_over = true;
+                    num++;
+                }
+            } else {
+                ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
+                ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
+                music_edit_temp = PublicDate.public_music_edit_temp;
+                music_edit_temp_select = PublicDate.public_music_edit_temp_select;
+                for (int i = 0; i < music_edit_temp_select.size(); i++) {
+                    String music_id = music_edit_temp.get(music_edit_temp_select.get(i)).getMusic_id() + "";
+                    path = getPath(music_sheet_id);
+                    deleteSelectStr(path, music_id);
+                    num++;
+                    if (is_delete_yuan) {
+                        String need_delete_path = music_edit_temp.get(music_edit_temp_select.get(i)).getMusic_path();
+                        deleteFile(need_delete_path);
+                        is_delete_yuan_over = true;
+                    }
                 }
             }
-        }
-        if(is_all_music){
-            Toast.makeText(MusicEditDeleteActivity.this,"已删除"+num+"首歌曲！！",Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(MusicEditDeleteActivity.this,"已移除"+num+"首歌曲！！",Toast.LENGTH_SHORT).show();
+            if (is_all_music) {
+                Toast.makeText(MusicEditDeleteActivity.this, "已删除" + num + "首歌曲！！", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MusicEditDeleteActivity.this, "已移除" + num + "首歌曲！！", Toast.LENGTH_SHORT).show();
 
-            //通知歌单更新
-            // 发送广播
-            Intent temp_intent = new Intent();
-            temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
-            temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
-            temp_intent.putExtra("is_update_sheet", true);
-            sendBroadcast(temp_intent);
+                //通知歌单更新
+                // 发送广播
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
+                temp_intent.putExtra("is_update_sheet", true);
+                sendBroadcast(temp_intent);
+            }
+            if (is_delete_yuan_over) {
+                //启动service
+                Intent select_music_intent = new Intent(this, SelectMusicService.class);
+                startService(select_music_intent);
+            }
+            PublicDate.public_music_edit_temp = null;
+            PublicDate.public_music_edit_temp_select = null;
         }
-        if(is_delete_yuan_over){
-            //启动service
-            Intent select_music_intent = new Intent(this, SelectMusicService.class);
-            startService(select_music_intent);
-        }
-
-        PublicDate.public_music_edit_temp =null;
-        PublicDate.public_music_edit_temp_select =null;
         finish();
     }
 

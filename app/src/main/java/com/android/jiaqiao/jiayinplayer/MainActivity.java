@@ -6,24 +6,35 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.jiaqiao.Fragment.FragmentMain;
+import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.SelectMusicService;
+import com.android.jiaqiao.UiFragment.FragmentMain;
 import com.android.jiaqiao.Utils.DataInfoCache;
+import com.android.jiaqiao.Utils.MusicPlayUtil;
+import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayItem;
 
 import java.io.File;
 import java.text.Collator;
@@ -31,22 +42,35 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     public static final int WRITE_EXTERNAL_STORAGE_QUANXAN = 200000000;
     public static final int ALL_MUSIC_UPDATE = 200000001;
 
-    public static final int UPDATE_SHEET=300000001;
+    public static final int UPDATE_SHEET = 300000001;
+    public static final int UPDATE_MUSIC_PLAY = 300000002;
 
+    public static final String SHARED = "setting";
 
-    private ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
-
+    private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
+    private ArrayList<MusicInfo> music_play_list_temp = new ArrayList<MusicInfo>();
+    private ArrayList<Fragment> view_pager_fragment_list = new ArrayList<Fragment>();
 
     private View drawer_center_view;
     private RelativeLayout drawer_center_layout, drawer_left_layout,
             drawer_right_layout;
-    private LinearLayout show_shape_view;
+    private LinearLayout show_view_pager_layout;
+    private ViewPager view_pager_fragment;
+    private ViewPagerFragmentAdapter view_pager_fragment_adapter;
+    private ImageView music_is_playing;
 
+    private int now_show_position = 0;
+    private int state_1_position = -1;
+    private boolean is_need_update = false;
+    private ArrayList<Integer> randoms = new ArrayList<Integer>();
+    private boolean is_random = false;//用于辨别是否是随机播放
+    private boolean is_playing = false;
     private double start_sd_size = 0;
     private double restart_sd_size = 0;
 
@@ -79,12 +103,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void activityCreate() {
-        drawerCenterLayout();
+
+        PublicDate.path_files_dir = this.getFilesDir();
 
         ArrayList<MusicInfo> music_all_temp = DataInfoCache.loadListCache(this, "music_all");
         listSortPinYin(music_all_temp);
         PublicDate.public_music_all = music_all_temp;
+        music_all = music_all_temp;
         PublicDate.list_folder_all = DataInfoCache.loadListCache(this, "list_folder_all");
+        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
+        PublicDate.music_play_list_str = userSettings.getString("music_play_list_str", "");
+        PublicDate.music_play = MusicPlayUtil.getMusicPlayList();
+        if (PublicDate.music_play.size() <= 0) {
+            PublicDate.music_play = music_all;
+            PublicDate.music_play_list_position = 0;
+            now_show_position = PublicDate.music_play_list_position;
+            PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+        }
+        PublicDate.music_play_list_position = userSettings.getInt("music_play_list_position", 0);;
+        now_show_position = PublicDate.music_play_list_position;
+        PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+        music_play_list_temp = PublicDate.music_play;
+
 
         //启动service
         select_music_intent = new Intent(MainActivity.this, SelectMusicService.class);
@@ -94,11 +134,12 @@ public class MainActivity extends AppCompatActivity {
         //动态注册广播
         mReceiver = new MainActivityReceiver();
         mFilter = new IntentFilter();
-        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        mFilter.addAction("com.android.jiaqiao");
         this.registerReceiver(mReceiver, mFilter);
 
+        drawerCenterLayout();
         //Test
-//        startActivity(new Intent(MainActivity.this, MusicEditNeedListActivity.class));
+//        startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
     }
 
     @Override
@@ -136,31 +177,85 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.fragment_show, fragment_main);
         fragmentTransaction.commit();
         drawer_center_layout.addView(drawer_center_view);
+        show_view_pager_layout = (LinearLayout) drawer_center_view.findViewById(R.id.show_shape_view);
+        view_pager_fragment = (ViewPager) drawer_center_view.findViewById(R.id.view_pager_fragment);
+        music_is_playing = (ImageView) drawer_center_view.findViewById(R.id.music_is_playing);
+        music_is_playing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (is_playing) {
+                    is_playing = false;
+                } else {
+                    is_playing = true;
+                }
+                updateUi();
+            }
+        });
+        updateUi();
+        if (music_all.size() > 0) {
+            //ViewPager+Fragment
+            updateViewPagerFragment();
+            view_pager_fragment_adapter = new ViewPagerFragmentAdapter(getSupportFragmentManager(), view_pager_fragment_list);
+            view_pager_fragment.setAdapter(view_pager_fragment_adapter);
+            view_pager_fragment.setCurrentItem(2); //设置当前页是第0页
+            view_pager_fragment.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    //滑动中
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                }
+
+                /* state == 1的时辰默示正在滑动，
+                 * state == 2的时辰默示滑动完毕了，
+                 * state == 0的时辰默示什么都没做。
+                 * 当页面开始滑动的时候，三种状态的变化顺序为（1，2，0），演示如下：
+                 */
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    if (state == 2) {
+                        is_need_update = true;
+                    } else if (state == 0) {
+                        if (is_need_update) {
+                            if (view_pager_fragment.getCurrentItem() > state_1_position) {
+                                now_show_position = randoms.get(3);
+                                viewPagerRight();
+                            } else if (view_pager_fragment.getCurrentItem() < state_1_position) {
+                                now_show_position = randoms.get(1);
+                                viewPagerLeft();
+                            }
+                            PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+                            Log.i("into",PublicDate.music_play_now.getMusic_title());
+                            view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                            is_need_update = false;
+                        }
+                    } else if (state == 1) {
+                        state_1_position = view_pager_fragment.getCurrentItem();
+                    }
+
+                }
+            });
+        } else {
+            show_view_pager_layout.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         //测算控件高度
-        show_shape_view = (LinearLayout) drawer_center_view.findViewById(R.id.show_shape_view);
-        ViewTreeObserver vto = show_shape_view.getViewTreeObserver();
+        ViewTreeObserver vto = show_view_pager_layout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                show_shape_view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                PublicDate.public_drawer_center_bottom_view_height=show_shape_view.getHeight();
+                show_view_pager_layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                PublicDate.public_drawer_center_bottom_view_height = show_view_pager_layout.getHeight();
             }
         });
-
-
-//        int view_w = View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);
-//        int view_h = View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);
-//        show_shape_view.measure(view_w, view_h);
-//        int view_height =show_shape_view.getMeasuredHeight();
-//        PublicDate.public_drawer_center_bottom_view_height = view_height;
-//        Log.i("into","public_drawer_center_bottom_view_height:"+view_height);
-
     }
 
     //回值操作
@@ -196,6 +291,20 @@ public class MainActivity extends AppCompatActivity {
                         stopService(select_music_intent);
                     }
                     break;
+                case MainActivity.UPDATE_MUSIC_PLAY:
+                    if (intent.getBooleanExtra("is_update_music_play", false)) {
+                        music_play_list_temp = PublicDate.music_play;
+                        if (music_play_list_temp.size() > 0) {
+                            now_show_position = PublicDate.music_play_list_position;
+                            updateUi();
+                            updateViewPagerFragment();
+                            view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                        }else{
+                            show_view_pager_layout.setVisibility(View.GONE);
+                        }
+                    }
+                    break;
             }
         }
 
@@ -223,6 +332,158 @@ public class MainActivity extends AppCompatActivity {
                 return instance.compare(name1, name2);
             }
         });
+    }
+
+    public void viewPagerRight() {
+        view_pager_fragment_list.remove(0);
+        randoms.remove(0);
+        int num = -1;
+        if (!is_random) {
+            num = (now_show_position + 2 + music_play_list_temp.size()) % music_play_list_temp.size();
+        } else {
+            while (true) {
+                boolean is_have_num = true;
+                num = getRandomForMinMax(0, music_play_list_temp.size() - 1);
+                for (int j = 0; j < randoms.size(); j++) {
+                    if (randoms.get(j) == num) {
+                        is_have_num = true;
+                        break;
+                    } else {
+                        is_have_num = false;
+                    }
+                }
+                if (!is_have_num) {
+                    break;
+                }
+            }
+        }
+        MusicInfo music_info_temp = music_play_list_temp.get(num);
+        ViewPagerFragmentMusicPlayItem fragment_temp = new ViewPagerFragmentMusicPlayItem();
+        Bitmap bitmap = MusicUtils.getArtwork(this, music_info_temp.getMusic_id(), music_info_temp.getMusic_album_id(), true);
+        if (bitmap == null) {
+            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+        }
+        fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
+        view_pager_fragment_list.add(view_pager_fragment_list.size(), fragment_temp);
+        randoms.add(randoms.size(), num);
+    }
+
+    public void viewPagerLeft() {
+
+        view_pager_fragment_list.remove(view_pager_fragment_list.size() - 1);
+        randoms.remove(randoms.size() - 1);
+        int num = -1;
+        if (!is_random) {
+            num = (now_show_position - 2 + music_play_list_temp.size()) % music_play_list_temp.size();
+        } else {
+            while (true) {
+                boolean is_have_num = true;
+                num = getRandomForMinMax(0, music_play_list_temp.size() - 1);
+                for (int j = 0; j < randoms.size(); j++) {
+                    if (randoms.get(j) == num) {
+                        is_have_num = true;
+                        break;
+                    } else {
+                        is_have_num = false;
+                    }
+                }
+                if (!is_have_num) {
+                    break;
+                }
+            }
+        }
+        MusicInfo music_info_temp = music_play_list_temp.get(num);
+        ViewPagerFragmentMusicPlayItem fragment_temp = new ViewPagerFragmentMusicPlayItem();
+        Bitmap bitmap = MusicUtils.getArtwork(this, music_info_temp.getMusic_id(), music_info_temp.getMusic_album_id(), true);
+        if (bitmap == null) {
+            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+        }
+        fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
+        view_pager_fragment_list.add(0, fragment_temp);
+        randoms.add(0, num);
+    }
+
+    public ArrayList<Fragment> getFragemntFromList01(ArrayList<MusicInfo> music_list, int position) {
+        randoms.clear();
+        ArrayList<Fragment> temp = new ArrayList<Fragment>();
+        for (int i = 0; i < 5; i++) {
+            int now_num = (i - 2 + music_list.size() + position) % music_list.size();
+            randoms.add(now_num);
+            MusicInfo music_info_temp = music_list.get(now_num);
+            ViewPagerFragmentMusicPlayItem fragment_temp = new ViewPagerFragmentMusicPlayItem();
+            Bitmap bitmap = MusicUtils.getArtwork(this, music_info_temp.getMusic_id(), music_info_temp.getMusic_album_id(), true);
+            if (bitmap == null) {
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+            }
+            fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
+            temp.add(fragment_temp);
+        }
+        return temp;
+    }
+
+    public ArrayList<Fragment> getFragemntFromList02(ArrayList<MusicInfo> music_list, int position) {
+        randoms.clear();
+        ArrayList<Fragment> temp = new ArrayList<Fragment>();
+        int[] random_num_temp = new int[5];
+        for (int i = 0; i < random_num_temp.length; i++) {
+            random_num_temp[i] = -1;
+        }
+        random_num_temp[2] = position;
+        for (int i = 0; i < 5; i++) {
+            int now_num = -1;
+            if (i != 2) {
+                while (true) {
+                    boolean is_have_num = true;
+                    now_num = getRandomForMinMax(0, music_list.size() - 1);
+                    for (int j = 0; j < random_num_temp.length; j++) {
+                        if (random_num_temp[i] == now_num) {
+                            is_have_num = true;
+                            break;
+                        } else {
+                            is_have_num = false;
+                        }
+                    }
+                    if (!is_have_num) {
+                        break;
+                    }
+                }
+            } else {
+                now_num = position;
+            }
+            MusicInfo music_info_temp = music_list.get(now_num);
+            ViewPagerFragmentMusicPlayItem fragment_temp = new ViewPagerFragmentMusicPlayItem();
+            Bitmap bitmap = MusicUtils.getArtwork(this, music_info_temp.getMusic_id(), music_info_temp.getMusic_album_id(), true);
+            if (bitmap == null) {
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+            }
+            fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
+            temp.add(fragment_temp);
+            randoms.add(now_num);
+        }
+        return temp;
+    }
+
+    public int getRandomForMinMax(int min, int max) {
+        Random random = new Random();
+        return random.nextInt(max) % (max - min + 1) + min;
+    }
+
+    public void updateViewPagerFragment() {
+
+        if (!is_random) {
+            view_pager_fragment_list = getFragemntFromList01(PublicDate.music_play, PublicDate.music_play_list_position);
+        } else {
+            view_pager_fragment_list = getFragemntFromList02(PublicDate.music_play, PublicDate.music_play_list_position);
+        }
+
+    }
+
+    public void updateUi() {
+        if (is_playing) {
+            music_is_playing.setImageResource(R.drawable.is_playing);
+        } else {
+            music_is_playing.setImageResource(R.drawable.not_playing);
+        }
     }
 
 

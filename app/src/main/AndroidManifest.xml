@@ -22,22 +22,35 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.android.jiaqiao.Activity.AddMusicSheetNameActivity"
+        <activity
+            android:name="com.android.jiaqiao.jiayinplayer.MusicPlayActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.android.jiaqiao.Activity.AddMusicSheetNameActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <activity android:name="com.android.jiaqiao.Activity.AllMusciAddToSheetActivity"
+        <activity
+            android:name="com.android.jiaqiao.Activity.AllMusciAddToSheetActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <activity android:name="com.android.jiaqiao.Activity.DeleteMusicSheetActivity"
+        <activity
+            android:name="com.android.jiaqiao.Activity.DeleteMusicSheetActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <activity android:name="com.android.jiaqiao.Activity.MusicEditNeedListActivity"
+        <activity
+            android:name="com.android.jiaqiao.Activity.MusicEditNeedListActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <activity android:name="com.android.jiaqiao.Activity.MusicEditAddMusicSheetActivity"
+        <activity
+            android:name="com.android.jiaqiao.Activity.MusicEditAddMusicSheetActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <activity android:name="com.android.jiaqiao.Activity.MusicEditAddMusicSheetNameActivity"
+        <activity
+            android:name="com.android.jiaqiao.Activity.MusicEditAddMusicSheetNameActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <activity android:name="com.android.jiaqiao.Activity.MusicEditDeleteActivity"
+        <activity
+            android:name="com.android.jiaqiao.Activity.MusicEditDeleteActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <activity android:name="com.android.jiaqiao.Activity.MusicEditItemLongActivity"
+        <activity
+            android:name="com.android.jiaqiao.Activity.MusicEditItemLongActivity"
             android:theme="@style/DIY_Dialog"></activity>
-        <service android:name="com.android.jiaqiao.Service.SelectMusicService"/>
+
+        <service android:name="com.android.jiaqiao.Service.SelectMusicService" />
     </application>
 </manifest>

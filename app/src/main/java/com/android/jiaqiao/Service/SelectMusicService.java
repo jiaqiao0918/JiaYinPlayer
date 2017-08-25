@@ -103,7 +103,7 @@ public class SelectMusicService extends Service {
                     DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
                     //发送广播
                     Intent temp_intent = new Intent();
-                    temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
+                    temp_intent.setAction("com.android.jiaqiao");
                     temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
                     temp_intent.putExtra("is_update", true);
                     sendBroadcast(temp_intent);

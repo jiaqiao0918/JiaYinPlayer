@@ -1,4 +1,4 @@
-package com.android.jiaqiao.Fragment;
+package com.android.jiaqiao.UiFragment;
 
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -33,6 +33,7 @@ import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Utils.FastBlurUtil;
+import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
@@ -117,7 +118,7 @@ public class FragmentAllMusic extends Fragment {
             @Override
             public void onClick(View v) {
                 PublicDate.public_music_edit_temp = music_all;
-                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("is_all_music_01",true).putExtra("edit_name_intent", all_music_title.getText().toString()));
+                startActivity(new Intent(getActivity(), MusicEditNeedListActivity.class).putExtra("is_all_music_01", true).putExtra("edit_name_intent", all_music_title.getText().toString()));
             }
         });
 
@@ -125,7 +126,7 @@ public class FragmentAllMusic extends Fragment {
         //动态注册广播
         mReceiver = new FragmentAllMusicReceiver();
         mFilter = new IntentFilter();
-        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        mFilter.addAction("com.android.jiaqiao");
         getActivity().registerReceiver(mReceiver, mFilter);
 
 
@@ -173,6 +174,29 @@ public class FragmentAllMusic extends Fragment {
                     adapter.notifyItemChanged(last_click_position);//刷新单个数据
                     adapter.notifyItemChanged(position);
                     last_click_position = position;
+                    PublicDate.music_play_now = music_all.get(position);
+                    if (PublicDate.music_play_list_str == null || PublicDate.music_play_list_str.equals("")) {
+                        PublicDate.music_play_list_str = music_all.toString();
+                        PublicDate.music_play = music_all;
+                        MusicPlayUtil.saveMusicPlayList();
+                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                    } else {
+                        if (!PublicDate.music_play_list_str.equals(music_all.toString())) {
+                            PublicDate.music_play_list_str = music_all.toString();
+                            PublicDate.music_play = music_all;
+                            MusicPlayUtil.saveMusicPlayList();
+                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                        }
+                    }
+                    PublicDate.music_play_list_position = position;
+                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position",PublicDate.music_play_list_position).commit();
+                    //发送广播
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
+                    temp_intent.putExtra("is_update_music_play", true);
+                    getActivity().sendBroadcast(temp_intent);
+
                 }
             });
             adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
@@ -183,7 +207,7 @@ public class FragmentAllMusic extends Fragment {
                     music_edit_select.add(position);
                     PublicDate.public_music_edit_temp = music_all;
                     PublicDate.public_music_edit_temp_select = music_edit_select;
-                    getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("is_all_music_01",true));
+                    getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("is_all_music_01", true));
                 }
             });
             show_all_music_list.setAdapter(adapter);
@@ -204,9 +228,8 @@ public class FragmentAllMusic extends Fragment {
                 //根据资源ID获取响应的尺寸值
                 statusBarHeight1 = getResources().getDimensionPixelSize(resourceId);
             }
-            lp.height = (mheight - view_height - PublicDate.public_drawer_center_bottom_view_height-statusBarHeight1);//单位是像素，不是dp
+            lp.height = (mheight - view_height - PublicDate.public_drawer_center_bottom_view_height - statusBarHeight1);//单位是像素，不是dp
             show_all_music_list.setLayoutParams(lp);
-
 
 
         }
@@ -232,10 +255,9 @@ public class FragmentAllMusic extends Fragment {
     public void getMusicAlbumImage() {
         int music_album_num = 0;
         while (music_album_num < music_all.size()) {
-
             long songid = music_all.get(music_album_num).getMusic_id();
             long albumid = music_all.get(music_album_num).getMusic_album_id();
-            Bitmap bitmap = MusicUtils.getArtwork(getActivity(), songid, albumid, true);
+            Bitmap bitmap= MusicUtils.getArtwork(getActivity(), songid, albumid, true);
             if (bitmap != null) {
                 setImageViewImage(all_music_show_album_image, bitmap);
                 Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
@@ -251,7 +273,7 @@ public class FragmentAllMusic extends Fragment {
                 });
                 break;
             }
-            music_album_num--;
+            music_album_num++;
         }
 
     }
@@ -280,7 +302,9 @@ public class FragmentAllMusic extends Fragment {
         Bitmap blurBitmap = FastBlurUtil.doBlur(scaledBitmap, blurRadius, true);
         image_view.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        Drawable start_drawable = getResources().getDrawable(R.color.fengexian_color);//渐变前的Drawable
+        image_view.setDrawingCacheEnabled(true);
+        Bitmap image_view_bitmap = image_view.getDrawingCache();
+        Drawable start_drawable = new BitmapDrawable(image_view_bitmap);//渐变前的Drawable
         Drawable end_drawable = new BitmapDrawable(blurBitmap);//渐变后的Drawable，bitmap转drawable
         TransitionDrawable mTransitionDrawable = new TransitionDrawable(new Drawable[]{
                 start_drawable,
@@ -318,6 +342,7 @@ public class FragmentAllMusic extends Fragment {
             }
         }
     }
+
     public ArrayList<HashMap<String, Object>> listToFolder(ArrayList<MusicInfo> list_temp) {
         listSortFolder(list_temp);
         ArrayList<HashMap<String, Object>> list_folder_all_temp = new ArrayList<>();

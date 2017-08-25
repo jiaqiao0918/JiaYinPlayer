@@ -1,8 +1,11 @@
 package com.android.jiaqiao.jiayinplayer;
 
+import android.graphics.Bitmap;
+
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,6 +25,7 @@ public class PublicDate {
     public static SheetInfo temp_sheet_info = null;
     public static String separate_str = "###";
     public static boolean is_select_music_over = false;
+    public static boolean update_music_sheet = false;
 
 
     public static boolean is_service_select_music_destroy = false;
@@ -38,4 +42,14 @@ public class PublicDate {
     public static ArrayList<Integer> public_music_edit_temp_select = new ArrayList<Integer>();
 
     public static int public_drawer_center_bottom_view_height =0;
+
+    public static MusicInfo music_play_now;
+    public static String music_play_list_str=null;
+    public static int music_play_list_position =0;
+
+    public static File path_files_dir=null;
+    public static boolean is_music_play=false;
+    public static boolean update_music_play=false;
+
+    public static Bitmap music_last_album_image_bitmap=null;
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/touming"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <com.android.jiaqiao.View.LrcView
+        xmlns:lrc="http://schemas.android.com/apk/res/com.android.jiaqiao.jiayinplayer"
+        android:id="@+id/music_play_lrc"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        lrc:currentTextColor="@color/music_play_list_font_seccend_color"
+        lrc:dividerHeight="11dp"
+        lrc:normalTextColor="@color/music_play_list_font_seccend_color"
+        lrc:textSize="16sp"
+        lrc:rows="13"
+        android:background="@color/touming" />
+
+</LinearLayout>

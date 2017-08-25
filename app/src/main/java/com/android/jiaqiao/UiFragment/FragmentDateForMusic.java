@@ -1,4 +1,4 @@
-package com.android.jiaqiao.Fragment;
+package com.android.jiaqiao.UiFragment;
 
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -15,6 +15,7 @@ import android.widget.ImageView;
 
 import com.android.jiaqiao.Adapter.MyExpandableListAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -94,13 +95,28 @@ public class FragmentDateForMusic extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 //v就是ExpandableListView中单击的ChildView
-//                Log.i("into", v + "");
-//                Log.i("into", show_date_for_music.+"");
-//                list_child_date_time.get(last_parent_playing_position).get(last_child_playing_position).setIs_playing(false);
-//                list_child_date_time.get(groupPosition).get(childPosition).setIs_playing(true);
-//                adapter.notifyDataSetChanged();
-//                last_parent_playing_position = groupPosition;
-//                last_child_playing_position = childPosition;
+                PublicDate.music_play_now = list_child_date_time.get(groupPosition).get(childPosition);
+                if(PublicDate.music_play_list_str==null||PublicDate.music_play_list_str.equals("")){
+                    PublicDate.music_play_list_str=list_child_date_time.get(groupPosition).toString();
+                    PublicDate.music_play = list_child_date_time.get(groupPosition);
+                    MusicPlayUtil.saveMusicPlayList();
+                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                }else{
+                    if(!PublicDate.music_play_list_str.equals(list_child_date_time.get(groupPosition).toString())){
+                        PublicDate.music_play_list_str=list_child_date_time.get(groupPosition).toString();
+                        PublicDate.music_play = list_child_date_time.get(groupPosition);
+                        MusicPlayUtil.saveMusicPlayList();
+                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                    }
+                }
+                PublicDate.music_play_list_position = childPosition;
+                getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position",PublicDate.music_play_list_position).commit();
+                //发送广播
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
+                temp_intent.putExtra("is_update_music_play", true);
+                getActivity().sendBroadcast(temp_intent);
                 updateChildView(show_date_for_music, groupPosition, childPosition, v);
                 return true;
             }

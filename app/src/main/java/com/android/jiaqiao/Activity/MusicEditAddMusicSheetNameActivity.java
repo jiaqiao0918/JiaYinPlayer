@@ -119,6 +119,7 @@ public class MusicEditAddMusicSheetNameActivity extends Activity {
                 String now_time = getNowTime();
                 addTextToFile(path, now_time + separate_str + music_sheet_name_temp);
                 PublicDate.temp_sheet_info = new SheetInfo(now_time, music_sheet_name_temp);
+                PublicDate.update_music_sheet = true;
 
                 ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
                 ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
@@ -140,11 +141,8 @@ public class MusicEditAddMusicSheetNameActivity extends Activity {
                 }
                 PublicDate.public_music_edit_temp = null;
                 PublicDate.public_music_edit_temp_select = null;
+
                 finish();
-
-
-
-                this.finish();
             } else {
                 Toast.makeText(this, "歌单名重复，请修改！！", Toast.LENGTH_SHORT).show();
             }

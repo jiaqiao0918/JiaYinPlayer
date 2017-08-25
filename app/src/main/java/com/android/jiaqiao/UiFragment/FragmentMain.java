@@ -1,4 +1,4 @@
-package com.android.jiaqiao.Fragment;
+package com.android.jiaqiao.UiFragment;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -55,7 +55,7 @@ public class FragmentMain extends Fragment {
         //动态注册广播
         mReceiver = new FragmentMainReceiver();
         mFilter = new IntentFilter();
-        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        mFilter.addAction("com.android.jiaqiao");
         getActivity().registerReceiver(mReceiver, mFilter);
 
 
@@ -183,6 +183,12 @@ public class FragmentMain extends Fragment {
             music_all_sheet_list.setAdapter(new MusicSheetAdapter(getActivity(), music_sheet_info_list));
             setListViewHeightBasedOnChildren(music_all_sheet_list);
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
+        }
+        if(PublicDate.update_music_sheet){
+            //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
+            //scroll_view.smoothScrollTo(0,0);//滑动到顶部
+            scroll_view.fullScroll(ScrollView.FOCUS_DOWN);//滑动到底部
+            PublicDate.add_sheet_over = false;
         }
         if (PublicDate.add_sheet_over) {
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果

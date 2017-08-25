@@ -1,4 +1,4 @@
-package com.android.jiaqiao.Fragment;
+package com.android.jiaqiao.UiFragment;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -76,7 +76,7 @@ public class FragmentFolderForMusic extends Fragment {
         //动态注册广播
         mReceiver = new FragmentFolderForMusicReceiver();
         mFilter = new IntentFilter();
-        mFilter.addAction("com.android.jiaqiao.SelectMusicService");
+        mFilter.addAction("com.android.jiaqiao");
         getActivity().registerReceiver(mReceiver, mFilter);
 
 
