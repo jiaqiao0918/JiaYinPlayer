@@ -41,9 +41,11 @@ public class ViewPagerFragmentMusicPlayShowList extends Fragment {
         View view = inflater.inflate(R.layout.view_pager_fragment_music_play_show, container, false);
         music_play_show_list = (RecyclerView) view.findViewById(R.id.music_play_show_list);
         music_now_play_list = PublicDate.music_play;
-        last_click_position = PublicDate.music_play_list_position;
         if (music_now_play_list.size() > 0) {
-            music_now_play_list.get(last_click_position).setIs_playing(false);
+            for (int i=0;i<music_now_play_list.size();i++){
+                music_now_play_list.get(i).setIs_playing(false);
+            }
+            music_now_play_list.get(PublicDate.music_play_list_position).setIs_playing(true);
             // 创建默认的线性LayoutManager
             music_play_show_list.setLayoutManager(new LinearLayoutManager(getActivity()));
             // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
@@ -54,10 +56,6 @@ public class ViewPagerFragmentMusicPlayShowList extends Fragment {
                 @Override
                 public void onItemClick(View view, int position) {
                     //item单击事件
-                    music_now_play_list.get(last_click_position).setIs_playing(false);
-                    music_now_play_list.get(position).setIs_playing(true);
-//                    adapter.notifyItemChanged(last_click_position);//刷新单个数据
-//                    adapter.notifyItemChanged(position);
                     last_click_position = position;
                     PublicDate.music_play_now = music_now_play_list.get(position);
                     PublicDate.music_play_list_position = position;

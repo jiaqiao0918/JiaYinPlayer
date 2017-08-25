@@ -163,6 +163,10 @@ public class FragmentFolderForMusicItem extends Fragment {
 
     public void update_date() {
         if (folder_list != null && folder_list.size() > 0) {
+            int num = MusicPlayUtil.selectMusicPosition(folder_list,PublicDate.music_play_now);
+            if(num>-1){
+                folder_list.get(num).setIs_playing(true);
+            }
             // 创建默认的线性LayoutManager
             show_folder_list.setLayoutManager(new LinearLayoutManager(getActivity()));
             // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.android.jiaqiao.Adapter.MusicSheetAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
+import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
@@ -66,12 +68,12 @@ public class MusicEditAddMusicSheetActivity extends Activity {
         path = PublicDate.files_dir + "/music_sheet/music_sheet_name.txt";
         music_sheet_info_list = getMusicSheetToArrayList(path);
         show_music_sheet_name_list = (ListView) findViewById(R.id.show_music_sheet_name_list);
-        add_to_music_play_list=(Button) findViewById(R.id.add_to_music_play_list);
-        if(PublicDate.is_music_play){
-            View add_to_music_play_view=(View) findViewById(R.id.add_to_music_play_view);
+        add_to_music_play_list = (Button) findViewById(R.id.add_to_music_play_list);
+        if (PublicDate.is_music_play) {
+            View add_to_music_play_view = (View) findViewById(R.id.add_to_music_play_view);
             add_to_music_play_view.setVisibility(View.GONE);
             add_to_music_play_list.setVisibility(View.GONE);
-            PublicDate.is_music_play=false;
+            PublicDate.is_music_play = false;
 
         }
         if (music_sheet_info_list.size() > 0) {
@@ -96,6 +98,14 @@ public class MusicEditAddMusicSheetActivity extends Activity {
                         }
                         if (num > 0) {
                             Toast.makeText(MusicEditAddMusicSheetActivity.this, num + "首歌曲添加成功！！", Toast.LENGTH_SHORT).show();
+
+                            //发送广播
+                            Intent temp_intent = new Intent();
+                            temp_intent.setAction("com.android.jiaqiao");
+                            temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
+                            temp_intent.putExtra("is_update", true);
+                            sendBroadcast(temp_intent);
+                            Log.i("into","fs");
                         }
                     }
                     PublicDate.public_music_edit_temp = null;

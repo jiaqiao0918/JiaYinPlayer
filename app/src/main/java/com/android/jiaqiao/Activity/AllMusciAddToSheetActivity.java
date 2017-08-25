@@ -137,7 +137,7 @@ public class AllMusciAddToSheetActivity extends Activity {
             if (num > 0) {
                 Toast.makeText(AllMusciAddToSheetActivity.this, num + "首歌曲添加成功！！", Toast.LENGTH_SHORT).show();
                 Intent temp_intent = new Intent();
-                temp_intent.setAction("com.android.jiaqiao.SelectMusicService");
+                temp_intent.setAction("com.android.jiaqiao");
                 temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
                 temp_intent.putExtra("is_update_sheet", true);
                 sendBroadcast(temp_intent);

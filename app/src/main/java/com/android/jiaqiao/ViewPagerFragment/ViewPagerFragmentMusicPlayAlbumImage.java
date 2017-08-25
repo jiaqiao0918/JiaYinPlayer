@@ -1,13 +1,13 @@
 package com.android.jiaqiao.ViewPagerFragment;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,9 +34,10 @@ public class ViewPagerFragmentMusicPlayAlbumImage extends Fragment {
         music_play_album_image = (SquareImageView) view.findViewById(R.id.music_play_album_image);
         bitmap = MusicUtils.getArtwork(getActivity(), PublicDate.music_play_now.getMusic_id(), PublicDate.music_play_now.getMusic_album_id(), true);
         if (bitmap == null) {
-            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image_big);
+            music_play_album_image.setImageResource(R.drawable.no_album_image_big);
+        } else {
+            setImageViewImage(music_play_album_image, bitmap);
         }
-        setImageViewImage(music_play_album_image, bitmap);
         music_play_album_image.setDrawingCacheEnabled(true);
         PublicDate.music_last_album_image_bitmap = music_play_album_image.getDrawingCache();
         music_play_album_image.setDrawingCacheEnabled(false);
@@ -45,10 +46,11 @@ public class ViewPagerFragmentMusicPlayAlbumImage extends Fragment {
 
     // 给一个ImageView设置图片,并带有渐变
     public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
+        Log.i("into",image_bitmap.getWidth()+"   "+image_bitmap.getHeight());
         image_view.setScaleType(ImageView.ScaleType.CENTER_CROP);
         image_view.setDrawingCacheEnabled(true);
 
-        Bitmap image_view_bitmap =null;
+        Bitmap image_view_bitmap = null;
         if (PublicDate.music_last_album_image_bitmap != null) {
             image_view_bitmap = PublicDate.music_last_album_image_bitmap;
         }

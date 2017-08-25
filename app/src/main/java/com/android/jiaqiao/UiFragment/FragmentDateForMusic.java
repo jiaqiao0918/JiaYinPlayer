@@ -77,6 +77,13 @@ public class FragmentDateForMusic extends Fragment {
 
     public void update_date() {
         list_child_date_time = listDateTimeToList(PublicDate.public_music_all);
+        for (int i=0;i<list_child_date_time.size();i++){
+            ArrayList<MusicInfo> music_date_time_temp = list_child_date_time.get(i);
+            int num = MusicPlayUtil.selectMusicPosition(music_date_time_temp,PublicDate.music_play_now);
+            if(num>-1){
+                list_child_date_time.get(i).get(num).setIs_playing(true);
+            }
+        }
         adapter = new MyExpandableListAdapter(list_parent_date_time, list_child_date_time, getActivity());
         show_date_for_music.setAdapter(adapter);
         show_date_for_music.setGroupIndicator(null);//去掉向下的箭头

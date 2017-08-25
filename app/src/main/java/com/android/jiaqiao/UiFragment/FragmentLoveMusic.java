@@ -164,6 +164,10 @@ public class FragmentLoveMusic extends Fragment {
 
 
         if (music_love != null && music_love.size() > 0) {
+            int num = MusicPlayUtil.selectMusicPosition(music_love,PublicDate.music_play_now);
+            if(num>-1){
+                music_love.get(num).setIs_playing(true);
+            }
             show_love_music_list = (RecyclerView) view.findViewById(R.id.show_love_music);
             // 创建默认的线性LayoutManager
             show_love_music_list.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -345,6 +349,10 @@ public class FragmentLoveMusic extends Fragment {
                     if (is_update) {
                         music_love.clear();
                         getMusicSheetToArrayList(path);
+                        int num = MusicPlayUtil.selectMusicPosition(music_love,PublicDate.music_play_now);
+                        if(num>-1){
+                            music_love.get(num).setIs_playing(true);
+                        }
                         adapter.notifyDataSetChanged();
                         show_love_list_size.setText(music_love.size() + "首歌");
                         handler.sendEmptyMessage(0x123456);
@@ -355,6 +363,10 @@ public class FragmentLoveMusic extends Fragment {
                     if (is_update_sheet) {
                         music_love.clear();
                         getMusicSheetToArrayList(path);
+                        int num = MusicPlayUtil.selectMusicPosition(music_love,PublicDate.music_play_now);
+                        if(num>-1){
+                            music_love.get(num).setIs_playing(true);
+                        }
                         adapter.notifyDataSetChanged();
                         show_love_list_size.setText(music_love.size() + "首歌");
                         handler.sendEmptyMessage(0x123456);

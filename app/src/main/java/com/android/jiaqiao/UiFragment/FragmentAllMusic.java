@@ -158,6 +158,10 @@ public class FragmentAllMusic extends Fragment {
         });
 
         if (music_all != null && music_all.size() > 0) {
+            int temp_num = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
+            if (temp_num > -1) {
+                music_all.get(temp_num).setIs_playing(true);
+            }
             show_all_music_list = (RecyclerView) view.findViewById(R.id.show_all_music);
             // 创建默认的线性LayoutManager
             show_all_music_list.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -179,17 +183,17 @@ public class FragmentAllMusic extends Fragment {
                         PublicDate.music_play_list_str = music_all.toString();
                         PublicDate.music_play = music_all;
                         MusicPlayUtil.saveMusicPlayList();
-                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
                     } else {
                         if (!PublicDate.music_play_list_str.equals(music_all.toString())) {
                             PublicDate.music_play_list_str = music_all.toString();
                             PublicDate.music_play = music_all;
                             MusicPlayUtil.saveMusicPlayList();
-                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
                         }
                     }
                     PublicDate.music_play_list_position = position;
-                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position",PublicDate.music_play_list_position).commit();
+                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                     //发送广播
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
@@ -257,7 +261,7 @@ public class FragmentAllMusic extends Fragment {
         while (music_album_num < music_all.size()) {
             long songid = music_all.get(music_album_num).getMusic_id();
             long albumid = music_all.get(music_album_num).getMusic_album_id();
-            Bitmap bitmap= MusicUtils.getArtwork(getActivity(), songid, albumid, true);
+            Bitmap bitmap = MusicUtils.getArtwork(getActivity(), songid, albumid, true);
             if (bitmap != null) {
                 setImageViewImage(all_music_show_album_image, bitmap);
                 Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
@@ -334,6 +338,12 @@ public class FragmentAllMusic extends Fragment {
                     boolean is_update = intent.getBooleanExtra("is_update", false);
                     if (is_update) {
                         music_all = PublicDate.public_music_all;
+                        if (music_all != null && music_all.size() > 0) {
+                            int temp_num = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
+                            if (temp_num > -1) {
+                                music_all.get(temp_num).setIs_playing(true);
+                            }
+                        }
                         adapter.notifyDataSetChanged();
                         show_all_list_size.setText((music_all.size()) + "首歌");
                         handler.sendEmptyMessage(0x123456);

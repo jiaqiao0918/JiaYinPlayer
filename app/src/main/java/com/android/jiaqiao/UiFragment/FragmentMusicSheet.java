@@ -161,82 +161,86 @@ public class FragmentMusicSheet extends Fragment {
         mFilter = new IntentFilter();
         mFilter.addAction("com.android.jiaqiao");
         getActivity().registerReceiver(mReceiver, mFilter);
+        if (music_sheet_list != null && music_sheet_list.size() > 0) {
+            int num = MusicPlayUtil.selectMusicPosition(music_sheet_list, PublicDate.music_play_now);
+            if (num > -1) {
+                music_sheet_list.get(num).setIs_playing(true);
+            }
+            // 创建默认的线性LayoutManager
+            show_music_sheet_recycler_view.setLayoutManager(new LinearLayoutManager(getActivity()));
+            // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+            show_music_sheet_recycler_view.setHasFixedSize(true);
+            // 创建并设置Adapter
+            adapter = new RecyclerViewAdapter(music_sheet_list);
+            adapter.setOnItemClickListener(new RecyclerViewAdapter.OnRecyclerViewItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    //item单击事件
+                    music_sheet_list.get(last_click_position).setIs_playing(false);
+                    music_sheet_list.get(position).setIs_playing(true);
+                    adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    adapter.notifyItemChanged(position);
+                    last_click_position = position;
 
-        // 创建默认的线性LayoutManager
-        show_music_sheet_recycler_view.setLayoutManager(new LinearLayoutManager(getActivity()));
-        // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
-        show_music_sheet_recycler_view.setHasFixedSize(true);
-        // 创建并设置Adapter
-        adapter = new RecyclerViewAdapter(music_sheet_list);
-        adapter.setOnItemClickListener(new RecyclerViewAdapter.OnRecyclerViewItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                //item单击事件
-                music_sheet_list.get(last_click_position).setIs_playing(false);
-                music_sheet_list.get(position).setIs_playing(true);
-                adapter.notifyItemChanged(last_click_position);//刷新单个数据
-                adapter.notifyItemChanged(position);
-                last_click_position = position;
-
-                PublicDate.music_play_now = music_sheet_list.get(position);
-                if(PublicDate.music_play_list_str==null||PublicDate.music_play_list_str.equals("")){
-                    PublicDate.music_play_list_str=music_sheet_list.toString();
-                    PublicDate.music_play = music_sheet_list;
-                    MusicPlayUtil.saveMusicPlayList();
-                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
-
-                }else{
-                    if(!PublicDate.music_play_list_str.equals(music_sheet_list.toString())){
-                        PublicDate.music_play_list_str=music_sheet_list.toString();
+                    PublicDate.music_play_now = music_sheet_list.get(position);
+                    if (PublicDate.music_play_list_str == null || PublicDate.music_play_list_str.equals("")) {
+                        PublicDate.music_play_list_str = music_sheet_list.toString();
                         PublicDate.music_play = music_sheet_list;
                         MusicPlayUtil.saveMusicPlayList();
-                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str",PublicDate.music_play_list_str).commit();
+                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
 
+                    } else {
+                        if (!PublicDate.music_play_list_str.equals(music_sheet_list.toString())) {
+                            PublicDate.music_play_list_str = music_sheet_list.toString();
+                            PublicDate.music_play = music_sheet_list;
+                            MusicPlayUtil.saveMusicPlayList();
+                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+
+                        }
                     }
+                    PublicDate.music_play_list_position = position;
+                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+                    //发送广播
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
+                    temp_intent.putExtra("is_update_music_play", true);
+                    getActivity().sendBroadcast(temp_intent);
                 }
-                PublicDate.music_play_list_position = position;
-                getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position",PublicDate.music_play_list_position).commit();
+            });
+            adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
+                @Override
+                public void onItemLongClick(View view, int position) {
+                    //item长按事件
+                    ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                    music_edit_select.add(position);
+                    PublicDate.public_music_edit_temp = music_sheet_list;
+                    PublicDate.public_music_edit_temp_select = music_edit_select;
+                    getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("music_sheet_id_01", show_sheet_info.getSheet_id().toString()));
+                }
+            });
+            show_music_sheet_recycler_view.setAdapter(adapter);
 
-                //发送广播
-                Intent temp_intent = new Intent();
-                temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
-                temp_intent.putExtra("is_update_music_play", true);
-                getActivity().sendBroadcast(temp_intent);
+            //RecyclerView设置自适应高度，原理：用屏幕的高度-toolbar的高度-activity底部控件的高度-状态栏的高度
+            int view_w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            int view_h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            fragment_music_sheet_toolbar.measure(view_w, view_h);
+            int view_height = fragment_music_sheet_toolbar.getMeasuredHeight();
+            WindowManager wm = getActivity().getWindowManager();
+            int mwidth = wm.getDefaultDisplay().getWidth();
+            int mheight = wm.getDefaultDisplay().getHeight();
+            ViewGroup.LayoutParams lp = show_music_sheet_recycler_view.getLayoutParams();
+            int statusBarHeight1 = -1;
+            //获取status_bar_height资源的ID
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                //根据资源ID获取响应的尺寸值
+                statusBarHeight1 = getResources().getDimensionPixelSize(resourceId);
             }
-        });
-        adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
-            @Override
-            public void onItemLongClick(View view, int position) {
-                //item长按事件
-                ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
-                music_edit_select.add(position);
-                PublicDate.public_music_edit_temp = music_sheet_list;
-                PublicDate.public_music_edit_temp_select = music_edit_select;
-                getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("music_sheet_id_01", show_sheet_info.getSheet_id().toString()));
-            }
-        });
-        show_music_sheet_recycler_view.setAdapter(adapter);
-
-        //RecyclerView设置自适应高度，原理：用屏幕的高度-toolbar的高度-activity底部控件的高度-状态栏的高度
-        int view_w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        int view_h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        fragment_music_sheet_toolbar.measure(view_w, view_h);
-        int view_height = fragment_music_sheet_toolbar.getMeasuredHeight();
-        WindowManager wm = getActivity().getWindowManager();
-        int mwidth = wm.getDefaultDisplay().getWidth();
-        int mheight = wm.getDefaultDisplay().getHeight();
-        ViewGroup.LayoutParams lp = show_music_sheet_recycler_view.getLayoutParams();
-        int statusBarHeight1 = -1;
-        //获取status_bar_height资源的ID
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            //根据资源ID获取响应的尺寸值
-            statusBarHeight1 = getResources().getDimensionPixelSize(resourceId);
+            lp.height = (mheight - view_height - PublicDate.public_drawer_center_bottom_view_height - statusBarHeight1);//单位是像素，不是dp
+            show_music_sheet_recycler_view.setLayoutParams(lp);
         }
-        lp.height = (mheight - view_height - PublicDate.public_drawer_center_bottom_view_height-statusBarHeight1);//单位是像素，不是dp
-        show_music_sheet_recycler_view.setLayoutParams(lp);
-
 
         music_sheet_delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -380,7 +384,7 @@ public class FragmentMusicSheet extends Fragment {
     // 给一个ImageView设置高斯模糊的图片,并带有渐变
     public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
         /*
-		 * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
+         * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
 		 * 增大blurRadius，可以得到更高程度的虚化，不过会导致CPU更加intensive
 		 */
         int scaleRatio = PublicDate.scaleRatio;
@@ -424,9 +428,15 @@ public class FragmentMusicSheet extends Fragment {
                     if (is_update) {
                         music_sheet_list.clear();
                         getMusicSheetToArrayList(path);
-                        adapter.notifyDataSetChanged();
-                        show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
-                        handler.sendEmptyMessage(0x123456);
+                        if (music_sheet_list != null && music_sheet_list.size() > 0) {
+                            int num = MusicPlayUtil.selectMusicPosition(music_sheet_list, PublicDate.music_play_now);
+                            if (num > -1) {
+                                music_sheet_list.get(num).setIs_playing(true);
+                            }
+                            adapter.notifyDataSetChanged();
+                            show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
+                            handler.sendEmptyMessage(0x123456);
+                        }
                     }
                     break;
                 case MainActivity.UPDATE_SHEET:
@@ -434,9 +444,15 @@ public class FragmentMusicSheet extends Fragment {
                     if (is_update_sheet) {
                         music_sheet_list.clear();
                         getMusicSheetToArrayList(path);
-                        adapter.notifyDataSetChanged();
-                        show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
-                        handler.sendEmptyMessage(0x123456);
+                        if (music_sheet_list != null && music_sheet_list.size() > 0) {
+                            int num = MusicPlayUtil.selectMusicPosition(music_sheet_list, PublicDate.music_play_now);
+                            if (num > -1) {
+                                music_sheet_list.get(num).setIs_playing(true);
+                            }
+                            adapter.notifyDataSetChanged();
+                            show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
+                            handler.sendEmptyMessage(0x123456);
+                        }
                     }
                     break;
             }

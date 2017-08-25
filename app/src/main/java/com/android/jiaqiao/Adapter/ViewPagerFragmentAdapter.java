@@ -37,7 +37,6 @@ public class ViewPagerFragmentAdapter extends FragmentStatePagerAdapter {
         this.list_fragment=arrayList;
         notifyDataSetChanged();
     }
-
     //解决notifyDataSetChanged，不刷新
     public int getItemPosition(Object object){
         return PagerAdapter.POSITION_NONE;

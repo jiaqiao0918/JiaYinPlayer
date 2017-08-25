@@ -19,7 +19,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -47,6 +46,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
     public static final int WRITE_EXTERNAL_STORAGE_QUANXAN = 200000000;
     public static final int ALL_MUSIC_UPDATE = 200000001;
+    public static final int START_ACTIVITY_TO_OTHER = 200000002;
 
     public static final int UPDATE_SHEET = 300000001;
     public static final int UPDATE_MUSIC_PLAY = 300000002;
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView music_is_playing;
 
     private int now_show_position = 0;
+    private int last_position = 0;
     private int state_1_position = -1;
     private boolean is_need_update = false;
     private ArrayList<Integer> randoms = new ArrayList<Integer>();
@@ -120,7 +121,8 @@ public class MainActivity extends AppCompatActivity {
             now_show_position = PublicDate.music_play_list_position;
             PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
         }
-        PublicDate.music_play_list_position = userSettings.getInt("music_play_list_position", 0);;
+        PublicDate.music_play_list_position = userSettings.getInt("music_play_list_position", 0);
+        ;
         now_show_position = PublicDate.music_play_list_position;
         PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
         music_play_list_temp = PublicDate.music_play;
@@ -226,10 +228,12 @@ public class MainActivity extends AppCompatActivity {
                                 now_show_position = randoms.get(1);
                                 viewPagerLeft();
                             }
+
+                            PublicDate.music_play_list_position = now_show_position;
                             PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
-                            Log.i("into",PublicDate.music_play_now.getMusic_title());
                             view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
+                            getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                             is_need_update = false;
                         }
                     } else if (state == 1) {
@@ -300,9 +304,16 @@ public class MainActivity extends AppCompatActivity {
                             updateViewPagerFragment();
                             view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                             view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-                        }else{
+                        } else {
                             show_view_pager_layout.setVisibility(View.GONE);
                         }
+                    }
+                    break;
+                case MainActivity.START_ACTIVITY_TO_OTHER:
+                    if (intent.getBooleanExtra("is_to", false)) {
+                        startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
+                        overridePendingTransition(R.anim.dialog_enter_anim, R.anim.dialog_exit_anim);
+
                     }
                     break;
             }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -17,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
@@ -26,7 +26,16 @@ import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayAlbumImag
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayLrc;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayShowList;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import static com.android.jiaqiao.Utils.MusicPlayUtil.addTextToFile;
+import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
 
 /**
  * Created by jiaqiao on 2017/8/23/0023.
@@ -41,10 +50,11 @@ public class MusicPlayActivity extends AppCompatActivity {
     private ViewPagerFragmentAdapter view_pager_fragment_adapter;
     private View view_oval_001, view_oval_002, view_oval_003;
     private TextView music_tittle_view, music_artist_view, play_now_time, play_max_time;
-    private ImageView music_album_image_big, play_last, play_next;
+    private ImageView back_activity,music_album_image_big, play_last, play_next, music_play_love;
 
     private ArrayList<Fragment> view_pager_fragment_list = new ArrayList<Fragment>();
     private MusicInfo music_play_now;
+    private boolean is_love_music = false;
 
     private Bitmap music_play_album_image_bitmap;
     private MusicPlayReceiver mReceiver;
@@ -64,18 +74,22 @@ public class MusicPlayActivity extends AppCompatActivity {
         music_artist_view = (TextView) findViewById(R.id.music_artist_view);
         play_now_time = (TextView) findViewById(R.id.play_now_time);
         play_max_time = (TextView) findViewById(R.id.play_max_time);
+        back_activity=(ImageView) findViewById(R.id.back_activity);
         music_album_image_big = (ImageView) findViewById(R.id.music_album_image_big);
         play_last = (ImageView) findViewById(R.id.play_last);
         play_next = (ImageView) findViewById(R.id.play_next);
+        music_play_love = (ImageView) findViewById(R.id.music_play_love);
 
+        is_love_music = selectIsLoveMusic();
+        updateLoveUi();
         play_max_time.setText(getMusicTime(music_play_now.getMusic_duration()));
         music_tittle_view.setText(music_play_now.getMusic_title());
         music_artist_view.setText(music_play_now.getMusic_artist());
         music_play_album_image_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
-        if(music_play_album_image_bitmap==null){
-            music_play_album_image_bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+        if (music_play_album_image_bitmap != null) {
+            setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
         }
-        setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
+
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayShowList());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayAlbumImage());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayLrc());
@@ -103,6 +117,12 @@ public class MusicPlayActivity extends AppCompatActivity {
         });
         UpdateViewPagerBar();
 
+        back_activity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         play_last.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,7 +131,7 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play.get(temp).setIs_playing(true);
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
-                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position",PublicDate.music_play_list_position).commit();
+                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                 updateAllActivity();
             }
         });
@@ -123,8 +143,40 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play.get(temp).setIs_playing(true);
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
-                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position",PublicDate.music_play_list_position).commit();
+                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                 updateAllActivity();
+            }
+        });
+        music_play_love.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String path = getPath("love");
+                if (is_love_music) {
+                    String music_id = music_play_now.getMusic_id() + "";
+                    deleteSelectStr(path, music_id);
+                    is_love_music = false;
+                } else {
+                    ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
+                    music_edit_temp = PublicDate.public_music_edit_temp;
+
+                    int num = 0;
+                    String add_context = music_play_now.getMusic_id() + separate_str + music_play_now.getMusic_title();
+                    if (!isHavaContextFromPath(path, add_context)) {
+                        addTextToFile(path, add_context);
+                        num++;
+                    }
+                    if (num > 0) {
+                        Toast.makeText(MusicPlayActivity.this, num + "首歌曲收藏成功！！", Toast.LENGTH_SHORT).show();
+                    }
+                    is_love_music = true;
+                }
+                //发送广播
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
+                temp_intent.putExtra("is_update", true);
+                sendBroadcast(temp_intent);
+                updateLoveUi();
             }
         });
 
@@ -161,11 +213,82 @@ public class MusicPlayActivity extends AppCompatActivity {
         }
     }
 
+    public void deleteSelectStr(String path, String select_str) {
+        /*
+         *
+		 * 删除一行思路：将整个txt的内容保存到list中，再清空txt的内容，然后将list中的数据保存到txt中，保存时进行筛选过滤需要删除的某行
+		 * */
+        ArrayList<String> temp_list = new ArrayList<>();
+        try {
+            FileReader fr = new FileReader(path);
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                if (line.indexOf(PublicDate.separate_str) > -1) {
+                    temp_list.add(line);
+                }
+            }
+            br.close();
+            fr.close();
+
+            clearTxtAll(path);// 清空txt内容
+
+            for (int i = 0; i < temp_list.size(); i++) {
+                String temp_str = temp_list.get(i).toString();
+                if (temp_str.indexOf(select_str + PublicDate.separate_str) <= -1) {
+                    addTextToFile(path, temp_str);
+                }
+
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void clearTxtAll(String path) {
+        // 清空txt文件
+        FileWriter writer = null;
+        try {
+            // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件,false表示覆盖的方式写入
+            writer = new FileWriter(path, false);
+            writer.write("");
+            if (writer != null) {
+                writer.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void finish() {
         super.finish();
         this.overridePendingTransition(R.anim.dialog_enter_anim, R.anim.dialog_exit_anim);
         //设置Activity的退出动画，不知道为什么在xml文件中设置退出动画会错位
+    }
+
+    public boolean isHavaContextFromPath(String path_name, String context) {
+        try {
+            FileReader fr = new FileReader(path_name);
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                if (context.trim().equals(line.trim())) {
+                    return true;
+                }
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public void UpdateViewPagerBar() {
@@ -220,14 +343,17 @@ public class MusicPlayActivity extends AppCompatActivity {
 
     public void updateAllActivity() {
         music_play_now = PublicDate.music_play_now;
+        is_love_music = selectIsLoveMusic();
+        updateLoveUi();
         play_max_time.setText(getMusicTime(music_play_now.getMusic_duration()));
         music_tittle_view.setText(music_play_now.getMusic_title());
         music_artist_view.setText(music_play_now.getMusic_artist());
         music_play_album_image_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
-        if (music_play_album_image_bitmap == null) {
-            music_play_album_image_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+        if (music_play_album_image_bitmap != null) {
+            setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
+        }else {
+            music_album_image_big.setImageResource(R.color.touming);
         }
-        setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayShowList());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayAlbumImage());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayLrc());
@@ -244,6 +370,51 @@ public class MusicPlayActivity extends AppCompatActivity {
         int time = (music_duration / 1000);//单位：秒
         String string = String.format("%02d", (time / 60)) + ":" + String.format("%02d", (time % 60));
         return string;
+    }
+
+    public String getPath(String sheet_id) {
+        File file = new File(getFilesDir() + "/music_sheet_list");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        File file2 = new File(file.getPath() + "/" + sheet_id + ".txt");
+        if (!file2.exists()) {
+            try {
+                file2.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return file2.getPath().toString();
+    }
+
+    public boolean selectIsLoveMusic() {
+        try {
+            FileReader fr = new FileReader(getPath("love"));
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                if (line.indexOf(music_play_now.getMusic_id() + "") > -1 && line.indexOf(music_play_now.getMusic_title()) > -1) {
+                    return true;
+                }
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+
+    public void updateLoveUi() {
+        if (is_love_music) {
+            music_play_love.setImageResource(R.drawable.music_play_is_love);
+        } else {
+            music_play_love.setImageResource(R.drawable.music_play_not_love);
+        }
     }
 
     class MusicPlayReceiver extends BroadcastReceiver {
