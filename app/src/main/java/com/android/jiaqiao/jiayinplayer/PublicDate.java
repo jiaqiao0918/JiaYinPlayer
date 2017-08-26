@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
+import com.android.jiaqiao.Service.MusicPlayService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,9 +27,13 @@ public class PublicDate {
     public static String separate_str = "###";
     public static boolean is_select_music_over = false;
     public static boolean update_music_sheet = false;
+    public static int play_mode = MusicPlayService.PLAY_MODE_ORDER;
+    public static ArrayList<Integer> play_randoms = new ArrayList<Integer>();
 
 
+    public static boolean is_music_play_destroy = false;
     public static boolean is_service_select_music_destroy = false;
+    public static boolean is_play = false;
 
     /*专辑图片虚化
          * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
@@ -41,15 +46,15 @@ public class PublicDate {
     public static ArrayList<MusicInfo> public_music_edit_temp = new ArrayList<MusicInfo>();
     public static ArrayList<Integer> public_music_edit_temp_select = new ArrayList<Integer>();
 
-    public static int public_drawer_center_bottom_view_height =0;
+    public static int public_drawer_center_bottom_view_height = 0;
 
     public static MusicInfo music_play_now;
-    public static String music_play_list_str=null;
-    public static int music_play_list_position =0;
+    public static String music_play_list_str = null;
+    public static int music_play_list_position = 0;
 
-    public static File path_files_dir=null;
-    public static boolean is_music_play=false;
-    public static boolean update_music_play=false;
+    public static File path_files_dir = null;
+    public static boolean is_music_play = false;
+    public static boolean update_music_play = false;
 
-    public static Bitmap music_last_album_image_bitmap=null;
+    public static Bitmap music_last_album_image_bitmap = null;
 }

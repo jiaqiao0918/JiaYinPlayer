@@ -15,11 +15,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayAlbumImage;
@@ -44,21 +46,29 @@ import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
 public class MusicPlayActivity extends AppCompatActivity {
 
     public static final int UPDATE_MUSIC_PLAY_ACTIVITY = 400000000;
+    public static final int UPDATE_MUSIC_PLAY_ACTIVITY_OTHER = 400000001;
 
 
     private ViewPager music_play_view_pager;
     private ViewPagerFragmentAdapter view_pager_fragment_adapter;
     private View view_oval_001, view_oval_002, view_oval_003;
     private TextView music_tittle_view, music_artist_view, play_now_time, play_max_time;
-    private ImageView back_activity,music_album_image_big, play_last, play_next, music_play_love;
+    private ImageView back_activity, music_album_image_big, music_play_mode, play_last, play_next, music_play_love, music_play_is_not_play;
+    private SeekBar music_play_seek_bar;
 
     private ArrayList<Fragment> view_pager_fragment_list = new ArrayList<Fragment>();
     private MusicInfo music_play_now;
     private boolean is_love_music = false;
+    private int play_time = 0;
+    private boolean is_update_start_stop = false;
+    private boolean is_playing = false;
+    private int seek_bar_touch_time = 0;
+
 
     private Bitmap music_play_album_image_bitmap;
     private MusicPlayReceiver mReceiver;
     private IntentFilter mFilter;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,11 +84,15 @@ public class MusicPlayActivity extends AppCompatActivity {
         music_artist_view = (TextView) findViewById(R.id.music_artist_view);
         play_now_time = (TextView) findViewById(R.id.play_now_time);
         play_max_time = (TextView) findViewById(R.id.play_max_time);
-        back_activity=(ImageView) findViewById(R.id.back_activity);
+        music_play_mode = (ImageView) findViewById(R.id.music_play_mode);
+        back_activity = (ImageView) findViewById(R.id.back_activity);
         music_album_image_big = (ImageView) findViewById(R.id.music_album_image_big);
         play_last = (ImageView) findViewById(R.id.play_last);
         play_next = (ImageView) findViewById(R.id.play_next);
         music_play_love = (ImageView) findViewById(R.id.music_play_love);
+        music_play_is_not_play = (ImageView) findViewById(R.id.music_play_is_not_play);
+        music_play_seek_bar = (SeekBar) findViewById(R.id.music_play_seek_bar);
+
 
         is_love_music = selectIsLoveMusic();
         updateLoveUi();
@@ -89,14 +103,21 @@ public class MusicPlayActivity extends AppCompatActivity {
         if (music_play_album_image_bitmap != null) {
             setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
         }
-
+        play_time = 0;
+        seek_bar_touch_time = 0;
+        is_playing = false;
+        music_play_seek_bar.setMax(PublicDate.music_play_now.getMusic_duration());
+        music_play_seek_bar.setProgress(0);
+        play_now_time.setText(getMusicTime(play_time));
+        updateStartStopUi();
+        updatePlayMode();
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayShowList());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayAlbumImage());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayLrc());
 
         view_pager_fragment_adapter = new ViewPagerFragmentAdapter(getSupportFragmentManager(), view_pager_fragment_list);
         music_play_view_pager.setAdapter(view_pager_fragment_adapter);
-        music_play_view_pager.setCurrentItem(1); //设置当前页是第0页
+        music_play_view_pager.setCurrentItem(1); //设置当前页是第1页
         music_play_view_pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -117,34 +138,88 @@ public class MusicPlayActivity extends AppCompatActivity {
         });
         UpdateViewPagerBar();
 
+        music_play_mode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_ORDER) {
+                    PublicDate.play_mode = MusicPlayService.PLAY_MODE_RANDOM;
+                } else if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_RANDOM) {
+                    PublicDate.play_mode = MusicPlayService.PLAY_MODE_SINGLE;
+                } else if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_SINGLE) {
+                    PublicDate.play_mode = MusicPlayService.PLAY_MODE_ORDER;
+                }
+                //发送广播
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MusicPlayService.UPDATE_PLAY_MODE);
+                sendBroadcast(temp_intent);
+
+                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("play_mode", PublicDate.play_mode).commit();
+                updatePlayMode();
+            }
+        });
+
         back_activity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
+        music_play_is_not_play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //发送广播
+                if (is_playing) {
+                    is_playing = false;
+                } else {
+                    is_playing = true;
+                }
+                updateStartStopUi();
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
+                sendBroadcast(temp_intent);
+            }
+        });
         play_last.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (PublicDate.music_play_list_position - 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
+                int temp = 0;
+                if (PublicDate.play_mode != MusicPlayService.PLAY_MODE_RANDOM) {
+                    temp = (PublicDate.music_play_list_position + 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
+                } else {
+                    temp = PublicDate.play_randoms.get(1);
+                }
                 PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
                 PublicDate.music_play.get(temp).setIs_playing(true);
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
                 getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
-                updateAllActivity();
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MusicPlayService.PLAY_LAST_MUSIC);
+                sendBroadcast(temp_intent);
             }
         });
         play_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (PublicDate.music_play_list_position + 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
+                int temp = 0;
+                if (PublicDate.play_mode != MusicPlayService.PLAY_MODE_RANDOM) {
+                    temp = (PublicDate.music_play_list_position + 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
+                } else {
+                    temp = PublicDate.play_randoms.get(3);
+                }
                 PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
                 PublicDate.music_play.get(temp).setIs_playing(true);
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
                 getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
-                updateAllActivity();
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MusicPlayService.PLAY_NEXT_MUSIC);
+                sendBroadcast(temp_intent);
+
             }
         });
         music_play_love.setOnClickListener(new View.OnClickListener() {
@@ -177,6 +252,28 @@ public class MusicPlayActivity extends AppCompatActivity {
                 temp_intent.putExtra("is_update", true);
                 sendBroadcast(temp_intent);
                 updateLoveUi();
+            }
+        });
+        music_play_seek_bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                seek_bar_touch_time = seekBar.getProgress();
+                play_now_time.setText(getMusicTime(seek_bar_touch_time));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MusicPlayService.SEEK_TO);
+                temp_intent.putExtra("seek_to_time", seek_bar_touch_time);
+                sendBroadcast(temp_intent);
+                seek_bar_touch_time = 0;
             }
         });
 
@@ -344,19 +441,29 @@ public class MusicPlayActivity extends AppCompatActivity {
     public void updateAllActivity() {
         music_play_now = PublicDate.music_play_now;
         is_love_music = selectIsLoveMusic();
+        play_time = 0;
+        seek_bar_touch_time = 0;
+        is_playing = false;
+        music_play_seek_bar.setMax(PublicDate.music_play_now.getMusic_duration());
+        music_play_seek_bar.setProgress(0);
+        play_now_time.setText(getMusicTime(play_time));
         updateLoveUi();
+        updatePlayMode();
         play_max_time.setText(getMusicTime(music_play_now.getMusic_duration()));
         music_tittle_view.setText(music_play_now.getMusic_title());
         music_artist_view.setText(music_play_now.getMusic_artist());
         music_play_album_image_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
         if (music_play_album_image_bitmap != null) {
             setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
-        }else {
+        } else {
             music_album_image_big.setImageResource(R.color.touming);
         }
+        play_time = 0;
+        view_pager_fragment_list.clear();
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayShowList());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayAlbumImage());
         view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayLrc());
+
         view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
         //发送广播
         Intent temp_intent = new Intent();
@@ -364,6 +471,34 @@ public class MusicPlayActivity extends AppCompatActivity {
         temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
         temp_intent.putExtra("is_update_music_play", true);
         sendBroadcast(temp_intent);
+    }
+
+    public void updateActivity() {
+        music_play_now = PublicDate.music_play_now;
+        is_love_music = selectIsLoveMusic();
+        play_time = 0;
+        seek_bar_touch_time = 0;
+        is_playing = false;
+        music_play_seek_bar.setMax(PublicDate.music_play_now.getMusic_duration());
+        music_play_seek_bar.setProgress(0);
+        play_now_time.setText(getMusicTime(play_time));
+        updateLoveUi();
+        updatePlayMode();
+        play_max_time.setText(getMusicTime(music_play_now.getMusic_duration()));
+        music_tittle_view.setText(music_play_now.getMusic_title());
+        music_artist_view.setText(music_play_now.getMusic_artist());
+        music_play_album_image_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
+        if (music_play_album_image_bitmap != null) {
+            setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
+        } else {
+            music_album_image_big.setImageResource(R.color.touming);
+        }
+        play_time = 0;
+        view_pager_fragment_list.clear();
+        view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayShowList());
+        view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayAlbumImage());
+        view_pager_fragment_list.add(new ViewPagerFragmentMusicPlayLrc());
+        view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
     }
 
     public String getMusicTime(int music_duration) {
@@ -417,6 +552,29 @@ public class MusicPlayActivity extends AppCompatActivity {
         }
     }
 
+    public void updateStartStopUi() {
+        if (is_playing) {
+            music_play_is_not_play.setImageResource(R.drawable.music_play_is);
+        } else {
+            music_play_is_not_play.setImageResource(R.drawable.music_play_not);
+            is_update_start_stop = false;
+        }
+    }
+
+    public void updatePlayMode() {
+        switch (PublicDate.play_mode) {
+            case MusicPlayService.PLAY_MODE_ORDER:
+                music_play_mode.setImageResource(R.drawable.music_play_mode_order);
+                break;
+            case MusicPlayService.PLAY_MODE_RANDOM:
+                music_play_mode.setImageResource(R.drawable.music_play_mode_ramdom);
+                break;
+            case MusicPlayService.PLAY_MODE_SINGLE:
+                music_play_mode.setImageResource(R.drawable.music_play_mode_single);
+                break;
+        }
+    }
+
     class MusicPlayReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -424,6 +582,29 @@ public class MusicPlayActivity extends AppCompatActivity {
             switch (type) {
                 case MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY:
                     updateAllActivity();
+                    break;
+                case MainActivity.ALL_MUSIC_UPDATE:
+                case MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER:
+                    updateActivity();
+                    break;
+                case MusicPlayService.GET_MUSIC_PLAY_TIME:
+                    int time = intent.getIntExtra("play_time", 0);
+                    if (time > 0) {
+                        play_time = time;
+                        if (play_time > music_play_seek_bar.getMax()) {
+                            play_time = music_play_seek_bar.getMax();
+                        }
+                        music_play_seek_bar.setProgress(play_time);
+                        play_now_time.setText(getMusicTime(play_time));
+                        if (!is_update_start_stop) {
+                            updateStartStopUi();
+                            is_update_start_stop = true;
+                        }
+                    }
+                    break;
+                case MusicPlayService.IS_PLAY:
+                    is_playing = intent.getBooleanExtra("is_playing", false);
+                    updateStartStopUi();
                     break;
             }
         }

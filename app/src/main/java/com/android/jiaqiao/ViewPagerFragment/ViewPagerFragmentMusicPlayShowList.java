@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
 import com.android.jiaqiao.Adapter.MusicPlayRecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.MusicPlayActivity;
@@ -66,6 +67,10 @@ public class ViewPagerFragmentMusicPlayShowList extends Fragment {
                     temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY);
                     temp_intent02.putExtra("is_update_music_play", true);
                     getActivity().sendBroadcast(temp_intent02);
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                    getActivity().sendBroadcast(temp_intent);
 
                 }
             });

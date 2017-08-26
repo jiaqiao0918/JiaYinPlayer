@@ -18,8 +18,9 @@ public class MusicInfo implements Serializable {
     private boolean is_playing;//歌曲是否在播放
     private int add_date_time;
     private boolean is_selected;
+    private int add_time;
 
-    public MusicInfo(long music_id, String music_path, String music_title, String music_artist, String music_album,long music_album_id, int music_duration, String music_pinyin, int add_date_time) {
+    public MusicInfo(long music_id, String music_path, String music_title, String music_artist, String music_album, long music_album_id, int music_duration, String music_pinyin, int add_date_time, int add_time) {
         this.music_id = music_id;
         this.music_path = music_path;
         this.music_title = music_title;
@@ -31,6 +32,15 @@ public class MusicInfo implements Serializable {
         this.is_playing = false;
         this.add_date_time = add_date_time;
         this.is_selected = false;
+        this.add_time = add_time;
+    }
+
+    public int getAdd_time() {
+        return add_time;
+    }
+
+    public void setAdd_time(int add_time) {
+        this.add_time = add_time;
     }
 
     public long getMusic_album_id() {

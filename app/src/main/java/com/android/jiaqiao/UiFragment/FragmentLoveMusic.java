@@ -32,6 +32,7 @@ import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
 import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
@@ -167,6 +168,7 @@ public class FragmentLoveMusic extends Fragment {
             int num = MusicPlayUtil.selectMusicPosition(music_love,PublicDate.music_play_now);
             if(num>-1){
                 music_love.get(num).setIs_playing(true);
+                last_click_position = num;
             }
             show_love_music_list = (RecyclerView) view.findViewById(R.id.show_love_music);
             // 创建默认的线性LayoutManager
@@ -207,6 +209,10 @@ public class FragmentLoveMusic extends Fragment {
                     temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
                     temp_intent.putExtra("is_update_music_play", true);
                     getActivity().sendBroadcast(temp_intent);
+                    Intent temp_intent002 = new Intent();
+                    temp_intent002.setAction("com.android.jiaqiao");
+                    temp_intent002.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                    getActivity().sendBroadcast(temp_intent002);
                 }
             });
             adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
@@ -352,6 +358,7 @@ public class FragmentLoveMusic extends Fragment {
                         int num = MusicPlayUtil.selectMusicPosition(music_love,PublicDate.music_play_now);
                         if(num>-1){
                             music_love.get(num).setIs_playing(true);
+                            last_click_position = num;
                         }
                         adapter.notifyDataSetChanged();
                         show_love_list_size.setText(music_love.size() + "首歌");
@@ -366,11 +373,23 @@ public class FragmentLoveMusic extends Fragment {
                         int num = MusicPlayUtil.selectMusicPosition(music_love,PublicDate.music_play_now);
                         if(num>-1){
                             music_love.get(num).setIs_playing(true);
+                            last_click_position = num;
                         }
                         adapter.notifyDataSetChanged();
                         show_love_list_size.setText(music_love.size() + "首歌");
                         handler.sendEmptyMessage(0x123456);
                     }
+                    break;
+                case  MainActivity.VIEW_PAGER_UPDATE_LIST:
+                    int temp_num = MusicPlayUtil.selectMusicPosition(music_love, PublicDate.music_play_now);
+                    if (temp_num > -1) {
+                        music_love.get(temp_num).setIs_playing(true);
+                        music_love.get(last_click_position).setIs_playing(false);
+                        adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                        adapter.notifyItemChanged(temp_num);
+                        last_click_position = temp_num;
+                    }
+
                     break;
             }
         }

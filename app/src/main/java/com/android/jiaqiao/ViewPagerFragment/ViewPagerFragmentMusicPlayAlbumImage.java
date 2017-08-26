@@ -7,7 +7,6 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +45,6 @@ public class ViewPagerFragmentMusicPlayAlbumImage extends Fragment {
 
     // 给一个ImageView设置图片,并带有渐变
     public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
-        Log.i("into",image_bitmap.getWidth()+"   "+image_bitmap.getHeight());
         image_view.setScaleType(ImageView.ScaleType.CENTER_CROP);
         image_view.setDrawingCacheEnabled(true);
 

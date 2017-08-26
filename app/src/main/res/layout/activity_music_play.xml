@@ -122,10 +122,11 @@
                     android:src="@drawable/music_play_last"/>
 
                 <ImageView
+                    android:id="@+id/music_play_is_not_play"
                     android:layout_margin="0dp"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/music_play_not_not_down"/>
+                    android:src="@drawable/music_play_not"/>
 
                 <ImageView
                     android:id="@+id/play_next"
@@ -146,6 +147,7 @@
 
 
             <SeekBar
+                android:id="@+id/music_play_seek_bar"
                 android:focusable="true"
                 android:maxHeight="2dp"
                 android:minHeight="2dp"

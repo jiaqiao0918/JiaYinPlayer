@@ -31,6 +31,7 @@ import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
 import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
@@ -166,6 +167,7 @@ public class FragmentFolderForMusicItem extends Fragment {
             int num = MusicPlayUtil.selectMusicPosition(folder_list,PublicDate.music_play_now);
             if(num>-1){
                 folder_list.get(num).setIs_playing(true);
+                last_click_position =num;
             }
             // 创建默认的线性LayoutManager
             show_folder_list.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -205,6 +207,10 @@ public class FragmentFolderForMusicItem extends Fragment {
                     temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
                     temp_intent.putExtra("is_update_music_play", true);
                     getActivity().sendBroadcast(temp_intent);
+                    Intent temp_intent002 = new Intent();
+                    temp_intent002.setAction("com.android.jiaqiao");
+                    temp_intent002.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                    getActivity().sendBroadcast(temp_intent002);
                 }
             });
             adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnRecyclerItemLongListener() {
@@ -355,6 +361,17 @@ public class FragmentFolderForMusicItem extends Fragment {
                             getFragmentManager().popBackStack();
                         }
                     }
+                    break;
+                case  MainActivity.VIEW_PAGER_UPDATE_LIST:
+                    int temp_num = MusicPlayUtil.selectMusicPosition(folder_list, PublicDate.music_play_now);
+                    if (temp_num > -1) {
+                        folder_list.get(temp_num).setIs_playing(true);
+                        folder_list.get(last_click_position).setIs_playing(false);
+                        adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                        adapter.notifyItemChanged(temp_num);
+                        last_click_position = temp_num;
+                    }
+
                     break;
             }
         }

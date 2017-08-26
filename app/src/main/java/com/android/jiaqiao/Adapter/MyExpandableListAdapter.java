@@ -1,7 +1,6 @@
 package com.android.jiaqiao.Adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
@@ -137,9 +136,9 @@ public class MyExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     //更新ListView中单个Item
-    public void updataView(ExpandableListView expandable_list_view, int groupPosition, int childPosition, View view) {
-if (view != null) {
-
+    public void updataView(ExpandableListView expandable_list_view, int groupPosition, int childPosition) {
+        View view = getView(expandable_list_view,groupPosition,childPosition);
+        if (view != null) {
 /*
 * 判断view是否可见
 * 判断原理，getFirstVisiblePosition，getLastVisiblePosition，获取可见项的最小序号和最大序号
@@ -153,7 +152,6 @@ if (view != null) {
             group_position_sum = group_position_sum + groupPosition + childPosition + 1;
 
             if (expandable_list_view.getFirstVisiblePosition() <= group_position_sum && expandable_list_view.getLastVisiblePosition() >= group_position_sum) {
-
 
                 ChildHolder child_holder = (ChildHolder) view.getTag();
 
@@ -174,9 +172,16 @@ if (view != null) {
                     child_holder.music_is_playing.setVisibility(View.INVISIBLE);
                 }
             }
-        } else {
-            Log.i("into", "view未null！！");
         }
+    }
+
+    public View getView(ExpandableListView expandable_list_view, int groupPosition, int childPosition) {
+        int group_position_sum = 0;
+        for (int i = 0; i < groupPosition; i++) {
+            group_position_sum += expandable_list_view.getExpandableListAdapter().getChildrenCount(i);
+        }
+        group_position_sum = group_position_sum + groupPosition + childPosition + 1 - expandable_list_view.getFirstVisiblePosition();
+        return expandable_list_view.getChildAt(group_position_sum);
     }
 
 

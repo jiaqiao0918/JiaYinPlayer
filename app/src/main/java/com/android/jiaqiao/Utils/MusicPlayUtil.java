@@ -1,5 +1,7 @@
 package com.android.jiaqiao.Utils;
 
+import android.support.annotation.NonNull;
+
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 
@@ -29,11 +31,12 @@ public class MusicPlayUtil {
                 music_play = PublicDate.music_play;
                 if (music_play.size() > 0) {
                     String path = getSaveMusicPlayPath();
+                    int num=0;
                     for (int i = 0; i < music_play.size(); i++) {
                         String add_context = music_play.get(i).getMusic_id() + separate_str + music_play.get(i).getMusic_title();
                         addTextToFile(path, add_context);
+                        num++;
                     }
-
                 }
                 this.interrupt();//中断线程
             }
@@ -71,14 +74,17 @@ public class MusicPlayUtil {
         if (file2.exists()) {
             file2.delete();
         }
-        try {
-            file2.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!file2.exists()) {
+            try {
+                file2.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return file2.getPath().toString();
     }
 
+    @NonNull
     public static String getGetMusicPlayPath() {
         File file = new File(PublicDate.path_files_dir + "/music_play");
         if (!file.exists()) {
@@ -143,6 +149,12 @@ public class MusicPlayUtil {
             }
         }
         return -1;
+    }
 
+    public void resetMusicPlayList(){
+        for (int i=0;i<PublicDate.music_play.size();i++){
+            PublicDate.music_play.get(i).setIs_playing(false);
+        }
+        PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
     }
 }

@@ -21,6 +21,7 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
 import com.android.jiaqiao.Activity.MusicEditNeedListActivity;
 import com.android.jiaqiao.Adapter.RecyclerViewAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
@@ -100,6 +102,11 @@ public class FragmentAllMusic extends Fragment {
         all_music_show_album_image = (ImageView) view.findViewById(R.id.all_music_show_album_image);
 
         music_all = PublicDate.public_music_all;
+
+        for (int i=0;i<PublicDate.public_music_all.size();i++){
+            Log.i("into",music_all.get(i).getMusic_title()+"    "+PublicDate.public_music_all.get(i).getMusic_title());
+        }
+
         show_all_list_size.setText((music_all.size()) + "首歌");
 
         back_last_fragment01.setOnClickListener(new View.OnClickListener() {
@@ -161,7 +168,9 @@ public class FragmentAllMusic extends Fragment {
             int temp_num = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
             if (temp_num > -1) {
                 music_all.get(temp_num).setIs_playing(true);
+                last_click_position = temp_num;
             }
+
             show_all_music_list = (RecyclerView) view.findViewById(R.id.show_all_music);
             // 创建默认的线性LayoutManager
             show_all_music_list.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -178,6 +187,7 @@ public class FragmentAllMusic extends Fragment {
                     adapter.notifyItemChanged(last_click_position);//刷新单个数据
                     adapter.notifyItemChanged(position);
                     last_click_position = position;
+
                     PublicDate.music_play_now = music_all.get(position);
                     if (PublicDate.music_play_list_str == null || PublicDate.music_play_list_str.equals("")) {
                         PublicDate.music_play_list_str = music_all.toString();
@@ -200,6 +210,12 @@ public class FragmentAllMusic extends Fragment {
                     temp_intent.putExtra("type", MainActivity.UPDATE_MUSIC_PLAY);
                     temp_intent.putExtra("is_update_music_play", true);
                     getActivity().sendBroadcast(temp_intent);
+
+                    Intent temp_intent002 = new Intent();
+                    temp_intent002.setAction("com.android.jiaqiao");
+                    temp_intent002.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                    getActivity().sendBroadcast(temp_intent002);
+
 
                 }
             });
@@ -342,12 +358,24 @@ public class FragmentAllMusic extends Fragment {
                             int temp_num = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
                             if (temp_num > -1) {
                                 music_all.get(temp_num).setIs_playing(true);
+                                last_click_position = temp_num;
                             }
                         }
                         adapter.notifyDataSetChanged();
                         show_all_list_size.setText((music_all.size()) + "首歌");
                         handler.sendEmptyMessage(0x123456);
                     }
+                    break;
+                case  MainActivity.VIEW_PAGER_UPDATE_LIST:
+                    int temp_num = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
+                    if (temp_num > -1) {
+                        music_all.get(temp_num).setIs_playing(true);
+                        music_all.get(last_click_position).setIs_playing(false);
+                        adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                        adapter.notifyItemChanged(temp_num);
+                        last_click_position = temp_num;
+                    }
+
                     break;
             }
         }

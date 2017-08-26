@@ -19,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Service.SelectMusicService;
 import com.android.jiaqiao.UiFragment.FragmentMain;
 import com.android.jiaqiao.Utils.DataInfoCache;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int UPDATE_SHEET = 300000001;
     public static final int UPDATE_MUSIC_PLAY = 300000002;
+    public static final int SERVICE_UPDATE_MUSIC_PLAY = 300000003;
+    public static final int VIEW_PAGER_UPDATE_LIST = 300000004;
 
     public static final String SHARED = "setting";
 
@@ -64,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager view_pager_fragment;
     private ViewPagerFragmentAdapter view_pager_fragment_adapter;
     private ImageView music_is_playing;
+    private View view_pager_seek_bar;
 
     private int now_show_position = 0;
     private int last_position = 0;
@@ -74,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean is_playing = false;
     private double start_sd_size = 0;
     private double restart_sd_size = 0;
+    private int play_time = 0;
+    private int phone_width = 0;
+    private boolean is_need_update_view_pager = false;
 
     private MainActivityReceiver mReceiver;
     private IntentFilter mFilter;
@@ -82,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private Intent select_music_intent;
+    private Intent music_play_intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +113,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void activityCreate() {
-
-        PublicDate.path_files_dir = this.getFilesDir();
+        PublicDate.path_files_dir = getFilesDir();//获取软件在date文件夹下的路径
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        phone_width = dm.widthPixels;
 
         ArrayList<MusicInfo> music_all_temp = DataInfoCache.loadListCache(this, "music_all");
         listSortPinYin(music_all_temp);
@@ -116,21 +127,30 @@ public class MainActivity extends AppCompatActivity {
         PublicDate.music_play_list_str = userSettings.getString("music_play_list_str", "");
         PublicDate.music_play = MusicPlayUtil.getMusicPlayList();
         if (PublicDate.music_play.size() <= 0) {
-            PublicDate.music_play = music_all;
-            PublicDate.music_play_list_position = 0;
+            if (music_all.size() > 0) {
+                PublicDate.music_play = music_all;
+                PublicDate.music_play_list_position = 0;
+                now_show_position = PublicDate.music_play_list_position;
+                PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+            }
+        }
+        if (PublicDate.music_play.size() > 0) {
+            PublicDate.music_play_list_position = userSettings.getInt("music_play_list_position", 0);
             now_show_position = PublicDate.music_play_list_position;
             PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+            music_play_list_temp = PublicDate.music_play;
         }
-        PublicDate.music_play_list_position = userSettings.getInt("music_play_list_position", 0);
-        ;
-        now_show_position = PublicDate.music_play_list_position;
-        PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
-        music_play_list_temp = PublicDate.music_play;
-
+        PublicDate.play_mode = userSettings.getInt("play_mode", MusicPlayService.PLAY_MODE_ORDER);
+        if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_RANDOM) {
+            is_random = true;
+        }
 
         //启动service
         select_music_intent = new Intent(MainActivity.this, SelectMusicService.class);
         startService(select_music_intent);
+        music_play_intent = new Intent(MainActivity.this, MusicPlayService.class);
+        startService(music_play_intent);
+
         start_sd_size = (double) getAvailableSize();
 
         //动态注册广播
@@ -140,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         this.registerReceiver(mReceiver, mFilter);
 
         drawerCenterLayout();
+
         //Test
 //        startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
     }
@@ -182,6 +203,9 @@ public class MainActivity extends AppCompatActivity {
         show_view_pager_layout = (LinearLayout) drawer_center_view.findViewById(R.id.show_shape_view);
         view_pager_fragment = (ViewPager) drawer_center_view.findViewById(R.id.view_pager_fragment);
         music_is_playing = (ImageView) drawer_center_view.findViewById(R.id.music_is_playing);
+        view_pager_seek_bar = (View) drawer_center_view.findViewById(R.id.view_pager_seek_bar);
+        play_time = 0;
+        updateViewPagerSeekBar(0);
         music_is_playing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,37 +214,50 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     is_playing = true;
                 }
-                updateUi();
+                updateIsPlayUi();
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
+                sendBroadcast(temp_intent);
             }
         });
-        updateUi();
+        updateIsPlayUi();
         if (music_all.size() > 0) {
-            //ViewPager+Fragment
-            updateViewPagerFragment();
-            view_pager_fragment_adapter = new ViewPagerFragmentAdapter(getSupportFragmentManager(), view_pager_fragment_list);
-            view_pager_fragment.setAdapter(view_pager_fragment_adapter);
-            view_pager_fragment.setCurrentItem(2); //设置当前页是第0页
-            view_pager_fragment.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    //滑动中
-                }
+            setViewPager();
+            is_need_update_view_pager = false;
+        } else {
+            is_need_update_view_pager = true;
+        }
+    }
 
-                @Override
-                public void onPageSelected(int position) {
-                }
+    public void setViewPager() {
+        //ViewPager+Fragment
+        updateViewPagerFragment();
+        updateViewPagerSeekBar(0);
+        view_pager_fragment_adapter = new ViewPagerFragmentAdapter(getSupportFragmentManager(), view_pager_fragment_list);
+        view_pager_fragment.setAdapter(view_pager_fragment_adapter);
+        view_pager_fragment.setCurrentItem(2); //设置当前页是第0页
+        view_pager_fragment.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
-                /* state == 1的时辰默示正在滑动，
-                 * state == 2的时辰默示滑动完毕了，
-                 * state == 0的时辰默示什么都没做。
-                 * 当页面开始滑动的时候，三种状态的变化顺序为（1，2，0），演示如下：
-                 */
-                @Override
-                public void onPageScrollStateChanged(int state) {
-                    if (state == 2) {
-                        is_need_update = true;
-                    } else if (state == 0) {
-                        if (is_need_update) {
+            @Override
+            public void onPageSelected(int position) {
+            }
+
+            /* state == 1的时辰默示正在滑动，
+             * state == 2的时辰默示滑动完毕了，
+             * state == 0的时辰默示什么都没做。
+             * 当页面开始滑动的时候，三种状态的变化顺序为（1，2，0），演示如下：
+             */
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == 2) {
+                    is_need_update = true;
+                } else if (state == 0) {
+                    if (is_need_update) {
+                        if (state_1_position != view_pager_fragment.getCurrentItem()) {
                             if (view_pager_fragment.getCurrentItem() > state_1_position) {
                                 now_show_position = randoms.get(3);
                                 viewPagerRight();
@@ -228,24 +265,38 @@ public class MainActivity extends AppCompatActivity {
                                 now_show_position = randoms.get(1);
                                 viewPagerLeft();
                             }
-
                             PublicDate.music_play_list_position = now_show_position;
                             PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
                             view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                             view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
                             getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                             is_need_update = false;
+                            play_time = 0;
+                            updateViewPagerSeekBar(play_time);
+                            Intent temp_intent02 = new Intent();
+                            temp_intent02.setAction("com.android.jiaqiao");
+                            temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER);
+                            temp_intent02.putExtra("is_update_music_play", true);
+                            sendBroadcast(temp_intent02);
+
+                            Intent temp_intent = new Intent();
+                            temp_intent.setAction("com.android.jiaqiao");
+                            temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                            sendBroadcast(temp_intent);
+
+                            Intent temp_intent03 = new Intent();
+                            temp_intent03.setAction("com.android.jiaqiao");
+                            temp_intent03.putExtra("type", MainActivity.VIEW_PAGER_UPDATE_LIST);
+                            sendBroadcast(temp_intent03);
                         }
-                    } else if (state == 1) {
-                        state_1_position = view_pager_fragment.getCurrentItem();
+
                     }
-
+                } else if (state == 1) {
+                    state_1_position = view_pager_fragment.getCurrentItem();
                 }
-            });
-        } else {
-            show_view_pager_layout.setVisibility(View.GONE);
-        }
 
+            }
+        });
     }
 
     @Override
@@ -283,6 +334,10 @@ public class MainActivity extends AppCompatActivity {
         if (!PublicDate.is_service_select_music_destroy) {
             stopService(select_music_intent);
         }
+        if (!PublicDate.is_music_play_destroy) {
+            stopService(music_play_intent);
+        }
+        unregisterReceiver(mReceiver);
     }
 
     class MainActivityReceiver extends BroadcastReceiver {
@@ -294,13 +349,35 @@ public class MainActivity extends AppCompatActivity {
                     if (!PublicDate.is_service_select_music_destroy) {
                         stopService(select_music_intent);
                     }
+                    if (PublicDate.music_play.size() <= 0) {
+                        if (music_all.size() > 0) {
+                            PublicDate.music_play = music_all;
+                            PublicDate.music_play_list_position = 0;
+                            now_show_position = PublicDate.music_play_list_position;
+                            PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+                        }
+                    }
+                    if (PublicDate.music_play.size() > 0) {
+                        view_pager_fragment.setVisibility(View.VISIBLE);
+                        if (!is_need_update_view_pager) {
+                            now_show_position = PublicDate.music_play_list_position;
+                            updateIsPlayUi();
+                            updateViewPagerFragment();
+                            view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                        } else {
+                            setViewPager();
+                        }
+                    } else {
+                        show_view_pager_layout.setVisibility(View.INVISIBLE);
+                    }
                     break;
                 case MainActivity.UPDATE_MUSIC_PLAY:
                     if (intent.getBooleanExtra("is_update_music_play", false)) {
                         music_play_list_temp = PublicDate.music_play;
                         if (music_play_list_temp.size() > 0) {
                             now_show_position = PublicDate.music_play_list_position;
-                            updateUi();
+                            updateIsPlayUi();
                             updateViewPagerFragment();
                             view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                             view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
@@ -311,10 +388,59 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MainActivity.START_ACTIVITY_TO_OTHER:
                     if (intent.getBooleanExtra("is_to", false)) {
-                        startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
-                        overridePendingTransition(R.anim.dialog_enter_anim, R.anim.dialog_exit_anim);
-
+                        if (PublicDate.music_play.size() > 0) {
+                            startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
+                            overridePendingTransition(R.anim.dialog_enter_anim, R.anim.dialog_exit_anim);
+                        }
                     }
+                    break;
+                case MainActivity.SERVICE_UPDATE_MUSIC_PLAY:
+                    if (intent.getBooleanExtra("service_is_update", false)) {
+                        if (intent.getBooleanExtra("update_mode", false)) {
+                            now_show_position = randoms.get(3);
+                            viewPagerRight();
+                        } else {
+                            now_show_position = randoms.get(1);
+                            viewPagerLeft();
+                        }
+                        PublicDate.music_play_list_position = now_show_position;
+                        PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+                        view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                        view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
+                        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                        Intent temp_intent02 = new Intent();
+                        temp_intent02.setAction("com.android.jiaqiao");
+                        temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER);
+                        temp_intent02.putExtra("is_update_music_play", true);
+                        sendBroadcast(temp_intent02);
+                        play_time = 0;
+                        updateViewPagerSeekBar(play_time);
+                    }
+                    break;
+                case MusicPlayService.GET_MUSIC_PLAY_TIME:
+                    int time = intent.getIntExtra("play_time", 0);
+                    if (time > 0) {
+                        play_time = time;
+                        if (play_time > PublicDate.music_play_now.getMusic_duration()) {
+                            play_time = PublicDate.music_play_now.getMusic_duration();
+                        }
+                        updateViewPagerSeekBar(play_time);
+                    }
+                    break;
+                case MusicPlayService.IS_PLAY:
+                    is_playing = intent.getBooleanExtra("is_playing", false);
+                    updateIsPlayUi();
+                    break;
+                case MusicPlayService.UPDATE_PLAY_MODE:
+                    if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_RANDOM) {
+                        is_random = true;
+                    } else {
+                        is_random = false;
+                    }
+                    updateViewPagerFragment();
+                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
+
                     break;
             }
         }
@@ -339,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
             public int compare(MusicInfo o1, MusicInfo o2) {
                 String name1 = o1.getMusic_pinyin();
                 String name2 = o2.getMusic_pinyin();
-                Collator instance = Collator.getInstance(Locale.CHINA);
+                Collator instance = Collator.getInstance(Locale.ENGLISH);
                 return instance.compare(name1, name2);
             }
         });
@@ -377,6 +503,7 @@ public class MainActivity extends AppCompatActivity {
         fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
         view_pager_fragment_list.add(view_pager_fragment_list.size(), fragment_temp);
         randoms.add(randoms.size(), num);
+        PublicDate.play_randoms = randoms;
     }
 
     public void viewPagerLeft() {
@@ -412,6 +539,7 @@ public class MainActivity extends AppCompatActivity {
         fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
         view_pager_fragment_list.add(0, fragment_temp);
         randoms.add(0, num);
+        PublicDate.play_randoms = randoms;
     }
 
     public ArrayList<Fragment> getFragemntFromList01(ArrayList<MusicInfo> music_list, int position) {
@@ -429,6 +557,7 @@ public class MainActivity extends AppCompatActivity {
             fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
             temp.add(fragment_temp);
         }
+        PublicDate.play_randoms = randoms;
         return temp;
     }
 
@@ -471,6 +600,7 @@ public class MainActivity extends AppCompatActivity {
             temp.add(fragment_temp);
             randoms.add(now_num);
         }
+        PublicDate.play_randoms = randoms;
         return temp;
     }
 
@@ -480,7 +610,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateViewPagerFragment() {
-
         if (!is_random) {
             view_pager_fragment_list = getFragemntFromList01(PublicDate.music_play, PublicDate.music_play_list_position);
         } else {
@@ -489,7 +618,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void updateUi() {
+    public void updateIsPlayUi() {
         if (is_playing) {
             music_is_playing.setImageResource(R.drawable.is_playing);
         } else {
@@ -497,5 +626,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void updateViewPagerSeekBar(int play_time) {
+        if (play_time > 0) {
+            int max = PublicDate.music_play_now.getMusic_duration();
+            float s = 0.0f;
+            view_pager_seek_bar.setVisibility(View.VISIBLE);
+            play_time = max - play_time;
+            s = ((float) play_time / max) * phone_width * 1.0f;
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) view_pager_seek_bar.getLayoutParams();
+            lp.setMargins(0, 0, (int) s, 0);
+            view_pager_seek_bar.setLayoutParams(lp);
+        } else {
+            view_pager_seek_bar.setVisibility(View.INVISIBLE);
+        }
+    }
 
 }

@@ -11,9 +11,9 @@
         android:id="@+id/music_play_lrc"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        lrc:currentTextColor="@color/music_play_list_font_seccend_color"
+        lrc:currentTextColor="#ffffff"
         lrc:dividerHeight="11dp"
-        lrc:normalTextColor="@color/music_play_list_font_seccend_color"
+        lrc:normalTextColor="@color/music_play_seccend_font"
         lrc:textSize="16sp"
         lrc:rows="13"
         android:background="@color/touming" />

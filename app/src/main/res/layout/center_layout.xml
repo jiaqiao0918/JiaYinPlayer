@@ -24,24 +24,27 @@
         <LinearLayout
             android:id="@+id/show_shape_view"
             android:layout_width="match_parent"
-            android:layout_height="51dp"
+            android:layout_height="51.5dp"
             android:orientation="vertical">
 
             <View
+                android:id="@+id/view_pager_seek_bar"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#13d5bb" />
+                android:layout_height="1.5dp"
+                android:padding="0dp"
+                android:layout_marginRight="100dp"
+                android:background="@color/all_color" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal">
 
-                    <android.support.v4.view.ViewPager
-                        android:id="@+id/view_pager_fragment"
-                        android:layout_width="0dp"
-                        android:layout_height="50dp"
-                        android:layout_weight="1" />
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/view_pager_fragment"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1" />
 
                 <LinearLayout
                     android:layout_width="50dp"

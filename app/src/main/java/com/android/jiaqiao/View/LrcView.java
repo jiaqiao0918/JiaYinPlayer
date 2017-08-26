@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  */
 @SuppressLint("DrawAllocation")
 public class LrcView extends View {
-	private static final int SCROLL_TIME = 500;
+	private static final int SCROLL_TIME = 300;
 	private static final String DEFAULT_TEXT = "暂无歌词";
 	
 	private List<String> mLrcs = new ArrayList<String>(); // 存放歌词
@@ -256,14 +256,14 @@ public class LrcView extends View {
 	}
 
 	// 拖动进度条时
-	public void onDrag(int progress) {
-		for(int i=0;i<mTimes.size();i++) {
-			if(Integer.parseInt(mTimes.get(i).toString()) > progress) {
-				mNextTime = i == 0 ? 0 : mTimes.get(i-1);
-				return;
-			}
-		}
-	}
+//	public void onDrag(int progress) {
+//		for(int i=0;i<mTimes.size();i++) {
+//			if(Integer.parseInt(mTimes.get(i).toString()) > progress) {
+//				mNextTime = i == 0 ? 0 : mTimes.get(i-1);
+//				return;
+//			}
+//		}
+//	}
 	// 设置lrc的路径
     public void setLrcPath(String path) {
         reset();

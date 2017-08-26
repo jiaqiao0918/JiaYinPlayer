@@ -72,17 +72,22 @@ public class SelectMusicService extends Service {
             @Override
             public void run() {
                 super.run();
+                ArrayList<MusicInfo> list_temp = new ArrayList<MusicInfo>();
+                list_temp.addAll(PublicDate.public_music_all);
                 music_all.clear();
                 getAllMusic();
-                listSortPinYin(all_list);
+                listSortId(all_list);
+                listSortId(list_temp);
                 music_all = all_list;
-                if (PublicDate.public_music_all.size() != music_all.size()) {
+                if (list_temp.size() != music_all.size()) {
                     is_update_this = true;
                 } else {
+                    int num = 0;
                     boolean is_is = true;
                     for (int i = 0; i < music_all.size(); i++) {
-                        if (music_all.get(i).getMusic_id() == PublicDate.public_music_all.get(i).getMusic_id() && music_all.get(i).getMusic_title().trim().equals(PublicDate.public_music_all.get(i).getMusic_title().trim())) {
+                        if (music_all.get(i).getMusic_id() == list_temp.get(i).getMusic_id() && music_all.get(i).getMusic_title().trim().equals(list_temp.get(i).getMusic_title().trim())) {
                             is_is = true;
+                            num++;
                         } else {
                             is_is = false;
                             break;
@@ -94,13 +99,15 @@ public class SelectMusicService extends Service {
                         is_update_this = false;
                     }
                 }
+                listSortPinYin(music_all);
+                PublicDate.public_music_all.clear();
+                PublicDate.public_music_all.addAll(music_all);
+                PublicDate.list_folder_all.clear();
+                PublicDate.list_folder_all.addAll(listToFolder(music_all));
+                DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
+                DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
+
                 if (is_update_this) {
-                    PublicDate.public_music_all.clear();
-                    PublicDate.public_music_all.addAll(music_all);
-                    PublicDate.list_folder_all.clear();
-                    PublicDate.list_folder_all.addAll(listToFolder(music_all));
-                    DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
-                    DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
                     //发送广播
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
@@ -109,6 +116,7 @@ public class SelectMusicService extends Service {
                     sendBroadcast(temp_intent);
 
                 }
+
                 PublicDate.is_select_music_over = true;
                 PublicDate.is_service_select_music_destroy = false;
                 this.interrupt();//中断线程
@@ -155,7 +163,8 @@ public class SelectMusicService extends Service {
                 long album_id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));//专辑ID
                 int duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));//总时长（单位：毫秒）
                 int date_time = Integer.parseInt(getDateFromSeconds(cursor.getString(cursor
-                        .getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED))));//添加日期(单位：秒)
+                        .getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED))));//添加日期(格式：20170801)
+                int add_time = Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)));//单位：毫秒
 
                 if (artist == "<unknown>" || artist.equals("<unknown>")) {
                     artist = "";
@@ -164,7 +173,7 @@ public class SelectMusicService extends Service {
                     album = "";
                 }
                 if (new File(url).exists()) {
-                    all_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, getMusic_pinyin(title), date_time));//英文开头，拼音就是英文
+                    all_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, getMusic_pinyin(title), date_time, add_time));//英文开头，拼音就是英文
                 }
             }
         }
@@ -199,13 +208,18 @@ public class SelectMusicService extends Service {
     }
 
     // 自定义的排序
-    public void listSortTitle(ArrayList<MusicInfo> resultList) {
+    public void listSortId(ArrayList<MusicInfo> resultList) {
         Collections.sort(resultList, new Comparator<MusicInfo>() {
             public int compare(MusicInfo o1, MusicInfo o2) {
-                String name1 = o1.getMusic_title();
-                String name2 = o2.getMusic_title();
-                Collator instance = Collator.getInstance(Locale.CHINA);
-                return instance.compare(name1, name2);
+                int i1 = (int) o1.getMusic_id();
+                int i2 = (int) o2.getMusic_id();
+                if (i1 < i2) {
+                    return 1;
+                }
+                if (i1 > i2) {
+                    return -1;
+                }
+                return 0;
             }
         });
     }
@@ -216,7 +230,7 @@ public class SelectMusicService extends Service {
             public int compare(MusicInfo o1, MusicInfo o2) {
                 String name1 = o1.getMusic_pinyin();
                 String name2 = o2.getMusic_pinyin();
-                Collator instance = Collator.getInstance(Locale.CHINA);
+                Collator instance = Collator.getInstance(Locale.ENGLISH);
                 return instance.compare(name1, name2);
             }
         });
