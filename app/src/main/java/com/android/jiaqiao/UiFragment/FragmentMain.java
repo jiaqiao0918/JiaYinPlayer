@@ -30,6 +30,7 @@ import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class FragmentMain extends Fragment {
 
         setListViewHeightBasedOnChildren(music_all_sheet_list);
         //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
-        scroll_view.smoothScrollTo(0,0);//滑动到顶部，两种方法都可行
+        scroll_view.smoothScrollTo(0, 0);//滑动到顶部，两种方法都可行
         scroll_view.fullScroll(ScrollView.FOCUS_UP);//滑动到顶部
 
         music_all_sheet_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -185,10 +186,10 @@ public class FragmentMain extends Fragment {
             setListViewHeightBasedOnChildren(music_all_sheet_list);
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
         }
-        if(PublicDate.update_music_sheet){
+        if (PublicDate.update_music_sheet) {
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
             //scroll_view.smoothScrollTo(0,0);//滑动到顶部
-            Log.i("into","1");
+            Log.i("into", "1");
             scroll_view.fullScroll(ScrollView.FOCUS_DOWN);//滑动到底部
             PublicDate.add_sheet_over = false;
         }
@@ -196,7 +197,7 @@ public class FragmentMain extends Fragment {
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
             //scroll_view.smoothScrollTo(0,0);//滑动到顶部
             scroll_view.fullScroll(ScrollView.FOCUS_DOWN);//滑动到底部
-            Log.i("into","2");
+            Log.i("into", "2");
             PublicDate.add_sheet_over = false;
             startActivity(new Intent(getActivity(), AllMusciAddToSheetActivity.class));
         } else if (PublicDate.delete_sheet_over) {
@@ -206,26 +207,29 @@ public class FragmentMain extends Fragment {
     }
 
     public ArrayList<SheetInfo> getMusicSheetToArrayList(String path_name) {
+
         ArrayList<SheetInfo> list_temp = new ArrayList<>();
-        try {
-            FileReader fr = new FileReader(path_name);
-            BufferedReader br = new BufferedReader(fr);
-            String line = "";
-            while ((line = br.readLine()) != null) {
-                String temp = line;
-                if (temp.length() > 0 && temp.indexOf(PublicDate.separate_str) > -1) {
-                    String[] name = temp.split(PublicDate.separate_str);
-                    if (name.length >= 2) {
-                        list_temp.add(new SheetInfo(name[0], name[1]));
+        if (new File(path_name).exists()) {
+            try {
+                FileReader fr = new FileReader(path_name);
+                BufferedReader br = new BufferedReader(fr);
+                String line = "";
+                while ((line = br.readLine()) != null) {
+                    String temp = line;
+                    if (temp.length() > 0 && temp.indexOf(PublicDate.separate_str) > -1) {
+                        String[] name = temp.split(PublicDate.separate_str);
+                        if (name.length >= 2) {
+                            list_temp.add(new SheetInfo(name[0], name[1]));
+                        }
                     }
                 }
+                br.close();
+                fr.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            br.close();
-            fr.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return list_temp;
     }

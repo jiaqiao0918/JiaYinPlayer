@@ -172,8 +172,10 @@ public class SelectMusicService extends Service {
                 if (album == "<unknown>" || album.equals("<unknown>")) {
                     album = "";
                 }
-                if (new File(url).exists()) {
-                    all_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, getMusic_pinyin(title), date_time, add_time));//英文开头，拼音就是英文
+                if (url.toLowerCase().indexOf("record") == -1 && url.toLowerCase().indexOf("phonerecord") == -1) {
+                    if (new File(url).exists()) {
+                        all_list.add(new MusicInfo(music_id, url, title, artist, album, album_id, duration, getMusic_pinyin(title), date_time, add_time));//英文开头，拼音就是英文
+                    }
                 }
             }
         }
@@ -218,8 +220,9 @@ public class SelectMusicService extends Service {
                 }
                 if (i1 > i2) {
                     return -1;
+                } else {
+                    return 0;
                 }
-                return 0;
             }
         });
     }
@@ -231,6 +234,9 @@ public class SelectMusicService extends Service {
                 String name1 = o1.getMusic_pinyin();
                 String name2 = o2.getMusic_pinyin();
                 Collator instance = Collator.getInstance(Locale.ENGLISH);
+                if (name1.trim().equals(name2.trim())) {
+                    return 0;
+                }
                 return instance.compare(name1, name2);
             }
         });
@@ -329,6 +335,9 @@ public class SelectMusicService extends Service {
                 String name1 = o1.getMusic_path() + "";
                 String name2 = o2.getMusic_path() + "";
                 Collator instance = Collator.getInstance(Locale.CHINA);
+                if (name1.trim().equals(name2.trim())) {
+                    return 0;
+                }
                 return instance.compare(name1, name2);
 
             }

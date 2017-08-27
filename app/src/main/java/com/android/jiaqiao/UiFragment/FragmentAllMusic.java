@@ -21,7 +21,6 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,10 +101,6 @@ public class FragmentAllMusic extends Fragment {
         all_music_show_album_image = (ImageView) view.findViewById(R.id.all_music_show_album_image);
 
         music_all = PublicDate.public_music_all;
-
-        for (int i=0;i<PublicDate.public_music_all.size();i++){
-            Log.i("into",music_all.get(i).getMusic_title()+"    "+PublicDate.public_music_all.get(i).getMusic_title());
-        }
 
         show_all_list_size.setText((music_all.size()) + "首歌");
 

@@ -34,6 +34,7 @@ public class PublicDate {
     public static boolean is_music_play_destroy = false;
     public static boolean is_service_select_music_destroy = false;
     public static boolean is_play = false;
+    public static boolean is_notification_running = false;
 
     /*专辑图片虚化
          * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；

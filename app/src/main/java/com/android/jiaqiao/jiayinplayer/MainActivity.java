@@ -209,16 +209,18 @@ public class MainActivity extends AppCompatActivity {
         music_is_playing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (is_playing) {
-                    is_playing = false;
-                } else {
-                    is_playing = true;
+                if (PublicDate.music_play.size() > 0) {
+                    if (is_playing) {
+                        is_playing = false;
+                    } else {
+                        is_playing = true;
+                    }
+                    updateIsPlayUi();
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
+                    sendBroadcast(temp_intent);
                 }
-                updateIsPlayUi();
-                Intent temp_intent = new Intent();
-                temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
-                sendBroadcast(temp_intent);
             }
         });
         updateIsPlayUi();
@@ -288,6 +290,11 @@ public class MainActivity extends AppCompatActivity {
                             temp_intent03.setAction("com.android.jiaqiao");
                             temp_intent03.putExtra("type", MainActivity.VIEW_PAGER_UPDATE_LIST);
                             sendBroadcast(temp_intent03);
+
+                            Intent temp_intent04 = new Intent();
+                            temp_intent04.setAction("com.android.jiaqiao");
+                            temp_intent04.putExtra("type", MusicPlayService.UPDATE_NOTIFICATION);
+                            sendBroadcast(temp_intent04);
                         }
 
                     }
@@ -408,11 +415,11 @@ public class MainActivity extends AppCompatActivity {
                         view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                         view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
                         getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
-                        Intent temp_intent02 = new Intent();
-                        temp_intent02.setAction("com.android.jiaqiao");
-                        temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER);
-                        temp_intent02.putExtra("is_update_music_play", true);
-                        sendBroadcast(temp_intent02);
+//                        Intent temp_intent02 = new Intent();
+//                        temp_intent02.setAction("com.android.jiaqiao");
+//                        temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER);
+//                        temp_intent02.putExtra("is_update_music_play", true);
+//                        sendBroadcast(temp_intent02);
                         play_time = 0;
                         updateViewPagerSeekBar(play_time);
                     }

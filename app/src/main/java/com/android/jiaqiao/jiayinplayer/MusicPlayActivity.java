@@ -186,7 +186,7 @@ public class MusicPlayActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int temp = 0;
                 if (PublicDate.play_mode != MusicPlayService.PLAY_MODE_RANDOM) {
-                    temp = (PublicDate.music_play_list_position + 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
+                    temp = (PublicDate.music_play_list_position - 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
                 } else {
                     temp = PublicDate.play_randoms.get(1);
                 }
@@ -195,6 +195,8 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
                 getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+                updateActivity();
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
                 temp_intent.putExtra("type", MusicPlayService.PLAY_LAST_MUSIC);
@@ -215,6 +217,8 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
                 getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+                updateActivity();
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
                 temp_intent.putExtra("type", MusicPlayService.PLAY_NEXT_MUSIC);
@@ -231,9 +235,6 @@ public class MusicPlayActivity extends AppCompatActivity {
                     deleteSelectStr(path, music_id);
                     is_love_music = false;
                 } else {
-                    ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
-                    music_edit_temp = PublicDate.public_music_edit_temp;
-
                     int num = 0;
                     String add_context = music_play_now.getMusic_id() + separate_str + music_play_now.getMusic_title();
                     if (!isHavaContextFromPath(path, add_context)) {
@@ -425,7 +426,7 @@ public class MusicPlayActivity extends AppCompatActivity {
         image_view.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         image_view.setDrawingCacheEnabled(true);
-        Bitmap image_view_bitmap = image_view.getDrawingCache();
+        Bitmap image_view_bitmap =null;
         Drawable start_drawable = new BitmapDrawable(image_view_bitmap);//渐变前的Drawable
         Drawable end_drawable = new BitmapDrawable(blurBitmap);//渐变后的Drawable，bitmap转drawable
         TransitionDrawable mTransitionDrawable = new TransitionDrawable(new Drawable[]{
@@ -482,11 +483,14 @@ public class MusicPlayActivity extends AppCompatActivity {
         music_play_seek_bar.setMax(PublicDate.music_play_now.getMusic_duration());
         music_play_seek_bar.setProgress(0);
         play_now_time.setText(getMusicTime(play_time));
+
+        is_love_music = selectIsLoveMusic();
         updateLoveUi();
         updatePlayMode();
         play_max_time.setText(getMusicTime(music_play_now.getMusic_duration()));
         music_tittle_view.setText(music_play_now.getMusic_title());
         music_artist_view.setText(music_play_now.getMusic_artist());
+
         music_play_album_image_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
         if (music_play_album_image_bitmap != null) {
             setImageViewImage(music_album_image_big, music_play_album_image_bitmap);
@@ -584,6 +588,8 @@ public class MusicPlayActivity extends AppCompatActivity {
                     updateAllActivity();
                     break;
                 case MainActivity.ALL_MUSIC_UPDATE:
+                    updateActivity();
+                    break;
                 case MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER:
                     updateActivity();
                     break;

@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.jiaqiao.jiayinplayer.MainActivity;
+import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
 /**
@@ -51,12 +52,14 @@ public class ViewPagerFragmentMusicPlayItem extends Fragment {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //发送广播
-                    Intent temp_intent = new Intent();
-                    temp_intent.setAction("com.android.jiaqiao");
-                    temp_intent.putExtra("type", MainActivity.START_ACTIVITY_TO_OTHER);
-                    temp_intent.putExtra("is_to", true);
-                    getActivity().sendBroadcast(temp_intent);
+                    if(PublicDate.music_play.size()>0) {
+                        //发送广播
+                        Intent temp_intent = new Intent();
+                        temp_intent.setAction("com.android.jiaqiao");
+                        temp_intent.putExtra("type", MainActivity.START_ACTIVITY_TO_OTHER);
+                        temp_intent.putExtra("is_to", true);
+                        getActivity().sendBroadcast(temp_intent);
+                    }
                 }
             });
         }
