@@ -22,7 +22,7 @@
                 android:minHeight="200dp"
                 app:collapsedTitleGravity="left"
                 app:collapsedTitleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                app:contentScrim="@color/touming"
+                app:contentScrim="@color/music_play_seccend_font"
                 app:expandedTitleMarginEnd="10dp"
                 app:expandedTitleMarginStart="10dp"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -45,17 +45,17 @@
                         android:paddingBottom="8dp"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
-                        android:paddingTop="@dimen/fragment_padding_top">
+                        android:paddingTop="@dimen/acticity_left_right_padding_top">
 
 
                         <ImageView
                             android:id="@+id/love_music_back_last_fragment01"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:padding="10dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentTop="true"
                             android:background="@drawable/click_oval"
+                            android:padding="14dp"
                             android:src="@drawable/arrow_left" />
 
                         <android.support.v7.widget.CardView
@@ -110,8 +110,8 @@
                                         android:id="@+id/fragment_love_music_modify"
                                         android:layout_width="30dp"
                                         android:layout_height="30dp"
-                                        android:padding="8dp"
                                         android:background="@drawable/click_oval"
+                                        android:padding="8dp"
                                         android:src="@drawable/music_modify" />
 
                                     <TextView
@@ -132,11 +132,11 @@
                 <android.support.v7.widget.Toolbar
                     android:id="@+id/fragment_love_music_toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
+                    android:layout_height="80dp"
                     android:layout_margin="0dp"
                     android:alpha="0"
                     android:background="@color/back_ground"
-                    android:padding="0dp"
+                    android:paddingTop="@dimen/acticity_left_right_padding_top"
                     app:contentInsetLeft="0dp"
                     app:contentInsetStart="0dp"
                     app:layout_collapseMode="pin">
@@ -154,10 +154,10 @@
                             android:id="@+id/love_music_back_last_fragment02"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:padding="10dp"
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentTop="true"
                             android:background="@drawable/click_oval"
+                            android:padding="10dp"
                             android:src="@drawable/arrow_left" />
 
                         <TextView
@@ -186,7 +186,7 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/show_love_music"
                     android:layout_width="match_parent"
-                    android:layout_height="800dp"/>
+                    android:layout_height="800dp" />
             </LinearLayout>
 
         </android.support.v4.widget.NestedScrollView>

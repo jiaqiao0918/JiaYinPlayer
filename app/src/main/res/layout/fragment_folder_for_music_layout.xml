@@ -5,6 +5,11 @@
     android:background="#fcfcfc"
     android:orientation="vertical">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/acticity_left_right_padding_top"
+        android:background="@color/music_play_seccend_font" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,23 +24,18 @@
             android:id="@+id/back_last_fragment"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:padding="10dp"
             android:background="@drawable/click_oval"
+            android:padding="10dp"
             android:src="@drawable/arrow_left" />
 
         <TextView
-            android:paddingLeft="8dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingLeft="8dp"
             android:text="@string/folder_music"
             android:textColor="@color/font_color"
             android:textSize="16sp" />
-        <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="@drawable/click_oval"
-            android:src="@drawable/other_icon"/>
 
     </LinearLayout>
 

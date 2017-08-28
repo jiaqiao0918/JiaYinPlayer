@@ -286,6 +286,8 @@ public class MusicPlayActivity extends AppCompatActivity {
             }
         });
 
+
+
         //动态注册广播
         mReceiver = new MusicPlayReceiver();
         mFilter = new IntentFilter();
@@ -620,6 +622,7 @@ public class MusicPlayActivity extends AppCompatActivity {
                     is_playing = intent.getBooleanExtra("is_playing", false);
                     updateStartStopUi();
                     break;
+
             }
         }
 

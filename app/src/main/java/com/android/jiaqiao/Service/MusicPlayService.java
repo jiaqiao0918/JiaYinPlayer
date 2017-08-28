@@ -105,30 +105,31 @@ public class MusicPlayService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         runningNotification();
-        time_thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (start_stop_thread) {
-                    if (music_media_player != null) {
-                        if (music_media_player.isPlaying()) {
-                            Intent temp_intent = new Intent();
-                            temp_intent.setAction("com.android.jiaqiao");
-                            temp_intent.putExtra("type", MusicPlayService.GET_MUSIC_PLAY_TIME);
-                            temp_intent.putExtra("play_time", music_media_player.getCurrentPosition());
-                            sendBroadcast(temp_intent);
+        if(time_thread==null) {
+            time_thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (start_stop_thread) {
+                        if (music_media_player != null) {
+                            if (music_media_player.isPlaying()) {
+                                Intent temp_intent = new Intent();
+                                temp_intent.setAction("com.android.jiaqiao");
+                                temp_intent.putExtra("type", MusicPlayService.GET_MUSIC_PLAY_TIME);
+                                temp_intent.putExtra("play_time", music_media_player.getCurrentPosition());
+                                sendBroadcast(temp_intent);
+                            }
+                        }
+                        try {
+                            time_thread.sleep(1000);//毫秒
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
-                    try {
-                        time_thread.sleep(1000);//毫秒
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }
-            }
-        });
-        time_thread.start();
-
-        return super.onStartCommand(intent, flags, startId);
+            });
+            time_thread.start();
+        }
+        return START_STICKY;
     }
 
     public void runningNotification() {
@@ -372,10 +373,20 @@ public class MusicPlayService extends Service {
                 intentIsPlaying(true);
                 start_stop_thread = true;
                 is_playing = true;
+                PublicDate.is_play = true;
                 is_notification_update = true;
+
+                if(!PublicDate.is_timing_destroy){
+                    Intent temp_intent02 = new Intent();
+                    temp_intent02.setAction("com.android.jiaqiao");
+                    temp_intent02.putExtra("type", TimingService.TIMING_MUSIC_POSITION);
+                    sendBroadcast(temp_intent02);
+                }
+
             }
         });
         is_playing = true;
+        PublicDate.is_play = true;
         runningNotification();
         if (time_thread.isAlive()) {
             start_stop_thread = true;
@@ -424,7 +435,16 @@ public class MusicPlayService extends Service {
                 need_seek_to = music_media_player.getCurrentPosition();
                 intentIsPlaying(false);
                 is_playing = false;
+                PublicDate.is_play = false;
                 start_stop_thread = false;
+
+                if(!PublicDate.is_timing_destroy){
+                    Intent temp_intent02 = new Intent();
+                    temp_intent02.setAction("com.android.jiaqiao");
+                    temp_intent02.putExtra("type", TimingService.TIMING_ONLY_DESTROY);
+                    sendBroadcast(temp_intent02);
+                }
+
             } else {
                 if (stop_seet_to) {
                     playMusicFromPathTime(music_play_now.getMusic_path(), need_seek_to);
@@ -434,6 +454,7 @@ public class MusicPlayService extends Service {
                 }
                 intentIsPlaying(true);
                 is_playing = true;
+                PublicDate.is_play = true;
                 start_stop_thread = true;
                 runningNotification();
             }
@@ -712,6 +733,7 @@ public class MusicPlayService extends Service {
                     updateNotificationUi();
                     notify_manager.notify(100, notify);//刷新通知
                     break;
+
             }
         }
     }

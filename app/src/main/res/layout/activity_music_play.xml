@@ -13,6 +13,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingTop="@dimen/acticity_left_right_padding_top"
         android:background="@color/music_play_back_ground">
 
         <LinearLayout

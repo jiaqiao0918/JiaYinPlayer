@@ -14,6 +14,7 @@
         android:theme="@android:style/Theme.Black.NoTitleBar">
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
@@ -54,5 +55,6 @@
 
         <service android:name="com.android.jiaqiao.Service.SelectMusicService" />
         <service android:name="com.android.jiaqiao.Service.MusicPlayService" />
+        <service android:name="com.android.jiaqiao.Service.TimingService" />
     </application>
 </manifest>

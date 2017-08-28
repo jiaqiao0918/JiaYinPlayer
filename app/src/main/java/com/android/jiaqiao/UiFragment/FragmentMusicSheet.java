@@ -138,8 +138,8 @@ public class FragmentMusicSheet extends Fragment {
         ((AppCompatActivity) getActivity()).setSupportActionBar(fragment_music_sheet_toolbar);
         collapsingToolbarLayout.setTitle(" ");
         //collapsingToolbarLayout.setContentScrimResource  设置过滤颜色
-        collapsingToolbarLayout.setContentScrimResource(R.color.back_ground);
-        fragment_music_sheet_toolbar.setBackgroundResource(R.color.back_ground);
+        collapsingToolbarLayout.setContentScrimResource(R.color.music_play_seccend_font);
+        fragment_music_sheet_toolbar.setBackgroundResource(R.color.music_play_seccend_font);
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {

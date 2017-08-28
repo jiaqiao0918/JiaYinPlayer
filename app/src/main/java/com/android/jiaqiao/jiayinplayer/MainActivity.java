@@ -43,6 +43,7 @@ import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Service.SelectMusicService;
+import com.android.jiaqiao.Service.TimingService;
 import com.android.jiaqiao.UiFragment.FragmentMain;
 import com.android.jiaqiao.Utils.DataInfoCache;
 import com.android.jiaqiao.Utils.FastBlurUtil;
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Intent select_music_intent;
     private Intent music_play_intent;
+    private Intent timing_intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +185,13 @@ public class MainActivity extends AppCompatActivity {
         music_play_intent = new Intent(MainActivity.this, MusicPlayService.class);
         startService(music_play_intent);
 
+
+        PublicDate.is_timing_time = true;
+        PublicDate.all_timing_time = 15;
+        PublicDate.all_timing_music_sum = 3;
+        timing_intent  = new Intent(MainActivity.this, TimingService.class);
+        startService(timing_intent);
+
         start_sd_size = (double) getAvailableSize();//获取手机内置存储卡的剩余空间，用于判断文件是否变化
 
         //动态注册广播
@@ -193,29 +202,6 @@ public class MainActivity extends AppCompatActivity {
 
         drawerLeftRightLayout();
         drawerCenterLayout();
-
-//        activity_drawer_layout.addDrawerListener(new DrawerLayout.DrawerListener() {
-//            @Override
-//            public void onDrawerSlide(View drawerView, float slideOffset) {
-//                updateLeftRightListItem();
-//            }
-//
-//            @Override
-//            public void onDrawerOpened(View drawerView) {
-//
-//            }
-//
-//            @Override
-//            public void onDrawerClosed(View drawerView) {
-//
-//            }
-//
-//            @Override
-//            public void onDrawerStateChanged(int newState) {
-//
-//            }
-//        });
-
     }
 
     @Override
@@ -242,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
             return -1;
         }
     }
-
 
     public void drawerCenterLayout() {
         drawer_center_view = getLayoutInflater().inflate(
@@ -639,10 +624,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //拦截返回键操作，返回桌面，而不是退出应用
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent home = new Intent(Intent.ACTION_MAIN);
-            home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            home.addCategory(Intent.CATEGORY_HOME);
-            startActivity(home);
+            //判断栈中是否有还未返回的fragment，栈中有多个activity的情况不用考虑
+            if (getFragmentManager().getBackStackEntryCount() > 0) {
+                getFragmentManager().popBackStack();
+            } else {
+                Intent to_home = new Intent(Intent.ACTION_MAIN);
+                to_home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                to_home.addCategory(Intent.CATEGORY_HOME);
+                startActivity(to_home);
+            }
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -698,6 +688,9 @@ public class MainActivity extends AppCompatActivity {
         }
         if (!PublicDate.is_music_play_destroy) {
             stopService(music_play_intent);
+        }
+        if (!PublicDate.is_timing_destroy) {
+            stopService(timing_intent);
         }
         unregisterReceiver(mReceiver);
     }
@@ -799,6 +792,26 @@ public class MainActivity extends AppCompatActivity {
                     view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                     view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
 
+                    break;
+                case TimingService.TIMING_DESTROY:
+                    if(!PublicDate.is_timing_destroy){
+                        stopService(timing_intent);
+                        if(PublicDate.is_play) {
+                            Intent temp_intent = new Intent();
+                            temp_intent.setAction("com.android.jiaqiao");
+                            temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
+                            sendBroadcast(temp_intent);
+                        }
+                        finish();
+                    }
+                    break;
+                case TimingService.TIMING_ONLY_DESTROY:
+                    if(PublicDate.is_play) {
+                        Intent temp_intent = new Intent();
+                        temp_intent.setAction("com.android.jiaqiao");
+                        temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
+                        sendBroadcast(temp_intent);
+                    }
                     break;
             }
         }

@@ -33,8 +33,10 @@ public class PublicDate {
 
     public static boolean is_music_play_destroy = false;
     public static boolean is_service_select_music_destroy = false;
+    public static boolean is_timing_destroy = false;
     public static boolean is_play = false;
     public static boolean is_notification_running = false;
+    public static boolean is_timing_time = false;
 
     /*专辑图片虚化
          * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
@@ -58,4 +60,9 @@ public class PublicDate {
     public static boolean update_music_play = false;
 
     public static Bitmap music_last_album_image_bitmap = null;
+
+    //定时，定曲
+    public static int all_timing_time = 100;//单位：秒，计时时间
+    public static int all_timing_music_sum=0;
+    public static boolean is_timing_over_finish=false;
 }
