@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fragment_padding_top">33dp</dimen>
+    <dimen name="fragment_main_show_height">175dp</dimen>
+    <dimen name="acticity_left_right_padding_top">25dp</dimen>
+</resources>

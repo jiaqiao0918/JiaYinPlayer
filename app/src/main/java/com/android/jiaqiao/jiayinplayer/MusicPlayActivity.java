@@ -8,12 +8,14 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -45,8 +47,8 @@ import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
 
 public class MusicPlayActivity extends AppCompatActivity {
 
-    public static final int UPDATE_MUSIC_PLAY_ACTIVITY = 400000000;
-    public static final int UPDATE_MUSIC_PLAY_ACTIVITY_OTHER = 400000001;
+    public static final int UPDATE_MUSIC_PLAY_ACTIVITY = 4000000;
+    public static final int UPDATE_MUSIC_PLAY_ACTIVITY_OTHER = 4000001;
 
 
     private ViewPager music_play_view_pager;
@@ -74,6 +76,12 @@ public class MusicPlayActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_play);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WindowManager.LayoutParams localLayoutParams = getWindow().getAttributes();
+            localLayoutParams.flags = (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | localLayoutParams.flags);
+        }
+
         music_play_now = PublicDate.music_play_now;
 
         music_play_view_pager = (ViewPager) findViewById(R.id.music_play_view_pager);

@@ -328,16 +328,6 @@ public class FragmentAllMusic extends Fragment {
         mTransitionDrawable.setCrossFadeEnabled(true);
         mTransitionDrawable.startTransition(800);//渐变过程持续时间
         image_view.setImageDrawable(mTransitionDrawable);
-
-
-        /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        blurBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] bytes =  baos.toByteArray();
-        Glide.with(getActivity()).load(bytes).into(image_view);*/
-
-
-//        image_view.setImageBitmap(blurBitmap);
-
     }
 
     class FragmentAllMusicReceiver extends BroadcastReceiver {

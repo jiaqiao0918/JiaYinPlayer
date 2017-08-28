@@ -9,6 +9,7 @@
     <color name="font_thrid_color">#b8b8b8</color>
     <color name="determine_button_color">#06b1cf</color>
     <color name="image_button_click_color">#95d6d6d6</color>
+    <color name="image_button_play_click_color">#87d6d6d6</color>
     <color name="fengexian_color">#e6e6e6</color>
     <color name="back_ground">#fcfcfc</color>
     <color name="touming">#00000000</color>
@@ -18,7 +19,9 @@
     <color name="music_play_font">#ffffff</color>
     <color name="music_play_seccend_font">#b5b5b5</color>
     <color name="music_play_fengexian">#ce919191</color>
+    <color name="music_play_seccend_fengexian">#cecbcbcb</color>
     <color name="music_play_list_font_color">#e6e6e6</color>
     <color name="music_play_list_font_seccend_color">#d9d9d9</color>
     <color name="music_play_click_rectangle">#3effffff</color>
+    <color name="music_play_back_ground">#a0808080</color>
 </resources>

@@ -10,6 +10,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
@@ -18,21 +22,30 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.jiaqiao.Activity.MusicEditItemLongActivity;
+import com.android.jiaqiao.Adapter.LeftRightRecyclerViewAdapter;
 import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Service.SelectMusicService;
 import com.android.jiaqiao.UiFragment.FragmentMain;
 import com.android.jiaqiao.Utils.DataInfoCache;
+import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayItem;
@@ -46,14 +59,14 @@ import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    public static final int WRITE_EXTERNAL_STORAGE_QUANXAN = 200000000;
-    public static final int ALL_MUSIC_UPDATE = 200000001;
-    public static final int START_ACTIVITY_TO_OTHER = 200000002;
+    public static final int WRITE_EXTERNAL_STORAGE_QUANXAN = 200;
+    public static final int ALL_MUSIC_UPDATE = 2000001;
+    public static final int START_ACTIVITY_TO_OTHER = 2000002;
 
-    public static final int UPDATE_SHEET = 300000001;
-    public static final int UPDATE_MUSIC_PLAY = 300000002;
-    public static final int SERVICE_UPDATE_MUSIC_PLAY = 300000003;
-    public static final int VIEW_PAGER_UPDATE_LIST = 300000004;
+    public static final int UPDATE_SHEET = 3000001;
+    public static final int UPDATE_MUSIC_PLAY = 3000002;
+    public static final int SERVICE_UPDATE_MUSIC_PLAY = 3000003;
+    public static final int VIEW_PAGER_UPDATE_LIST = 3000004;
 
     public static final String SHARED = "setting";
 
@@ -61,14 +74,20 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<MusicInfo> music_play_list_temp = new ArrayList<MusicInfo>();
     private ArrayList<Fragment> view_pager_fragment_list = new ArrayList<Fragment>();
 
-    private View drawer_center_view;
+    private View drawer_center_view, drawer_left_view, drawer_right_view;
     private RelativeLayout drawer_center_layout, drawer_left_layout,
             drawer_right_layout;
-    private LinearLayout show_view_pager_layout;
+    private LinearLayout show_view_pager_layout, activity_left_bottom, activity_right_bottom;
     private ViewPager view_pager_fragment;
     private ViewPagerFragmentAdapter view_pager_fragment_adapter;
     private ImageView music_is_playing;
     private View view_pager_seek_bar;
+    private ImageView left_timing_time, right_timing_time, left_timing_music_position, right_timing_music_position, left_setting, right_setting, left_break_finish, right_break_finish;
+    private RecyclerView left_list, right_list;
+    private LeftRightRecyclerViewAdapter left_adapter, right_adapter;
+    private TextView left_music_tittle, right_music_tittle, left_music_artist, right_music_artist;
+    private ImageView left_album_image, right_album_image;
+    private DrawerLayout activity_drawer_layout;
 
     private int now_show_position = 0;
     private int last_position = 0;
@@ -82,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
     private int play_time = 0;
     private int phone_width = 0;
     private boolean is_need_update_view_pager = false;
+    private ArrayList<MusicInfo> music_now_play_list = new ArrayList<MusicInfo>();
+    private int last_click_position = 0;
+    private int list_scroll_position = 0;
 
     private MainActivityReceiver mReceiver;
     private IntentFilter mFilter;
@@ -97,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         drawer_center_layout = (RelativeLayout) findViewById(R.id.drawer_center_layout);
+        drawer_left_layout = (RelativeLayout) findViewById(R.id.drawer_left_layout);
+        drawer_right_layout = (RelativeLayout) findViewById(R.id.drawer_right_layout);
+        activity_drawer_layout = (DrawerLayout) findViewById(R.id.activity_drawer_layout);
         PublicDate.files_dir = this.getFilesDir().getAbsolutePath().toString();
         //判断有无权限，权限名：WRITE_EXTERNAL_STORAGE
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -113,6 +138,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void activityCreate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            //使用代码设置状态栏透明，使用xml，在部分rom上会失效
+            WindowManager.LayoutParams localLayoutParams = getWindow().getAttributes();
+            localLayoutParams.flags = (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | localLayoutParams.flags);
+        }
+
+
         PublicDate.path_files_dir = getFilesDir();//获取软件在date文件夹下的路径
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -151,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
         music_play_intent = new Intent(MainActivity.this, MusicPlayService.class);
         startService(music_play_intent);
 
-        start_sd_size = (double) getAvailableSize();
+        start_sd_size = (double) getAvailableSize();//获取手机内置存储卡的剩余空间，用于判断文件是否变化
 
         //动态注册广播
         mReceiver = new MainActivityReceiver();
@@ -159,10 +191,31 @@ public class MainActivity extends AppCompatActivity {
         mFilter.addAction("com.android.jiaqiao");
         this.registerReceiver(mReceiver, mFilter);
 
+        drawerLeftRightLayout();
         drawerCenterLayout();
 
-        //Test
-//        startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
+//        activity_drawer_layout.addDrawerListener(new DrawerLayout.DrawerListener() {
+//            @Override
+//            public void onDrawerSlide(View drawerView, float slideOffset) {
+//                updateLeftRightListItem();
+//            }
+//
+//            @Override
+//            public void onDrawerOpened(View drawerView) {
+//
+//            }
+//
+//            @Override
+//            public void onDrawerClosed(View drawerView) {
+//
+//            }
+//
+//            @Override
+//            public void onDrawerStateChanged(int newState) {
+//
+//            }
+//        });
+
     }
 
     @Override
@@ -232,6 +285,264 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void drawerLeftRightLayout() {
+        drawer_left_view = getLayoutInflater().inflate(
+                R.layout.left_right_layout, null);
+        drawer_right_view = getLayoutInflater().inflate(
+                R.layout.left_right_layout, null);
+
+        activity_left_bottom = (LinearLayout) drawer_left_view.findViewById(R.id.activity_left_right_bottom);
+        activity_right_bottom = (LinearLayout) drawer_right_view.findViewById(R.id.activity_left_right_bottom);
+        left_timing_time = (ImageView) drawer_left_view.findViewById(R.id.timing_time);
+        right_timing_time = (ImageView) drawer_right_view.findViewById(R.id.timing_time);
+        left_timing_music_position = (ImageView) drawer_left_view.findViewById(R.id.timing_music_position);
+        right_timing_music_position = (ImageView) drawer_right_view.findViewById(R.id.timing_music_position);
+        left_setting = (ImageView) drawer_left_view.findViewById(R.id.setting);
+        right_setting = (ImageView) drawer_right_view.findViewById(R.id.setting);
+        left_break_finish = (ImageView) drawer_left_view.findViewById(R.id.break_finish);
+        right_break_finish = (ImageView) drawer_right_view.findViewById(R.id.break_finish);
+        left_list = (RecyclerView) drawer_left_view.findViewById(R.id.left_right_list);
+        right_list = (RecyclerView) drawer_right_view.findViewById(R.id.left_right_list);
+        left_music_tittle = (TextView) drawer_left_view.findViewById(R.id.left_right_music_tittle);
+        right_music_tittle = (TextView) drawer_right_view.findViewById(R.id.left_right_music_tittle);
+        left_music_artist = (TextView) drawer_left_view.findViewById(R.id.left_right_music_artist);
+        right_music_artist = (TextView) drawer_right_view.findViewById(R.id.left_right_music_artist);
+        left_album_image = (ImageView) drawer_left_view.findViewById(R.id.left_right_album_image);
+        right_album_image = (ImageView) drawer_right_view.findViewById(R.id.left_right_album_image);
+
+        activity_left_bottom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+        activity_right_bottom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+        left_timing_time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "left_timing_time", Toast.LENGTH_SHORT).show();
+            }
+        });
+        right_timing_time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "right_timing_time", Toast.LENGTH_SHORT).show();
+            }
+        });
+        left_timing_music_position.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "left_timing_music_position", Toast.LENGTH_SHORT).show();
+            }
+        });
+        right_timing_music_position.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "right_timing_music_position", Toast.LENGTH_SHORT).show();
+            }
+        });
+        left_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "left_setting", Toast.LENGTH_SHORT).show();
+            }
+        });
+        right_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "right_setting", Toast.LENGTH_SHORT).show();
+            }
+        });
+        left_break_finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        right_break_finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        updateLeftRightList();
+        drawer_left_layout.addView(drawer_left_view);
+        drawer_right_layout.addView(drawer_right_view);
+
+    }
+
+    public void updateLeftRightList() {
+        if (PublicDate.music_play.size() > 0) {
+
+            music_now_play_list = PublicDate.music_play;
+            for (int i = 0; i < music_now_play_list.size(); i++) {
+                music_now_play_list.get(i).setIs_playing(false);
+            }
+            music_now_play_list.get(PublicDate.music_play_list_position).setIs_playing(true);
+
+
+            // 创建默认的线性LayoutManager
+            left_list.setLayoutManager(new LinearLayoutManager(this));
+            // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+            left_list.setHasFixedSize(true);
+            // 创建并设置Adapter
+            left_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
+            left_adapter.setOnItemClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerViewItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    //item单击事件
+
+                    music_now_play_list.get(last_click_position).setIs_playing(false);
+                    music_now_play_list.get(position).setIs_playing(true);
+                    left_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    left_adapter.notifyItemChanged(position);
+                    last_click_position = position;
+
+                    PublicDate.music_play_now = music_now_play_list.get(position);
+                    PublicDate.music_play_list_position = position;
+                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    //发送广播
+                    Intent temp_intent02 = new Intent();
+                    temp_intent02.setAction("com.android.jiaqiao");
+                    temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY);
+                    temp_intent02.putExtra("is_update_music_play", true);
+                    sendBroadcast(temp_intent02);
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                    sendBroadcast(temp_intent);
+
+                    now_show_position = PublicDate.music_play_list_position;
+                    updateIsPlayUi();
+                    updateViewPagerFragment();
+                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                    updateLeftRightListItem();
+
+                }
+            });
+            left_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
+                @Override
+                public void onItemLongClick(View view, int position) {
+                    //item长按事件
+                    ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                    music_edit_select.add(position);
+                    PublicDate.public_music_edit_temp = music_now_play_list;
+                    PublicDate.public_music_edit_temp_select = music_edit_select;
+                    PublicDate.is_music_play = true;
+                    startActivity(new Intent(MainActivity.this, MusicEditItemLongActivity.class).putExtra("is_all_music_01", false));
+                }
+            });
+            left_list.setAdapter(left_adapter);
+
+            // 创建默认的线性LayoutManager
+            right_list.setLayoutManager(new LinearLayoutManager(this));
+            // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+            right_list.setHasFixedSize(true);
+            // 创建并设置Adapter
+            right_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
+            right_adapter.setOnItemClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerViewItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    //item单击事件
+                    music_now_play_list.get(last_click_position).setIs_playing(false);
+                    music_now_play_list.get(position).setIs_playing(true);
+                    right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    right_adapter.notifyItemChanged(position);
+                    last_click_position = position;
+
+                    PublicDate.music_play_now = music_now_play_list.get(position);
+                    PublicDate.music_play_list_position = position;
+                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    //发送广播
+                    Intent temp_intent02 = new Intent();
+                    temp_intent02.setAction("com.android.jiaqiao");
+                    temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY);
+                    temp_intent02.putExtra("is_update_music_play", true);
+                    sendBroadcast(temp_intent02);
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                    sendBroadcast(temp_intent);
+
+                    now_show_position = PublicDate.music_play_list_position;
+                    updateIsPlayUi();
+                    updateViewPagerFragment();
+                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                    updateLeftRightListItem();
+
+                }
+            });
+            right_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
+                @Override
+                public void onItemLongClick(View view, int position) {
+                    //item长按事件
+                    ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
+                    music_edit_select.add(position);
+                    PublicDate.public_music_edit_temp = music_now_play_list;
+                    PublicDate.public_music_edit_temp_select = music_edit_select;
+                    PublicDate.is_music_play = true;
+                    startActivity(new Intent(MainActivity.this, MusicEditItemLongActivity.class).putExtra("is_all_music_01", false));
+                }
+            });
+            right_list.setAdapter(right_adapter);
+
+            updateLeftRightListItem();
+        }
+    }
+
+    public void updateLeftRightListItem() {
+        if (PublicDate.music_play.size() > 0) {
+            if (music_now_play_list.size() <= 0) {
+                music_now_play_list = PublicDate.music_play;
+            }
+            if (music_now_play_list.size() > 0) {
+                music_now_play_list.get(last_click_position).setIs_playing(false);
+                left_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                last_click_position = PublicDate.music_play_list_position;
+                if (last_click_position > -1) {
+                    music_now_play_list.get(last_click_position).setIs_playing(true);
+                    left_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                }
+                if (last_click_position > 0) {
+                    list_scroll_position = last_click_position - 1;
+                }
+                left_list.scrollToPosition(list_scroll_position);//如果可见，则不会滚动到相应位置
+                right_list.scrollToPosition(list_scroll_position);
+                left_music_tittle.setText(PublicDate.music_play_now.getMusic_title());
+                right_music_tittle.setText(PublicDate.music_play_now.getMusic_title());
+                left_music_artist.setText(PublicDate.music_play_now.getMusic_artist());
+                right_music_artist.setText(PublicDate.music_play_now.getMusic_artist());
+
+                updateLeftRightAlbumImage();
+
+            } else {
+                left_music_tittle.setText("");
+                right_music_tittle.setText("");
+                left_music_artist.setText("");
+                right_music_artist.setText("");
+            }
+        }
+    }
+
+    public void updateLeftRightAlbumImage() {
+        Bitmap bitmap = MusicUtils.getArtwork(this, PublicDate.music_play_now.getMusic_id(), PublicDate.music_play_now.getMusic_album_id(), true);
+        if (bitmap == null) {
+            left_album_image.setImageResource(R.color.back_ground);
+            right_album_image.setImageResource(R.color.back_ground);
+        } else {
+            setImageViewImage(left_album_image, bitmap);
+            setImageViewImage(right_album_image, bitmap);
+        }
+    }
+
     public void setViewPager() {
         //ViewPager+Fragment
         updateViewPagerFragment();
@@ -275,6 +586,8 @@ public class MainActivity extends AppCompatActivity {
                             is_need_update = false;
                             play_time = 0;
                             updateViewPagerSeekBar(play_time);
+                            updateLeftRightListItem();
+
                             Intent temp_intent02 = new Intent();
                             temp_intent02.setAction("com.android.jiaqiao");
                             temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER);
@@ -309,15 +622,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //测算控件高度
-        ViewTreeObserver vto = show_view_pager_layout.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                show_view_pager_layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                PublicDate.public_drawer_center_bottom_view_height = show_view_pager_layout.getHeight();
-            }
-        });
+        if (show_view_pager_layout != null) {
+            //测算控件高度
+            ViewTreeObserver vto = show_view_pager_layout.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    show_view_pager_layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    PublicDate.public_drawer_center_bottom_view_height = show_view_pager_layout.getHeight();
+                }
+            });
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //拦截返回键操作，返回桌面，而不是退出应用
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent home = new Intent(Intent.ACTION_MAIN);
+            home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            home.addCategory(Intent.CATEGORY_HOME);
+            startActivity(home);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     //回值操作
@@ -334,6 +662,33 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    // 给一个ImageView设置高斯模糊的图片,并带有渐变
+    public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
+        /*
+         * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
+		 * 增大blurRadius，可以得到更高程度的虚化，不过会导致CPU更加intensive
+		 */
+        int scaleRatio = PublicDate.scaleRatio;
+        int blurRadius = PublicDate.blurRadius;
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(image_bitmap,
+                image_bitmap.getWidth() / scaleRatio, image_bitmap.getHeight()
+                        / scaleRatio, false);
+        Bitmap blurBitmap = FastBlurUtil.doBlur(scaledBitmap, blurRadius, true);
+        image_view.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        image_view.setDrawingCacheEnabled(true);
+        Bitmap image_view_bitmap = null;
+        Drawable start_drawable = new BitmapDrawable(image_view_bitmap);//渐变前的Drawable
+        Drawable end_drawable = new BitmapDrawable(blurBitmap);//渐变后的Drawable，bitmap转drawable
+        TransitionDrawable mTransitionDrawable = new TransitionDrawable(new Drawable[]{
+                start_drawable,
+                end_drawable
+        });
+        mTransitionDrawable.setCrossFadeEnabled(true);
+        mTransitionDrawable.startTransition(800);//渐变过程持续时间
+        image_view.setImageDrawable(mTransitionDrawable);
+        image_view.setDrawingCacheEnabled(false);
+    }
 
     @Override
     protected void onDestroy() {
@@ -415,11 +770,7 @@ public class MainActivity extends AppCompatActivity {
                         view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                         view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
                         getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
-//                        Intent temp_intent02 = new Intent();
-//                        temp_intent02.setAction("com.android.jiaqiao");
-//                        temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER);
-//                        temp_intent02.putExtra("is_update_music_play", true);
-//                        sendBroadcast(temp_intent02);
+                        updateLeftRightListItem();
                         play_time = 0;
                         updateViewPagerSeekBar(play_time);
                     }
@@ -515,38 +866,43 @@ public class MainActivity extends AppCompatActivity {
 
     public void viewPagerLeft() {
 
-        view_pager_fragment_list.remove(view_pager_fragment_list.size() - 1);
-        randoms.remove(randoms.size() - 1);
-        int num = -1;
-        if (!is_random) {
-            num = (now_show_position - 2 + music_play_list_temp.size()) % music_play_list_temp.size();
-        } else {
-            while (true) {
-                boolean is_have_num = true;
-                num = getRandomForMinMax(0, music_play_list_temp.size() - 1);
-                for (int j = 0; j < randoms.size(); j++) {
-                    if (randoms.get(j) == num) {
-                        is_have_num = true;
+        if (music_play_list_temp.size() <= 0) {
+            music_play_list_temp = PublicDate.music_play;
+        }
+        if (music_play_list_temp.size() > 0) {
+            view_pager_fragment_list.remove(view_pager_fragment_list.size() - 1);
+            randoms.remove(randoms.size() - 1);
+            int num = -1;
+            if (!is_random) {
+                num = (now_show_position - 2 + music_play_list_temp.size()) % music_play_list_temp.size();
+            } else {
+                while (true) {
+                    boolean is_have_num = true;
+                    num = getRandomForMinMax(0, music_play_list_temp.size() - 1);
+                    for (int j = 0; j < randoms.size(); j++) {
+                        if (randoms.get(j) == num) {
+                            is_have_num = true;
+                            break;
+                        } else {
+                            is_have_num = false;
+                        }
+                    }
+                    if (!is_have_num) {
                         break;
-                    } else {
-                        is_have_num = false;
                     }
                 }
-                if (!is_have_num) {
-                    break;
-                }
             }
+            MusicInfo music_info_temp = music_play_list_temp.get(num);
+            ViewPagerFragmentMusicPlayItem fragment_temp = new ViewPagerFragmentMusicPlayItem();
+            Bitmap bitmap = MusicUtils.getArtwork(this, music_info_temp.getMusic_id(), music_info_temp.getMusic_album_id(), true);
+            if (bitmap == null) {
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+            }
+            fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
+            view_pager_fragment_list.add(0, fragment_temp);
+            randoms.add(0, num);
+            PublicDate.play_randoms = randoms;
         }
-        MusicInfo music_info_temp = music_play_list_temp.get(num);
-        ViewPagerFragmentMusicPlayItem fragment_temp = new ViewPagerFragmentMusicPlayItem();
-        Bitmap bitmap = MusicUtils.getArtwork(this, music_info_temp.getMusic_id(), music_info_temp.getMusic_album_id(), true);
-        if (bitmap == null) {
-            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
-        }
-        fragment_temp.setValue(music_info_temp.getMusic_title(), music_info_temp.getMusic_artist(), bitmap);
-        view_pager_fragment_list.add(0, fragment_temp);
-        randoms.add(0, num);
-        PublicDate.play_randoms = randoms;
     }
 
     public ArrayList<Fragment> getFragemntFromList01(ArrayList<MusicInfo> music_list, int position) {

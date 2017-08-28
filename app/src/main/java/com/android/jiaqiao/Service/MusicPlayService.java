@@ -40,20 +40,20 @@ import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
 
 public class MusicPlayService extends Service {
 
-    public static final int PLAY_MUSIC = 500000001;
-    public static final int PLAY_LAST_MUSIC = 500000002;
-    public static final int PLAY_NEXT_MUSIC = 500000003;
-    public static final int START_STOP_MUSIC = 500000004;
-    public static final int SEEK_TO = 500000005;
+    public static final int PLAY_MUSIC = 5000001;
+    public static final int PLAY_LAST_MUSIC = 5000002;
+    public static final int PLAY_NEXT_MUSIC = 5000003;
+    public static final int START_STOP_MUSIC = 5000004;
+    public static final int SEEK_TO = 5000005;
 
-    public static final int GET_MUSIC_PLAY_TIME = 500000006;
-    public static final int IS_PLAY = 500000007;
-    public static final int UPDATE_PLAY_MODE = 500000008;
+    public static final int GET_MUSIC_PLAY_TIME = 5000006;
+    public static final int IS_PLAY = 5000007;
+    public static final int UPDATE_PLAY_MODE = 5000008;
 
     //播放模式
-    public static final int PLAY_MODE_ORDER = 600000001;//循环
-    public static final int PLAY_MODE_RANDOM = 600000002;//随机
-    public static final int PLAY_MODE_SINGLE = 600000003;//单曲
+    public static final int PLAY_MODE_ORDER = 6000001;//循环
+    public static final int PLAY_MODE_RANDOM = 6000002;//随机
+    public static final int PLAY_MODE_SINGLE = 6000003;//单曲
 
     //notification的点击事件
     public static final int MUSIC_PLAY_LAST = 700000001;
@@ -104,10 +104,11 @@ public class MusicPlayService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        runningNotification();
         time_thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
+                while (start_stop_thread) {
                     if (music_media_player != null) {
                         if (music_media_player.isPlaying()) {
                             Intent temp_intent = new Intent();
@@ -126,7 +127,7 @@ public class MusicPlayService extends Service {
             }
         });
         time_thread.start();
-        runningNotification();
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -295,21 +296,25 @@ public class MusicPlayService extends Service {
     }
 
     public void updateNotificationLove() {
-        if (is_love) {
-            notification_100_view.setImageViewResource(R.id.notification_100_music_love, R.drawable.notification_music_play_is_love);
-        } else {
-            notification_100_view.setImageViewResource(R.id.notification_100_music_love, R.drawable.notification_music_play_not_love);
+        if (notification_100_view != null) {
+            if (is_love) {
+                notification_100_view.setImageViewResource(R.id.notification_100_music_love, R.drawable.notification_music_play_is_love);
+            } else {
+                notification_100_view.setImageViewResource(R.id.notification_100_music_love, R.drawable.notification_music_play_not_love);
+            }
         }
     }
 
     public void updateNotificationPlay() {
-        if (music_media_player != null && is_playing) {
-            notification_64_view.setImageViewResource(R.id.notification_music_play_is_not, R.drawable.notification_music_play_is);
-            notification_100_view.setImageViewResource(R.id.notification_100_music_play_is_not, R.drawable.notification_music_play_is);
+        if (notification_64_view!=null) {
+            if (is_playing) {
+                notification_64_view.setImageViewResource(R.id.notification_music_play_is_not, R.drawable.notification_music_play_is);
+                notification_100_view.setImageViewResource(R.id.notification_100_music_play_is_not, R.drawable.notification_music_play_is);
 
-        } else {
-            notification_64_view.setImageViewResource(R.id.notification_music_play_is_not, R.drawable.notification_music_play_not);
-            notification_100_view.setImageViewResource(R.id.notification_100_music_play_is_not, R.drawable.notification_music_play_is);
+            } else {
+                notification_64_view.setImageViewResource(R.id.notification_music_play_is_not, R.drawable.notification_music_play_not);
+                notification_100_view.setImageViewResource(R.id.notification_100_music_play_is_not, R.drawable.notification_music_play_is);
+            }
         }
     }
 
@@ -326,6 +331,7 @@ public class MusicPlayService extends Service {
             music_media_player = null;
         }
         if (time_thread.isAlive()) {
+            start_stop_thread = false;
             time_thread.interrupt();
         }
         if (notify_manager != null) {
@@ -364,11 +370,13 @@ public class MusicPlayService extends Service {
                 temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
                 sendBroadcast(temp_intent);
                 intentIsPlaying(true);
+                start_stop_thread = true;
                 is_playing = true;
                 is_notification_update = true;
             }
         });
-
+        is_playing = true;
+        runningNotification();
         if (time_thread.isAlive()) {
             start_stop_thread = true;
         } else {
@@ -379,13 +387,16 @@ public class MusicPlayService extends Service {
             notify_manager.notify(100, notify);//刷新通知
             is_notification_update = false;
         }
-        is_playing = true;
+
+        start_stop_thread = true;
         intentIsPlaying(true);
         runningNotification();
 
         is_love = selectIsLoveMusic();
         updateNotificationLove();
-        notify_manager.notify(100, notify);//刷新通知
+        if (notify_manager != null) {
+            notify_manager.notify(100, notify);//刷新通知
+        }
     }
 
     public void playLastMusic() {
@@ -413,6 +424,7 @@ public class MusicPlayService extends Service {
                 need_seek_to = music_media_player.getCurrentPosition();
                 intentIsPlaying(false);
                 is_playing = false;
+                start_stop_thread = false;
             } else {
                 if (stop_seet_to) {
                     playMusicFromPathTime(music_play_now.getMusic_path(), need_seek_to);
@@ -422,6 +434,7 @@ public class MusicPlayService extends Service {
                 }
                 intentIsPlaying(true);
                 is_playing = true;
+                start_stop_thread = true;
                 runningNotification();
             }
         } else {
