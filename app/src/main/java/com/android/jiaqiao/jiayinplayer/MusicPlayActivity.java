@@ -14,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -485,7 +484,6 @@ public class MusicPlayActivity extends AppCompatActivity {
     }
 
     public void updateActivity() {
-        Log.i("into","1");
         music_play_now = PublicDate.music_play_now;
         is_love_music = selectIsLoveMusic();
         play_time = 0;
@@ -623,9 +621,6 @@ public class MusicPlayActivity extends AppCompatActivity {
                     is_playing = intent.getBooleanExtra("is_playing", false);
                     updateStartStopUi();
                     break;
-//                case MainActivity.SERVICE_UPDATE_MUSIC_PLAY:
-//                    updateActivity();
-//                    break;
                 case MainActivity.AUTO_PLAY_NEXT:
                     updateActivity();
                     break;

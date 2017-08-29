@@ -27,7 +27,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -182,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
             music_play_list_temp = PublicDate.music_play;
         }
         PublicDate.play_mode = userSettings.getInt("play_mode", MusicPlayService.PLAY_MODE_ORDER);
-        Log.i("into",""+userSettings.getInt("play_mode", MusicPlayService.PLAY_MODE_ORDER));
         if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_RANDOM) {
             is_random = true;
         }
@@ -808,7 +806,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MainActivity.AUTO_PLAY_NEXT:
 
-                    Log.i("into",""+intent.getBooleanExtra("auto_update_mode", false));
                     if (intent.getBooleanExtra("auto_update_mode", false)) {
                         viewPagerRight();
                     } else {

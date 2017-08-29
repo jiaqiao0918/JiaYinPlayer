@@ -108,11 +108,11 @@ public class TimingUserNumActivity extends Activity {
 
 
     public void over_button(View view) {
-        int hour_num = timing_hour.getCurrentItem();
-        int min_num = timing_min.getCurrentItem();
-        if (min_num > 0||hour_num>0) {
         Intent timing_intent = new Intent(TimingUserNumActivity.this, TimingService.class);
         if (is_time02) {
+            int hour_num = timing_hour.getCurrentItem();
+            int min_num = timing_min.getCurrentItem();
+            if (min_num > 0 || hour_num > 0) {
                 if (hour_num >= 2) {
                     intentOtherActivity();
                 } else {
@@ -136,13 +136,13 @@ public class TimingUserNumActivity extends Activity {
                     }
                     finish();
 
+                }
             }
         } else {
             int music_num = timing_num.getCurrentItem() + 1;
             if (music_num >= 15) {
                 intentOtherActivity();
             } else {
-
                 if (!PublicDate.is_timing_destroy) {
                     stopService(timing_intent);
                 }
@@ -157,7 +157,8 @@ public class TimingUserNumActivity extends Activity {
                 }
                 finish();
             }
-        }}
+
+        }
     }
 
     public void intentOtherActivity() {

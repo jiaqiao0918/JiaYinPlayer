@@ -9,12 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.android.jiaqiao.Utils.MusicUtils;
@@ -239,9 +239,15 @@ public class MusicPlayService extends Service {
     }
 
     public void updateNotificationUi() {
+        Bitmap album_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
+
+        //将bitmap 分辨率压缩0.5f（一般）
+        Matrix matrix = new Matrix();
+        matrix.setScale(0.5f, 0.5f);
+        album_bitmap = Bitmap.createBitmap(album_bitmap, 0, 0, album_bitmap.getWidth(),
+                album_bitmap.getHeight(), matrix, true);
         if (notification_64_view != null) {
             //设置界面64
-            Bitmap album_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
             if (album_bitmap != null) {
                 notification_64_view.setImageViewBitmap(R.id.notification_music_album_image, album_bitmap);
             } else {
@@ -261,7 +267,6 @@ public class MusicPlayService extends Service {
         }
         if (notification_100_view != null) {
             //设置界面100
-            Bitmap album_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
             if (album_bitmap != null) {
                 notification_100_view.setImageViewBitmap(R.id.notification_100_music_album_image, album_bitmap);
             } else {
@@ -352,7 +357,6 @@ public class MusicPlayService extends Service {
             }
         }
 
-        Log.i("into", path);
         music_media_player = null;
         music_media_player = MediaPlayer.create(this, Uri.fromFile(new File(path)));
         music_media_player.seekTo(time);
@@ -445,7 +449,7 @@ public class MusicPlayService extends Service {
         sendBroadcast(temp_intent);
     }
 
-    public void autoPlayNextMusic(){
+    public void autoPlayNextMusic() {
         int temp = 0;
         if (PublicDate.play_mode != MusicPlayService.PLAY_MODE_RANDOM) {
             temp = (PublicDate.music_play_list_position + 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
@@ -685,7 +689,7 @@ public class MusicPlayService extends Service {
                     Intent temp_intent04 = new Intent();
                     temp_intent04.setAction("com.android.jiaqiao");
                     temp_intent04.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
-                    temp_intent04.putExtra("auto_update_mode",false);
+                    temp_intent04.putExtra("auto_update_mode", false);
                     sendBroadcast(temp_intent04);
 
                     updateNotificationUi();
@@ -775,7 +779,7 @@ public class MusicPlayService extends Service {
                     notify_manager.notify(100, notify);//刷新通知
                     break;
                 case MusicPlayService.UPDATE_NOTIFICATION:
-                    if(notify_manager!=null) {
+                    if (notify_manager != null) {
                         updateNotificationUi();
                         notify_manager.notify(100, notify);//刷新通知
                     }
