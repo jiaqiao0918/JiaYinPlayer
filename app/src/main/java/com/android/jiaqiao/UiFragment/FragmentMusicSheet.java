@@ -282,7 +282,6 @@ public class FragmentMusicSheet extends Fragment {
 
     public MusicInfo getFromListGetMusicInfo(String music_id, String music_title) {
         ArrayList<MusicInfo> list_temp = PublicDate.public_music_all;
-
         for (int i = 0; i < list_temp.size(); i++) {
             if ((list_temp.get(i).getMusic_id() + "").equals(music_id) && list_temp.get(i).getMusic_title().equals(music_title)) {
                 return list_temp.get(i);

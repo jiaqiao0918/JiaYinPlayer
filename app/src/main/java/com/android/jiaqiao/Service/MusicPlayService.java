@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.android.jiaqiao.Utils.MusicUtils;
@@ -105,7 +106,7 @@ public class MusicPlayService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         runningNotification();
-        if(time_thread==null) {
+        if (time_thread == null) {
             time_thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -307,7 +308,7 @@ public class MusicPlayService extends Service {
     }
 
     public void updateNotificationPlay() {
-        if (notification_64_view!=null) {
+        if (notification_64_view != null) {
             if (is_playing) {
                 notification_64_view.setImageViewResource(R.id.notification_music_play_is_not, R.drawable.notification_music_play_is);
                 notification_100_view.setImageViewResource(R.id.notification_100_music_play_is_not, R.drawable.notification_music_play_is);
@@ -331,9 +332,10 @@ public class MusicPlayService extends Service {
             music_media_player.release();
             music_media_player = null;
         }
-        if (time_thread.isAlive()) {
-            start_stop_thread = false;
+        if (time_thread != null) {
             time_thread.interrupt();
+            start_stop_thread = false;
+
         }
         if (notify_manager != null) {
             notify_manager.cancel(100);
@@ -350,7 +352,7 @@ public class MusicPlayService extends Service {
             }
         }
 
-
+        Log.i("into", path);
         music_media_player = null;
         music_media_player = MediaPlayer.create(this, Uri.fromFile(new File(path)));
         music_media_player.seekTo(time);
@@ -358,12 +360,19 @@ public class MusicPlayService extends Service {
         music_media_player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
+
+                if (!PublicDate.is_timing_destroy) {
+                    Intent temp_intent02 = new Intent();
+                    temp_intent02.setAction("com.android.jiaqiao");
+                    temp_intent02.putExtra("type", TimingService.TIMING_MUSIC_POSITION);
+                    sendBroadcast(temp_intent02);
+                }
                 intentIsPlaying(false);
                 start_stop_thread = false;
                 switch (PublicDate.play_mode) {
                     case MusicPlayService.PLAY_MODE_ORDER:
                     case MusicPlayService.PLAY_MODE_RANDOM:
-                        playNextMusic();
+                        autoPlayNextMusic();
                         break;
                 }
                 Intent temp_intent = new Intent();
@@ -376,19 +385,12 @@ public class MusicPlayService extends Service {
                 PublicDate.is_play = true;
                 is_notification_update = true;
 
-                if(!PublicDate.is_timing_destroy){
-                    Intent temp_intent02 = new Intent();
-                    temp_intent02.setAction("com.android.jiaqiao");
-                    temp_intent02.putExtra("type", TimingService.TIMING_MUSIC_POSITION);
-                    sendBroadcast(temp_intent02);
-                }
-
             }
         });
         is_playing = true;
         PublicDate.is_play = true;
         runningNotification();
-        if (time_thread.isAlive()) {
+        if (time_thread != null) {
             start_stop_thread = true;
         } else {
             time_thread.start();
@@ -411,6 +413,20 @@ public class MusicPlayService extends Service {
     }
 
     public void playLastMusic() {
+
+//        int temp = 0;
+//        if (PublicDate.play_mode != MusicPlayService.PLAY_MODE_RANDOM) {
+//            temp = (PublicDate.music_play_list_position - 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
+//        } else {
+//            temp = PublicDate.play_randoms.get(1);
+//        }
+//        PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
+//        PublicDate.music_play.get(temp).setIs_playing(true);
+//        PublicDate.music_play_list_position = temp;
+//        PublicDate.music_play_now = PublicDate.music_play.get(temp);
+//        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+
         Intent temp_intent = new Intent();
         temp_intent.setAction("com.android.jiaqiao");
         temp_intent.putExtra("type", MainActivity.SERVICE_UPDATE_MUSIC_PLAY);
@@ -420,12 +436,33 @@ public class MusicPlayService extends Service {
     }
 
     public void playNextMusic() {
+
         Intent temp_intent = new Intent();
         temp_intent.setAction("com.android.jiaqiao");
         temp_intent.putExtra("type", MainActivity.SERVICE_UPDATE_MUSIC_PLAY);
         temp_intent.putExtra("service_is_update", true);
         temp_intent.putExtra("update_mode", true);
         sendBroadcast(temp_intent);
+    }
+
+    public void autoPlayNextMusic(){
+        int temp = 0;
+        if (PublicDate.play_mode != MusicPlayService.PLAY_MODE_RANDOM) {
+            temp = (PublicDate.music_play_list_position + 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
+        } else {
+            temp = PublicDate.play_randoms.get(3);
+        }
+        PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
+        PublicDate.music_play.get(temp).setIs_playing(true);
+        PublicDate.music_play_list_position = temp;
+        PublicDate.music_play_now = PublicDate.music_play.get(temp);
+        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+        Intent temp_intent = new Intent();
+        temp_intent.setAction("com.android.jiaqiao");
+        temp_intent.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
+        sendBroadcast(temp_intent);
+
     }
 
     public void startStopMusic() {
@@ -438,7 +475,7 @@ public class MusicPlayService extends Service {
                 PublicDate.is_play = false;
                 start_stop_thread = false;
 
-                if(!PublicDate.is_timing_destroy){
+                if (!PublicDate.is_timing_destroy) {
                     Intent temp_intent02 = new Intent();
                     temp_intent02.setAction("com.android.jiaqiao");
                     temp_intent02.putExtra("type", TimingService.TIMING_ONLY_DESTROY);
@@ -641,11 +678,15 @@ public class MusicPlayService extends Service {
                     PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
                     PublicDate.music_play.get(temp).setIs_playing(true);
                     PublicDate.music_play_list_position = temp;
-                    music_play_now = PublicDate.music_play.get(temp);
+                    PublicDate.music_play_now = PublicDate.music_play.get(temp);
                     getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
 
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
-                    playLastMusic();
+                    Intent temp_intent04 = new Intent();
+                    temp_intent04.setAction("com.android.jiaqiao");
+                    temp_intent04.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
+                    temp_intent04.putExtra("auto_update_mode",false);
+                    sendBroadcast(temp_intent04);
 
                     updateNotificationUi();
                     notify_manager.notify(100, notify);//刷新通知
@@ -667,11 +708,15 @@ public class MusicPlayService extends Service {
                     PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
                     PublicDate.music_play.get(temp02).setIs_playing(true);
                     PublicDate.music_play_list_position = temp02;
-                    music_play_now = PublicDate.music_play.get(temp02);
+                    PublicDate.music_play_now = PublicDate.music_play.get(temp02);
                     getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
 
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
-                    playNextMusic();
+
+                    Intent temp_intent03 = new Intent();
+                    temp_intent03.setAction("com.android.jiaqiao");
+                    temp_intent03.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
+                    sendBroadcast(temp_intent03);
 
                     updateNotificationUi();
                     notify_manager.notify(100, notify);//刷新通知
@@ -730,8 +775,10 @@ public class MusicPlayService extends Service {
                     notify_manager.notify(100, notify);//刷新通知
                     break;
                 case MusicPlayService.UPDATE_NOTIFICATION:
-                    updateNotificationUi();
-                    notify_manager.notify(100, notify);//刷新通知
+                    if(notify_manager!=null) {
+                        updateNotificationUi();
+                        notify_manager.notify(100, notify);//刷新通知
+                    }
                     break;
 
             }

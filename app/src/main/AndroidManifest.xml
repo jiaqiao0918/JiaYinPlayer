@@ -3,7 +3,7 @@
     package="com.android.jiaqiao.jiayinplayer">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:allowBackup="true"
@@ -25,8 +25,8 @@
         </activity>
         <activity
             android:name="com.android.jiaqiao.jiayinplayer.MusicPlayActivity"
-            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name="com.android.jiaqiao.Activity.AddMusicSheetNameActivity"
@@ -52,6 +52,16 @@
         <activity
             android:name="com.android.jiaqiao.Activity.MusicEditItemLongActivity"
             android:theme="@style/DIY_Dialog"></activity>
+        <activity
+            android:name="com.android.jiaqiao.Activity.TimingActivity"
+            android:theme="@style/DIY_Dialog"></activity>
+        <activity
+            android:name="com.android.jiaqiao.Activity.TimingUserNumActivity"
+            android:theme="@style/DIY_Dialog"></activity>
+        <activity
+            android:name="com.android.jiaqiao.Activity.TimingTimeNumTooLongActivity"
+            android:theme="@style/DIY_Dialog"></activity>
+
 
         <service android:name="com.android.jiaqiao.Service.SelectMusicService" />
         <service android:name="com.android.jiaqiao.Service.MusicPlayService" />

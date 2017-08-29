@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="600dp"
-    style="@style/dialog_linear_layout"
+    android:background="@color/back_ground"
     android:orientation="vertical">
 
     <LinearLayout
@@ -23,7 +23,6 @@
             android:textSize="12sp" />
 
         <TextView
-
             android:id="@+id/show_all_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -31,7 +30,7 @@
             android:lines="1"
             android:ellipsize="end"
             android:gravity="center"
-            android:text="歌单名"
+            android:text="添加"
             android:textColor="@color/font_color"
             android:textSize="16sp" />
 
@@ -77,7 +76,7 @@
         android:background="@drawable/selected_over_button"
         android:onClick="selected_over"
         android:text="完成"
-        android:textColor="@color/font_color"
+        android:textColor="@color/font_seccend_color"
         android:textSize="16sp" />
 
 </LinearLayout>

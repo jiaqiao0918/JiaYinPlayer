@@ -350,6 +350,18 @@ public class FragmentLoveMusic extends Fragment {
         public void onReceive(Context context, Intent intent) {
             int type = intent.getIntExtra("type", -1);
             switch (type) {
+                case MainActivity.LOVE_MUSIC_UPDATE:
+                    music_love.clear();
+                    getMusicSheetToArrayList(path);
+                    int num02 = MusicPlayUtil.selectMusicPosition(music_love,PublicDate.music_play_now);
+                    if(num02>-1){
+                        music_love.get(num02).setIs_playing(true);
+                        last_click_position = num02;
+                    }
+                    adapter.notifyDataSetChanged();
+                    show_love_list_size.setText(music_love.size() + "首歌");
+                    handler.sendEmptyMessage(0x123456);
+                    break;
                 case MainActivity.ALL_MUSIC_UPDATE:
                     boolean is_update = intent.getBooleanExtra("is_update", false);
                     if (is_update) {
@@ -389,7 +401,6 @@ public class FragmentLoveMusic extends Fragment {
                         adapter.notifyItemChanged(temp_num);
                         last_click_position = temp_num;
                     }
-
                     break;
             }
         }

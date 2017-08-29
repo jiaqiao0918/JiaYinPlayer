@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_back_ground"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/too_long_tittle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:paddingTop="16dp"
+        android:paddingBottom="4dp"
+        android:textColor="@color/font_color"/>
+    <TextView
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="长时间使用耳机听歌，会对听力造成损伤\n是否继续？"
+        android:paddingBottom="16dp"
+        android:textColor="@color/font_color"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/click_sheet_button_left"
+            android:gravity="center"
+            android:onClick="canael_button"
+            android:padding="12dp"
+            android:text="取消"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="12sp" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/click_sheet_button_left"
+            android:gravity="center"
+            android:onClick="over_button"
+            android:padding="12dp"
+            android:text="继续"
+            android:textColor="@color/determine_button_color"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

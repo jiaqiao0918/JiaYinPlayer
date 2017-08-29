@@ -82,8 +82,9 @@ public class ViewPagerFragmentMusicPlayShowList extends Fragment {
                     music_edit_select.add(position);
                     PublicDate.public_music_edit_temp = music_now_play_list;
                     PublicDate.public_music_edit_temp_select = music_edit_select;
-                    PublicDate.is_music_play = true;
-                    getActivity().startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("is_all_music_01", false));
+                    PublicDate.is_music_play = true;//播放列表的标识
+
+                    startActivity(new Intent(getActivity(), MusicEditItemLongActivity.class).putExtra("is_all_music_01", false).putExtra("is_music_play_list01",true));
                 }
             });
             last_click_position = MusicPlayUtil.selectMusicPosition(music_now_play_list, PublicDate.music_play_now);

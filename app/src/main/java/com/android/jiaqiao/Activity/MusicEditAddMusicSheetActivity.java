@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -20,6 +19,7 @@ import android.widget.Toast;
 import com.android.jiaqiao.Adapter.MusicSheetAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
+import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -69,13 +69,55 @@ public class MusicEditAddMusicSheetActivity extends Activity {
         music_sheet_info_list = getMusicSheetToArrayList(path);
         show_music_sheet_name_list = (ListView) findViewById(R.id.show_music_sheet_name_list);
         add_to_music_play_list = (Button) findViewById(R.id.add_to_music_play_list);
-        if (PublicDate.is_music_play) {
+        if (getIntent().getBooleanExtra("is_music_play_list02", false)) {
             View add_to_music_play_view = (View) findViewById(R.id.add_to_music_play_view);
             add_to_music_play_view.setVisibility(View.GONE);
             add_to_music_play_list.setVisibility(View.GONE);
-            PublicDate.is_music_play = false;
 
         }
+
+        add_to_music_play_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int num = 0;
+                ArrayList<MusicInfo> music_edit_temp = new ArrayList<MusicInfo>();
+                ArrayList<MusicInfo> music_temp = new ArrayList<MusicInfo>();
+                ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
+                music_edit_temp = PublicDate.public_music_edit_temp;
+                music_edit_temp_select = PublicDate.public_music_edit_temp_select;
+                if (music_edit_temp.size()>0&&music_edit_temp_select.size()>0) {
+                    music_temp = PublicDate.music_play;
+                    for (int i = 0; i < music_edit_temp_select.size(); i++) {
+                        music_temp.add(music_edit_temp.get(music_edit_temp_select.get(i)));
+                        num++;
+                    }
+                }
+                if(num>0){
+                    Toast.makeText(MusicEditAddMusicSheetActivity.this, "已添加" + num + "首歌曲！！", Toast.LENGTH_SHORT).show();
+
+                    PublicDate.music_play = music_temp;
+                    PublicDate.music_play_now = PublicDate.music_play.get(PublicDate.music_play_list_position);
+                    MusicPlayUtil.saveMusicPlayList();
+                    PublicDate.update_music_play = true;
+
+                    int temp_position = MusicPlayUtil.selectMusicPosition(music_edit_temp,PublicDate.music_play_now);
+                    if(temp_position>-1){
+                        PublicDate.music_play_list_position = temp_position;
+                        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    }
+
+                    //通知歌单更新
+                    // 发送广播
+                    Intent temp_intent = new Intent();
+                    temp_intent.setAction("com.android.jiaqiao");
+                    temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
+                    temp_intent.putExtra("is_update_sheet", true);
+                    sendBroadcast(temp_intent);
+                }
+                finish();
+            }
+        });
+
         if (music_sheet_info_list.size() > 0) {
             music_sheet_adapter = new MusicSheetAdapter(this, music_sheet_info_list);
             show_music_sheet_name_list.setAdapter(music_sheet_adapter);
@@ -105,7 +147,6 @@ public class MusicEditAddMusicSheetActivity extends Activity {
                             temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
                             temp_intent.putExtra("is_update", true);
                             sendBroadcast(temp_intent);
-                            Log.i("into","fs");
                         }
                     }
                     PublicDate.public_music_edit_temp = null;

@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -113,7 +114,7 @@ public class MusicPlayActivity extends AppCompatActivity {
         }
         play_time = 0;
         seek_bar_touch_time = 0;
-        is_playing = false;
+        is_playing = PublicDate.is_play;
         music_play_seek_bar.setMax(PublicDate.music_play_now.getMusic_duration());
         music_play_seek_bar.setProgress(0);
         play_now_time.setText(getMusicTime(play_time));
@@ -257,8 +258,7 @@ public class MusicPlayActivity extends AppCompatActivity {
                 //发送广播
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", MainActivity.ALL_MUSIC_UPDATE);
-                temp_intent.putExtra("is_update", true);
+                temp_intent.putExtra("type", MainActivity.LOVE_MUSIC_UPDATE);
                 sendBroadcast(temp_intent);
                 updateLoveUi();
             }
@@ -485,6 +485,7 @@ public class MusicPlayActivity extends AppCompatActivity {
     }
 
     public void updateActivity() {
+        Log.i("into","1");
         music_play_now = PublicDate.music_play_now;
         is_love_music = selectIsLoveMusic();
         play_time = 0;
@@ -595,7 +596,7 @@ public class MusicPlayActivity extends AppCompatActivity {
             int type = intent.getIntExtra("type", -1);
             switch (type) {
                 case MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY:
-                    updateAllActivity();
+                    updateActivity();
                     break;
                 case MainActivity.ALL_MUSIC_UPDATE:
                     updateActivity();
@@ -621,6 +622,12 @@ public class MusicPlayActivity extends AppCompatActivity {
                 case MusicPlayService.IS_PLAY:
                     is_playing = intent.getBooleanExtra("is_playing", false);
                     updateStartStopUi();
+                    break;
+//                case MainActivity.SERVICE_UPDATE_MUSIC_PLAY:
+//                    updateActivity();
+//                    break;
+                case MainActivity.AUTO_PLAY_NEXT:
+                    updateActivity();
                     break;
 
             }

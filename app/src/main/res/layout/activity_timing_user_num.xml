@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_back_ground"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/timing_tittle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="12dp"
+        android:text="定时"
+        android:textColor="@color/font_color"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/timing_time_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="时长："
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+
+        <com.android.jiaqiao.View.WheelView.WheelView
+            android:id="@+id/timing_hour_wheel_view"
+            android:layout_width="60dp"
+            android:layout_height="160dp"
+            android:background="@color/touming"
+            android:layout_gravity="center_vertical" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="小时  :  "
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+
+        <com.android.jiaqiao.View.WheelView.WheelView
+            android:id="@+id/timing_min_wheel_view"
+            android:layout_width="60dp"
+            android:layout_height="160dp"
+            android:background="@color/touming"
+            android:layout_gravity="center_vertical" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="分钟"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/timing_num_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="歌曲数："
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+
+        <com.android.jiaqiao.View.WheelView.WheelView
+            android:id="@+id/timing_music_num_wheel_view"
+            android:layout_width="60dp"
+            android:layout_height="160dp"
+            android:background="@color/touming"
+            android:layout_gravity="center_vertical" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="曲"
+            android:textColor="@color/font_seccend_color"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="0dp"
+        android:background="@color/stroke_sccend_color"
+        android:padding="0dp" />
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/click_sheet_button_left"
+        android:gravity="center"
+        android:onClick="over_button"
+        android:padding="12dp"
+        android:text="完成"
+        android:textColor="@color/font_seccend_color"
+        android:textSize="12sp" />
+
+</LinearLayout>

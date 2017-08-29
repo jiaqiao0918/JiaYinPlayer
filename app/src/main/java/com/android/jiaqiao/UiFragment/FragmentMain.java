@@ -35,10 +35,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class FragmentMain extends Fragment {
     private ArrayList<SheetInfo> music_sheet_info_list = new ArrayList<SheetInfo>();
+    private boolean is_into_music_sheet= false;
 
     private MusicSheetAdapter music_sheet_adapter;
     private String path = "";
@@ -87,9 +90,18 @@ public class FragmentMain extends Fragment {
         scroll_view.smoothScrollTo(0, 0);//滑动到顶部，两种方法都可行
         scroll_view.fullScroll(ScrollView.FOCUS_UP);//滑动到顶部
 
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                is_into_music_sheet = true;
+            }
+        },400);
+
         music_all_sheet_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 FragmentMusicSheet fragment_music_sheet = new FragmentMusicSheet();
                 fragment_music_sheet.setShow_sheet_info(music_sheet_info_list.get(position));
                 FragmentTransaction fragmentTransaction = getFragmentManager()
@@ -99,12 +111,15 @@ public class FragmentMain extends Fragment {
                         fragment_music_sheet, R.id.fragment_show);
                 fragmentTransactionExtended.setTransition();
                 fragmentTransactionExtended.commit();
+
             }
         });
         music_all_sheet_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivity(new Intent(getActivity(), DeleteMusicSheetActivity.class).putExtra("sheet_id", music_sheet_info_list.get(position).getSheet_id().toString()));
+                if (is_into_music_sheet) {
+                    startActivity(new Intent(getActivity(), DeleteMusicSheetActivity.class).putExtra("sheet_id", music_sheet_info_list.get(position).getSheet_id().toString()));
+                }
                 return true;
             }
         });

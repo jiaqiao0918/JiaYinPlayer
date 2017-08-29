@@ -54,6 +54,7 @@ public class MusicEditNeedListActivity extends Activity {
     private String path = "";
     private String music_sheet_id01 = "";
     private boolean is_all_music_01 = false;
+    private boolean is_music_play_list = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class MusicEditNeedListActivity extends Activity {
 
         is_all_music_01 = getIntent().getBooleanExtra("is_all_music_01", false);
         music_sheet_id01 = getIntent().getStringExtra("music_sheet_id_01");
+
         music_temp = public_music_edit_temp;
         for (int i = 0; i < music_temp.size(); i++) {
             music_temp.get(i).setIs_selected(false);
@@ -148,7 +150,7 @@ public class MusicEditNeedListActivity extends Activity {
                 }
                 if (music_edit_select.size() > 0 && music_edit_select != null) {
                     PublicDate.public_music_edit_temp_select = music_edit_select;
-                    startActivity(new Intent(MusicEditNeedListActivity.this, MusicEditDeleteActivity.class).putExtra("is_all_music", is_all_music_01).putExtra("music_sheet_id", music_sheet_id01));
+                    startActivity(new Intent(MusicEditNeedListActivity.this, MusicEditDeleteActivity.class).putExtra("is_all_music", is_all_music_01).putExtra("music_sheet_id", music_sheet_id01).putExtra("is_music_play_list01",is_music_play_list));
                     finish();
                 }
             }

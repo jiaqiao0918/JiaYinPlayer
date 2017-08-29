@@ -5,9 +5,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
+import com.android.jiaqiao.Utils.ActivityContainer;
+import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 
 import java.util.Timer;
@@ -26,7 +30,7 @@ public class TimingService extends Service {
     private boolean is_timing = false;
     private int num = 0;
     private int timing_music_sum = 0;//已播放的歌曲数量
-
+    private boolean is_over_music_play = false;
     private int time = 0;
     private TimingReceiver mReceiver;
     private IntentFilter mFilter;
@@ -45,6 +49,7 @@ public class TimingService extends Service {
         mFilter.addAction("com.android.jiaqiao");
         registerReceiver(mReceiver, mFilter);
         is_timing = false;
+        Log.i("into", "timing_running");
     }
 
     @Override
@@ -54,7 +59,7 @@ public class TimingService extends Service {
             time = PublicDate.all_timing_time;
             if (time > 0) {
 
-                if(!PublicDate.is_play) {
+                if (!PublicDate.is_play) {
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
                     temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
@@ -71,17 +76,9 @@ public class TimingService extends Service {
                             is_timing = true;
                         } else {
                             is_timing = false;
-                            PublicDate.is_timing_time = false;
                             PublicDate.all_timing_time = 0;
-
-                            if(PublicDate.is_timing_over_finish) {
-                                android.os.Process.killProcess(android.os.Process.myPid());//关闭此应用
-                            }
-
-//                            Intent temp_intent02 = new Intent();
-//                            temp_intent02.setAction("com.android.jiaqiao");
-//                            temp_intent02.putExtra("type", TimingService.TIMING_DESTROY);
-//                            sendBroadcast(temp_intent02);
+                            timingOver();
+                            Log.i("into","定时"+num);
                             this.cancel();
                         }
                     }
@@ -101,13 +98,42 @@ public class TimingService extends Service {
     }
 
 
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
         PublicDate.is_timing_destroy = true;
+    }
+
+    public void timingOver() {
+        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
+        Log.i("into", "is_timing_time:" + PublicDate.is_timing_time);
+        if (PublicDate.is_timing_time) {
+            Log.i("into", "定时结束");
+            Log.i("into", "is_over_play_music01:" + userSettings.getBoolean("is_over_play_music", false));
+            Log.i("into", "is_over_finish_app01:" + userSettings.getBoolean("is_over_finish_app", false));
+            if (userSettings.getBoolean("is_over_play_music", false)) {
+                is_over_music_play = true;
+                Log.i("into", "等待播放结束...");
+            } else if (userSettings.getBoolean("is_over_finish_app", false)) {
+                PublicDate.is_timing_time = false;
+                Log.i("into", "finish_in01");
+                ActivityContainer.getInstance().finishAllActivity();
+            } else {
+                Intent temp_intent = new Intent();
+                temp_intent.setAction("com.android.jiaqiao");
+                temp_intent.putExtra("type", TimingService.TIMING_DESTROY);
+                sendBroadcast(temp_intent);
+            }
+
+        } else {
+            Log.i("into", "is_over_finish_app02:" + userSettings.getBoolean("is_over_finish_app", false));
+            if (userSettings.getBoolean("is_over_finish_app", false)) {
+                PublicDate.is_timing_time = false;
+                Log.i("into", "finish_in02");
+                ActivityContainer.getInstance().finishAllActivity();//退出应用
+            }
+        }
     }
 
     class TimingReceiver extends BroadcastReceiver {
@@ -116,25 +142,32 @@ public class TimingService extends Service {
             int type = intent.getIntExtra("type", -1);
             switch (type) {
                 case TimingService.TIMING_MUSIC_POSITION:
-                    timing_music_sum++;
-                    if (PublicDate.all_timing_music_sum == timing_music_sum && PublicDate.all_timing_music_sum > 0) {
-                        PublicDate.is_timing_time = false;
-                        PublicDate.all_timing_music_sum = 0;
-
-                        if(PublicDate.is_timing_over_finish) {
-                            android.os.Process.killProcess(android.os.Process.myPid());//关闭此应用
+                    if (PublicDate.is_timing_time) {
+                        if (is_over_music_play) {
+                            Log.i("into", "播放完毕");
+                            SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
+                            if (userSettings.getBoolean("is_over_finish_app", false)) {
+                                PublicDate.is_timing_time = false;
+                                ActivityContainer.getInstance().finishAllActivity();
+                            }else{
+                                Intent temp_intent = new Intent();
+                                temp_intent.setAction("com.android.jiaqiao");
+                                temp_intent.putExtra("type", TimingService.TIMING_DESTROY);
+                                sendBroadcast(temp_intent);
+                            }
                         }
-
-//                        Intent temp_intent02 = new Intent();
-//                        temp_intent02.setAction("com.android.jiaqiao");
-//                        temp_intent02.putExtra("type", TimingService.TIMING_DESTROY);
-//                        sendBroadcast(temp_intent02);
+                    } else {
+                        timing_music_sum++;
+                        if (PublicDate.all_timing_music_sum == timing_music_sum && PublicDate.all_timing_music_sum > 0) {
+                            PublicDate.is_timing_time = false;
+                            PublicDate.all_timing_music_sum = 0;
+                            timingOver();
+                        }
                     }
                     break;
             }
         }
     }
-
 
 
 }
