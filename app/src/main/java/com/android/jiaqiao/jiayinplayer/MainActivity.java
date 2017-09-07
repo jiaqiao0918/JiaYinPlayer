@@ -46,6 +46,7 @@ import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Service.SelectMusicService;
 import com.android.jiaqiao.Service.TimingService;
+import com.android.jiaqiao.Service.UpdateServiec;
 import com.android.jiaqiao.UiFragment.FragmentMain;
 import com.android.jiaqiao.Utils.ActivityContainer;
 import com.android.jiaqiao.Utils.DataInfoCache;
@@ -67,12 +68,13 @@ public class MainActivity extends AppCompatActivity {
     public static final int ALL_MUSIC_UPDATE = 2000001;
     public static final int START_ACTIVITY_TO_OTHER = 2000002;
 
-    public static final int UPDATE_SHEET = 3000001;
+    public static final int UPDATE_VIEW_PAGER_SHEET = 3000001;
     public static final int UPDATE_MUSIC_PLAY = 3000002;
     public static final int SERVICE_UPDATE_MUSIC_PLAY = 3000003;
     public static final int VIEW_PAGER_UPDATE_LIST = 3000004;
     public static final int LOVE_MUSIC_UPDATE = 3000005;
     public static final int AUTO_PLAY_NEXT = 3000006;
+    public static final int UPDATE_FRAGMENT_SHEET = 3000007;
 
     public static final String SHARED = "setting";
 
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     private View view_pager_seek_bar;
     private ImageView left_timing_time, right_timing_time, left_timing_music_position, right_timing_music_position, left_setting, right_setting, left_break_finish, right_break_finish;
     private RecyclerView left_list, right_list;
-    private LeftRightRecyclerViewAdapter left_adapter, right_adapter;
+    private LeftRightRecyclerViewAdapter left_right_adapter;
     private TextView left_music_tittle, right_music_tittle, left_music_artist, right_music_artist;
     private ImageView left_album_image, right_album_image;
     private DrawerLayout activity_drawer_layout;
@@ -209,6 +211,8 @@ public class MainActivity extends AppCompatActivity {
         drawerCenterLayout();
 
         //Test
+//        startActivity(new Intent(this,SetActivity.class));
+
 
     }
 
@@ -321,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
                 if (activity_drawer_layout.isDrawerOpen(Gravity.LEFT) || activity_drawer_layout.isDrawerOpen(Gravity.RIGHT)) {
                     activity_drawer_layout.closeDrawers();//关闭所有的侧滑栏
                 }
-                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time",true));
+                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time", true));
             }
         });
         right_timing_time.setOnClickListener(new View.OnClickListener() {
@@ -331,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
                 if (activity_drawer_layout.isDrawerOpen(Gravity.LEFT) || activity_drawer_layout.isDrawerOpen(Gravity.RIGHT)) {
                     activity_drawer_layout.closeDrawers();//关闭所有的侧滑栏
                 }
-                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time",true));
+                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time", true));
             }
         });
         left_timing_music_position.setOnClickListener(new View.OnClickListener() {
@@ -341,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
                 if (activity_drawer_layout.isDrawerOpen(Gravity.LEFT) || activity_drawer_layout.isDrawerOpen(Gravity.RIGHT)) {
                     activity_drawer_layout.closeDrawers();//关闭所有的侧滑栏
                 }
-                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time",false));
+                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time", false));
             }
         });
         right_timing_music_position.setOnClickListener(new View.OnClickListener() {
@@ -351,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
                 if (activity_drawer_layout.isDrawerOpen(Gravity.LEFT) || activity_drawer_layout.isDrawerOpen(Gravity.RIGHT)) {
                     activity_drawer_layout.closeDrawers();//关闭所有的侧滑栏
                 }
-                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time",false));
+                startActivity(new Intent(MainActivity.this, TimingActivity.class).putExtra("is_time", false));
             }
         });
         left_setting.setOnClickListener(new View.OnClickListener() {
@@ -387,7 +391,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateLeftRightList() {
         if (PublicDate.music_play.size() > 0) {
-
             music_now_play_list = PublicDate.music_play;
             for (int i = 0; i < music_now_play_list.size(); i++) {
                 music_now_play_list.get(i).setIs_playing(false);
@@ -400,17 +403,18 @@ public class MainActivity extends AppCompatActivity {
             // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
             left_list.setHasFixedSize(true);
             // 创建并设置Adapter
-            left_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
-            left_adapter.setOnItemClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerViewItemClickListener() {
+            left_right_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
+            left_right_adapter.setOnItemClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerViewItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
                     //item单击事件
 
+
                     music_now_play_list.get(last_click_position).setIs_playing(false);
                     music_now_play_list.get(position).setIs_playing(true);
-                    left_adapter.notifyItemChanged(last_click_position);//刷新单个数据
-                    left_adapter.notifyItemChanged(position);
-                    last_click_position = position;
+                    left_right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    left_right_adapter.notifyItemChanged(position);
+
 
                     PublicDate.music_play_now = music_now_play_list.get(position);
                     PublicDate.music_play_list_position = position;
@@ -428,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent temp_intent03 = new Intent();
                     temp_intent03.setAction("com.android.jiaqiao");
-                    temp_intent03.putExtra("type", MusicPlayService.UPDATE_NOTIFICATION);
+                    temp_intent03.putExtra("type", UpdateServiec.TO_UPDATE_UI);
                     sendBroadcast(temp_intent03);
 
                     now_show_position = PublicDate.music_play_list_position;
@@ -437,12 +441,13 @@ public class MainActivity extends AppCompatActivity {
                     view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                     view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
                     updateLeftRightListItem();
-
+                    last_click_position = position;
                 }
             });
-            left_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
+            left_right_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
                 @Override
                 public void onItemLongClick(View view, int position) {
+
                     //item长按事件
                     ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
                     music_edit_select.add(position);
@@ -452,23 +457,45 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, MusicEditItemLongActivity.class).putExtra("is_all_music_01", false).putExtra("is_music_play_list01", true));
                 }
             });
-            left_list.setAdapter(left_adapter);
+            left_list.setAdapter(left_right_adapter);
 
             // 创建默认的线性LayoutManager
             right_list.setLayoutManager(new LinearLayoutManager(this));
             // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
             right_list.setHasFixedSize(true);
+            right_list.setAdapter(left_right_adapter);
+
+            updateLeftRightListItem();
+        }
+    }
+
+    public void updateLeftRightAllList() {
+        music_now_play_list = PublicDate.music_play;
+        if (PublicDate.music_play.size() > 0) {
+            music_now_play_list = PublicDate.music_play;
+            for (int i = 0; i < music_now_play_list.size(); i++) {
+                music_now_play_list.get(i).setIs_playing(false);
+            }
+            music_now_play_list.get(PublicDate.music_play_list_position).setIs_playing(true);
+
+
+            // 创建默认的线性LayoutManager
+            left_list.setLayoutManager(new LinearLayoutManager(this));
+            // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+            left_list.setHasFixedSize(true);
             // 创建并设置Adapter
-            right_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
-            right_adapter.setOnItemClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerViewItemClickListener() {
+            left_right_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
+            left_right_adapter.setOnItemClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerViewItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
                     //item单击事件
+
+                    last_click_position = PublicDate.music_play_list_position;
                     music_now_play_list.get(last_click_position).setIs_playing(false);
                     music_now_play_list.get(position).setIs_playing(true);
-                    right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
-                    right_adapter.notifyItemChanged(position);
-                    last_click_position = position;
+                    left_right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    left_right_adapter.notifyItemChanged(position);
+
 
                     PublicDate.music_play_now = music_now_play_list.get(position);
                     PublicDate.music_play_list_position = position;
@@ -486,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent temp_intent03 = new Intent();
                     temp_intent03.setAction("com.android.jiaqiao");
-                    temp_intent03.putExtra("type", MusicPlayService.UPDATE_NOTIFICATION);
+                    temp_intent03.putExtra("type", UpdateServiec.TO_UPDATE_UI);
                     sendBroadcast(temp_intent03);
 
                     now_show_position = PublicDate.music_play_list_position;
@@ -494,35 +521,42 @@ public class MainActivity extends AppCompatActivity {
                     updateViewPagerFragment();
                     view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                     view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-                    updateLeftRightListItem();
+//                    updateLeftRightListItem();
 
+                    last_click_position = position;
                 }
             });
-            right_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
+            left_right_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
                 @Override
                 public void onItemLongClick(View view, int position) {
+
                     //item长按事件
                     ArrayList<Integer> music_edit_select = new ArrayList<Integer>();
                     music_edit_select.add(position);
                     PublicDate.public_music_edit_temp = music_now_play_list;
                     PublicDate.public_music_edit_temp_select = music_edit_select;
                     PublicDate.is_music_play = true;
-                    startActivity(new Intent(MainActivity.this, MusicEditItemLongActivity.class).putExtra("is_all_music_01", false));
+                    startActivity(new Intent(MainActivity.this, MusicEditItemLongActivity.class).putExtra("is_all_music_01", false).putExtra("is_music_play_list01", true).putExtra("is_main_play", true));
                 }
             });
-            right_list.setAdapter(right_adapter);
+            left_list.setAdapter(left_right_adapter);
 
-            updateLeftRightListItem();
+            // 创建默认的线性LayoutManager
+            right_list.setLayoutManager(new LinearLayoutManager(this));
+            // 如果可以确定每个item的高度是固定的，设置这个选项可以提高性能
+            right_list.setHasFixedSize(true);
+            right_list.setAdapter(left_right_adapter);
+
+            left_music_tittle.setText(PublicDate.music_play_now.getMusic_title());
+            right_music_tittle.setText(PublicDate.music_play_now.getMusic_title());
+            left_music_artist.setText(PublicDate.music_play_now.getMusic_artist());
+            right_music_artist.setText(PublicDate.music_play_now.getMusic_artist());
+
+            updateLeftRightAlbumImage();
+
         }
     }
 
-    public void updateLeftRightAllList(){
-        music_now_play_list = PublicDate.music_play;
-        left_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
-        left_list.setAdapter(left_adapter);
-        right_adapter = new LeftRightRecyclerViewAdapter(music_now_play_list);
-        right_list.setAdapter(right_adapter);
-    }
 
     public void updateLeftRightListItem() {
         if (PublicDate.music_play.size() > 0) {
@@ -531,19 +565,17 @@ public class MainActivity extends AppCompatActivity {
             }
             if (music_now_play_list.size() > 0) {
                 music_now_play_list.get(last_click_position).setIs_playing(false);
-                left_adapter.notifyItemChanged(last_click_position);//刷新单个数据
-                right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                left_right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
                 last_click_position = PublicDate.music_play_list_position;
                 if (last_click_position > -1) {
                     music_now_play_list.get(last_click_position).setIs_playing(true);
-                    left_adapter.notifyItemChanged(last_click_position);//刷新单个数据
-                    right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                    left_right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
                 }
                 if (last_click_position > 0) {
                     list_scroll_position = last_click_position - 1;
                 }
 
-                if (PublicDate.music_play.size()>11) {
+                if (PublicDate.music_play.size() > 11) {
                     ((LinearLayoutManager) left_list.getLayoutManager()).scrollToPositionWithOffset(list_scroll_position, 0);
                     ((LinearLayoutManager) left_list.getLayoutManager()).setStackFromEnd(true);
                     ((LinearLayoutManager) right_list.getLayoutManager()).scrollToPositionWithOffset(list_scroll_position, 0);
@@ -566,7 +598,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateLeftRightAlbumImage() {
-        Bitmap bitmap = MusicUtils.getArtwork(this, PublicDate.music_play_now.getMusic_id(), PublicDate.music_play_now.getMusic_album_id(), true);
+        Bitmap bitmap = MusicUtils.getArtwork(MainActivity.this, PublicDate.music_play_now.getMusic_id(), PublicDate.music_play_now.getMusic_album_id(), true);
         if (bitmap == null) {
             left_album_image.setImageResource(R.color.back_ground);
             right_album_image.setImageResource(R.color.back_ground);
@@ -621,26 +653,20 @@ public class MainActivity extends AppCompatActivity {
                             updateViewPagerSeekBar(play_time);
                             updateLeftRightListItem();
 
-                            Intent temp_intent02 = new Intent();
-                            temp_intent02.setAction("com.android.jiaqiao");
-                            temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY_OTHER);
-                            temp_intent02.putExtra("is_update_music_play", true);
-                            sendBroadcast(temp_intent02);
-
                             Intent temp_intent = new Intent();
                             temp_intent.setAction("com.android.jiaqiao");
                             temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
                             sendBroadcast(temp_intent);
 
+                            Intent temp_intent05 = new Intent();
+                            temp_intent05.setAction("com.android.jiaqiao");
+                            temp_intent05.putExtra("type", UpdateServiec.TO_UPDATE_UI);
+                            sendBroadcast(temp_intent05);
+
                             Intent temp_intent03 = new Intent();
                             temp_intent03.setAction("com.android.jiaqiao");
                             temp_intent03.putExtra("type", MainActivity.VIEW_PAGER_UPDATE_LIST);
                             sendBroadcast(temp_intent03);
-
-                            Intent temp_intent04 = new Intent();
-                            temp_intent04.setAction("com.android.jiaqiao");
-                            temp_intent04.putExtra("type", MusicPlayService.UPDATE_NOTIFICATION);
-                            sendBroadcast(temp_intent04);
                         }
 
                     }
@@ -749,156 +775,6 @@ public class MainActivity extends AppCompatActivity {
         ActivityContainer.getInstance().removeActivity(this);
     }
 
-    class MainActivityReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int type = intent.getIntExtra("type", -1);
-            switch (type) {
-                case MainActivity.ALL_MUSIC_UPDATE:
-                    if (!PublicDate.is_service_select_music_destroy) {
-                        stopService(select_music_intent);
-                    }
-                    if (PublicDate.music_play.size() <= 0) {
-                        if (music_all.size() > 0) {
-                            PublicDate.music_play = music_all;
-                            PublicDate.music_play_list_position = 0;
-                            now_show_position = PublicDate.music_play_list_position;
-                            PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
-                        }
-                    }
-                    if (PublicDate.music_play.size() > 0) {
-                        view_pager_fragment.setVisibility(View.VISIBLE);
-                        if (!is_need_update_view_pager) {
-                            now_show_position = PublicDate.music_play_list_position;
-                            updateIsPlayUi();
-                            updateViewPagerFragment();
-                            view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-                        } else {
-                            setViewPager();
-                        }
-                    } else {
-                        show_view_pager_layout.setVisibility(View.INVISIBLE);
-                    }
-                    break;
-                case MainActivity.UPDATE_MUSIC_PLAY:
-                    if (intent.getBooleanExtra("is_update_music_play", false)) {
-                        music_play_list_temp = PublicDate.music_play;
-                        if (music_play_list_temp.size() > 0) {
-                            now_show_position = PublicDate.music_play_list_position;
-                            updateIsPlayUi();
-                            updateViewPagerFragment();
-                            view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-                            updateLeftRightAllList();
-                        } else {
-                            show_view_pager_layout.setVisibility(View.GONE);
-                        }
-                    }
-                    break;
-                case MainActivity.START_ACTIVITY_TO_OTHER:
-                    if (intent.getBooleanExtra("is_to", false)) {
-                        if (PublicDate.music_play.size() > 0) {
-                            startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
-                            overridePendingTransition(R.anim.dialog_enter_anim, R.anim.dialog_exit_anim);
-                        }
-                    }
-                    break;
-                case MainActivity.AUTO_PLAY_NEXT:
-
-                    if (intent.getBooleanExtra("auto_update_mode", false)) {
-                        viewPagerRight();
-                    } else {
-                        viewPagerLeft();
-                    }
-                    updateViewPagerFragment();
-                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
-                    updateLeftRightListItem();
-                    play_time = 0;
-                    updateViewPagerSeekBar(play_time);
-                    break;
-
-
-                case MainActivity.SERVICE_UPDATE_MUSIC_PLAY:
-                    if (intent.getBooleanExtra("service_is_update", false)) {
-                        if (intent.getBooleanExtra("update_mode", false)) {
-                            now_show_position = randoms.get(3);
-                            viewPagerRight();
-                        } else {
-                            now_show_position = randoms.get(1);
-                            viewPagerLeft();
-                        }
-                        PublicDate.music_play_list_position = now_show_position;
-                        PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
-                        view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                        view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
-                        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
-                        updateLeftRightListItem();
-                        play_time = 0;
-                        updateViewPagerSeekBar(play_time);
-
-                    }
-                    break;
-                case MusicPlayService.GET_MUSIC_PLAY_TIME:
-                    int time = intent.getIntExtra("play_time", 0);
-                    if (time > 0) {
-                        play_time = time;
-                        if (play_time > PublicDate.music_play_now.getMusic_duration()) {
-                            play_time = PublicDate.music_play_now.getMusic_duration();
-                        }
-                        updateViewPagerSeekBar(play_time);
-                    }
-                    break;
-                case MusicPlayService.IS_PLAY:
-                    is_playing = intent.getBooleanExtra("is_playing", false);
-                    updateIsPlayUi();
-                    break;
-                case MusicPlayService.UPDATE_PLAY_MODE:
-                    if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_RANDOM) {
-                        is_random = true;
-                    } else {
-                        is_random = false;
-                    }
-                    updateViewPagerFragment();
-                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
-
-                    break;
-                case TimingService.TIMING_DESTROY:
-                    if (!PublicDate.is_timing_destroy) {
-                        stopService(timing_intent);
-                        if (PublicDate.is_play) {
-                            Intent temp_intent = new Intent();
-                            temp_intent.setAction("com.android.jiaqiao");
-                            temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
-                            sendBroadcast(temp_intent);
-                        }
-                    }
-                    break;
-                case TimingService.TIMING_ONLY_DESTROY:
-                    if (PublicDate.is_play) {
-                        Intent temp_intent = new Intent();
-                        temp_intent.setAction("com.android.jiaqiao");
-                        temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
-                        sendBroadcast(temp_intent);
-                    }
-                    break;
-                case MainActivity.UPDATE_SHEET:
-                    updateLeftRightAllList();
-
-                    now_show_position = PublicDate.music_play_list_position;
-                    updateIsPlayUi();
-                    updateViewPagerFragment();
-                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-
-
-                    break;
-            }
-        }
-
-    }
 
     // 自定义的排序
     public void listSortTitle(ArrayList<MusicInfo> resultList) {
@@ -1063,8 +939,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public int getRandomForMinMax(int min, int max) {
-        Random random = new Random();
-        return random.nextInt(max) % (max - min + 1) + min;
+        if (min != max) {
+            Random random = new Random();
+            return random.nextInt(max) % (max - min + 1) + min;
+        }
+        return min;
     }
 
     public void updateViewPagerFragment() {
@@ -1097,6 +976,180 @@ public class MainActivity extends AppCompatActivity {
         } else {
             view_pager_seek_bar.setVisibility(View.INVISIBLE);
         }
+    }
+
+
+    class MainActivityReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int type = intent.getIntExtra("type", -1);
+            switch (type) {
+                case MainActivity.ALL_MUSIC_UPDATE:
+                    if (!PublicDate.is_service_select_music_destroy) {
+                        stopService(select_music_intent);
+                    }
+                    if (PublicDate.music_play.size() <= 0) {
+                        if (music_all.size() > 0) {
+                            PublicDate.music_play = music_all;
+                            PublicDate.music_play_list_position = 0;
+                            now_show_position = PublicDate.music_play_list_position;
+                            PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+                        }
+                    }
+                    if (PublicDate.music_play.size() > 0) {
+                        view_pager_fragment.setVisibility(View.VISIBLE);
+                        if (!is_need_update_view_pager) {
+                            now_show_position = PublicDate.music_play_list_position;
+                            updateIsPlayUi();
+                            updateViewPagerFragment();
+                            view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                        } else {
+                            setViewPager();
+                        }
+                    } else {
+                        show_view_pager_layout.setVisibility(View.INVISIBLE);
+                    }
+
+
+                    break;
+                case MainActivity.UPDATE_MUSIC_PLAY:
+                    if (intent.getBooleanExtra("is_update_music_play", false)) {
+                        music_play_list_temp = PublicDate.music_play;
+                        if (music_play_list_temp.size() > 0) {
+                            now_show_position = PublicDate.music_play_list_position;
+                            updateIsPlayUi();
+                            updateViewPagerFragment();
+                            view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                            view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+
+//                            updateLeftRightAllList();
+                            updateLeftRightAllList();
+                        } else {
+                            show_view_pager_layout.setVisibility(View.GONE);
+                        }
+                    }
+                    break;
+                case MainActivity.START_ACTIVITY_TO_OTHER:
+                    if (intent.getBooleanExtra("is_to", false)) {
+                        if (PublicDate.music_play.size() > 0) {
+                            startActivity(new Intent(MainActivity.this, MusicPlayActivity.class));
+                            overridePendingTransition(R.anim.dialog_enter_anim, R.anim.dialog_exit_anim);
+                        }
+                    }
+                    break;
+                case MainActivity.AUTO_PLAY_NEXT:
+
+                    if (intent.getBooleanExtra("auto_update_mode", false)) {
+                        viewPagerRight();
+                    } else {
+                        viewPagerLeft();
+                    }
+                    updateViewPagerFragment();
+                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
+                    updateLeftRightListItem();
+                    play_time = 0;
+                    updateViewPagerSeekBar(play_time);
+                    break;
+
+
+                case MainActivity.SERVICE_UPDATE_MUSIC_PLAY:
+                    if (intent.getBooleanExtra("service_is_update", false)) {
+                        if (intent.getBooleanExtra("update_mode", false)) {
+                            now_show_position = randoms.get(3);
+                            viewPagerRight();
+                        } else {
+                            now_show_position = randoms.get(1);
+                            viewPagerLeft();
+                        }
+                        PublicDate.music_play_list_position = now_show_position;
+                        PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
+                        view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                        view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
+                        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                        updateLeftRightListItem();
+                        play_time = 0;
+                        updateViewPagerSeekBar(play_time);
+
+                    }
+                    break;
+                case MusicPlayService.GET_MUSIC_PLAY_TIME:
+                    int time = intent.getIntExtra("play_time", 0);
+                    if (time > 0) {
+                        play_time = time;
+                        if (play_time > PublicDate.music_play_now.getMusic_duration()) {
+                            play_time = PublicDate.music_play_now.getMusic_duration();
+                        }
+                        updateViewPagerSeekBar(play_time);
+                    }
+                    break;
+                case MusicPlayService.IS_PLAY:
+                    is_playing = intent.getBooleanExtra("is_playing", false);
+                    updateIsPlayUi();
+                    break;
+                case MusicPlayService.UPDATE_PLAY_MODE:
+                    if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_RANDOM) {
+                        is_random = true;
+                    } else {
+                        is_random = false;
+                    }
+                    updateViewPagerFragment();
+                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
+
+                    break;
+                case TimingService.TIMING_DESTROY:
+                    if (!PublicDate.is_timing_destroy) {
+                        stopService(timing_intent);
+                        if (PublicDate.is_play) {
+                            Intent temp_intent = new Intent();
+                            temp_intent.setAction("com.android.jiaqiao");
+                            temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
+                            sendBroadcast(temp_intent);
+                        }
+                    }
+                    break;
+                case TimingService.TIMING_ONLY_DESTROY:
+                    if (PublicDate.is_play) {
+                        Intent temp_intent = new Intent();
+                        temp_intent.setAction("com.android.jiaqiao");
+                        temp_intent.putExtra("type", MusicPlayService.START_STOP_MUSIC);
+                        sendBroadcast(temp_intent);
+                    }
+                    break;
+                case MainActivity.UPDATE_VIEW_PAGER_SHEET:
+                    updateLeftRightAllList();
+                    now_show_position = PublicDate.music_play_list_position;
+                    updateIsPlayUi();
+                    updateViewPagerFragment();
+                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+                    break;
+
+
+                //Test
+                case UpdateServiec.UPDATE_UI:
+
+                    music_play_list_temp = PublicDate.music_play;
+                    if (music_play_list_temp.size() > 0) {
+                        now_show_position = PublicDate.music_play_list_position;
+                        updateIsPlayUi();
+                        updateViewPagerFragment();
+                        view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
+                        view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+
+                        updateLeftRightAllList();
+
+                    } else {
+                        show_view_pager_layout.setVisibility(View.GONE);
+                    }
+
+                    break;
+
+            }
+        }
+
     }
 
 }

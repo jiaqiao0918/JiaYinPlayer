@@ -44,6 +44,7 @@ public class MusicEditItemLongActivity extends Activity {
     private String music_sheet_id01 = "";
     private boolean is_all_music_01 = false;
     private boolean is_music_play_list = false;
+    private boolean is_main_play_01=false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class MusicEditItemLongActivity extends Activity {
         is_all_music_01 = getIntent().getBooleanExtra("is_all_music_01", false);
         music_sheet_id01 = getIntent().getStringExtra("music_sheet_id_01");
         is_music_play_list = getIntent().getBooleanExtra("is_music_play_list01",false);
+        is_main_play_01 = getIntent().getBooleanExtra("is_main_play",false);
         activity_item_long_add = (LinearLayout) findViewById(R.id.activity_item_long_add);
         activity_item_long_love = (LinearLayout) findViewById(R.id.activity_item_long_love);
         activity_item_long_delete = (LinearLayout) findViewById(R.id.activity_item_long_delete);
@@ -94,7 +96,7 @@ public class MusicEditItemLongActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (music_edit_temp_select.size() > 0 && music_edit_temp_select != null) {
-                    startActivity(new Intent(MusicEditItemLongActivity.this, MusicEditAddMusicSheetActivity.class).putExtra("is_music_play_list02",is_music_play_list));
+                    startActivity(new Intent(MusicEditItemLongActivity.this, MusicEditAddMusicSheetActivity.class).putExtra("is_music_play_list02",is_music_play_list).putExtra("is_main_play_02",is_main_play_01));
                     finish();
                 }
             }

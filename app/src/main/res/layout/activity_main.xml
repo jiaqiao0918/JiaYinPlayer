@@ -16,14 +16,14 @@
 
     <RelativeLayout
         android:id="@+id/drawer_left_layout"
-        android:layout_width="320dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
         android:background="@color/back_ground"></RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/drawer_right_layout"
-        android:layout_width="320dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"
         android:background="@color/back_ground"></RelativeLayout>

@@ -3,4 +3,5 @@
     <dimen name="fragment_padding_top">33dp</dimen>
     <dimen name="fragment_main_show_height">175dp</dimen>
     <dimen name="acticity_left_right_padding_top">25dp</dimen>
+    <dimen name="acticity_set_top">75dp</dimen>
 </resources>

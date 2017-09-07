@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +40,7 @@ import java.util.TimerTask;
 
 public class FragmentMain extends Fragment {
     private ArrayList<SheetInfo> music_sheet_info_list = new ArrayList<SheetInfo>();
-    private boolean is_into_music_sheet= false;
+    private boolean is_into_music_sheet = false;
 
     private MusicSheetAdapter music_sheet_adapter;
     private String path = "";
@@ -96,7 +95,7 @@ public class FragmentMain extends Fragment {
             public void run() {
                 is_into_music_sheet = true;
             }
-        },400);
+        }, 400);
 
         music_all_sheet_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -204,7 +203,6 @@ public class FragmentMain extends Fragment {
         if (PublicDate.update_music_sheet) {
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
             //scroll_view.smoothScrollTo(0,0);//滑动到顶部
-            Log.i("into", "1");
             scroll_view.fullScroll(ScrollView.FOCUS_DOWN);//滑动到底部
             PublicDate.add_sheet_over = false;
         }
@@ -212,7 +210,6 @@ public class FragmentMain extends Fragment {
             //设置scrollview初始化后滑动到顶部，必须在ListView填充数据之后，否则无法实现预期效果
             //scroll_view.smoothScrollTo(0,0);//滑动到顶部
             scroll_view.fullScroll(ScrollView.FOCUS_DOWN);//滑动到底部
-            Log.i("into", "2");
             PublicDate.add_sheet_over = false;
             startActivity(new Intent(getActivity(), AllMusciAddToSheetActivity.class));
         } else if (PublicDate.delete_sheet_over) {
@@ -295,6 +292,12 @@ public class FragmentMain extends Fragment {
                     if (is_update) {
                         music_all_count.setText((PublicDate.public_music_all.size()) + "首");
                     }
+                    break;
+                case MainActivity.UPDATE_FRAGMENT_SHEET:
+                    music_sheet_info_list = getMusicSheetToArrayList(path);
+                    music_sheet_adapter = new MusicSheetAdapter(getActivity(), music_sheet_info_list);
+                    music_all_sheet_list.setAdapter(music_sheet_adapter);
+                    setListViewHeightBasedOnChildren(music_all_sheet_list);
                     break;
             }
         }

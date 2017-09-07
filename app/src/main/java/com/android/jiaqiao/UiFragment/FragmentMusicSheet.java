@@ -444,7 +444,7 @@ public class FragmentMusicSheet extends Fragment {
                         }
                     }
                     break;
-                case MainActivity.UPDATE_SHEET:
+                case MainActivity.UPDATE_VIEW_PAGER_SHEET:
                     boolean is_update_sheet = intent.getBooleanExtra("is_update_sheet", false);
                     if (is_update_sheet) {
                         music_sheet_list.clear();

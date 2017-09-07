@@ -85,14 +85,14 @@ public class MusicEditAddMusicSheetActivity extends Activity {
                 ArrayList<Integer> music_edit_temp_select = new ArrayList<Integer>();
                 music_edit_temp = PublicDate.public_music_edit_temp;
                 music_edit_temp_select = PublicDate.public_music_edit_temp_select;
-                if (music_edit_temp.size()>0&&music_edit_temp_select.size()>0) {
+                if (music_edit_temp.size() > 0 && music_edit_temp_select.size() > 0) {
                     music_temp = PublicDate.music_play;
                     for (int i = 0; i < music_edit_temp_select.size(); i++) {
                         music_temp.add(music_edit_temp.get(music_edit_temp_select.get(i)));
                         num++;
                     }
                 }
-                if(num>0){
+                if (num > 0) {
                     Toast.makeText(MusicEditAddMusicSheetActivity.this, "已添加" + num + "首歌曲！！", Toast.LENGTH_SHORT).show();
 
                     PublicDate.music_play = music_temp;
@@ -100,8 +100,8 @@ public class MusicEditAddMusicSheetActivity extends Activity {
                     MusicPlayUtil.saveMusicPlayList();
                     PublicDate.update_music_play = true;
 
-                    int temp_position = MusicPlayUtil.selectMusicPosition(music_edit_temp,PublicDate.music_play_now);
-                    if(temp_position>-1){
+                    int temp_position = MusicPlayUtil.selectMusicPosition(music_edit_temp, PublicDate.music_play_now);
+                    if (temp_position > -1) {
                         PublicDate.music_play_list_position = temp_position;
                         getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                     }
@@ -110,7 +110,7 @@ public class MusicEditAddMusicSheetActivity extends Activity {
                     // 发送广播
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
-                    temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
+                    temp_intent.putExtra("type", MainActivity.UPDATE_VIEW_PAGER_SHEET);
                     temp_intent.putExtra("is_update_sheet", true);
                     sendBroadcast(temp_intent);
                 }

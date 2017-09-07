@@ -29,6 +29,11 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
+            android:name="com.android.jiaqiao.jiayinplayer.SetActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
             android:name="com.android.jiaqiao.Activity.AddMusicSheetNameActivity"
             android:theme="@style/DIY_Dialog"></activity>
         <activity

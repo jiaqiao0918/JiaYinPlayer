@@ -164,7 +164,7 @@ public class MusicEditDeleteActivity extends Activity {
                 // 发送广播
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
+                temp_intent.putExtra("type", MainActivity.UPDATE_VIEW_PAGER_SHEET);
                 temp_intent.putExtra("is_update_sheet", true);
                 sendBroadcast(temp_intent);
             }

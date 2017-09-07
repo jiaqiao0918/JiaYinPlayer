@@ -1,6 +1,7 @@
 package com.android.jiaqiao.Activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.JavaBean.SheetInfo;
+import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
@@ -137,6 +139,10 @@ public class MusicEditAddMusicSheetNameActivity extends Activity {
                     }
                     if (num > 0) {
                         Toast.makeText(MusicEditAddMusicSheetNameActivity.this, num + "首歌曲添加成功！！", Toast.LENGTH_SHORT).show();
+                        Intent temp_intent = new Intent();
+                        temp_intent.setAction("com.android.jiaqiao");
+                        temp_intent.putExtra("type", MainActivity.UPDATE_FRAGMENT_SHEET);
+                        sendBroadcast(temp_intent);
                     }
                 }
                 PublicDate.public_music_edit_temp = null;

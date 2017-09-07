@@ -36,7 +36,7 @@ import java.util.ArrayList;
 
 public class AllMusciAddToSheetActivity extends Activity {
 
-    private Button selected_all_button;
+    private Button selected_all_button,over_button;
     private ListView show_all_music_list;
 
     private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
@@ -67,6 +67,7 @@ public class AllMusciAddToSheetActivity extends Activity {
         }
         show_all_music_list = (ListView) findViewById(R.id.show_all_music_list);
         selected_all_button = (Button) findViewById(R.id.selected_all_button);
+        over_button= (Button) findViewById(R.id.over_button);
         adapter = new MusicSheetListViewAdapter(this, music_all);
         show_all_music_list.setAdapter(adapter);
         show_all_music_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -91,6 +92,11 @@ public class AllMusciAddToSheetActivity extends Activity {
                     selected_all_button.setText("全不选");
                 } else {
                     selected_all_button.setText("全选");
+                }
+                if(selectec_num>0){
+                    over_button.setText("完成("+selectec_num+")");
+                }else{
+                    over_button.setText("完成");
                 }
             }
         });
@@ -119,6 +125,11 @@ public class AllMusciAddToSheetActivity extends Activity {
             selectec_num = 0;
             selected_all_button.setText("全选");
         }
+        if(selectec_num>0){
+            over_button.setText("完成("+selectec_num+")");
+        }else{
+            over_button.setText("完成");
+        }
     }
 
     public void selected_over(View view) {
@@ -138,7 +149,7 @@ public class AllMusciAddToSheetActivity extends Activity {
                 Toast.makeText(AllMusciAddToSheetActivity.this, num + "首歌曲添加成功！！", Toast.LENGTH_SHORT).show();
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", MainActivity.UPDATE_SHEET);
+                temp_intent.putExtra("type", MainActivity.UPDATE_VIEW_PAGER_SHEET);
                 temp_intent.putExtra("is_update_sheet", true);
                 sendBroadcast(temp_intent);
             }

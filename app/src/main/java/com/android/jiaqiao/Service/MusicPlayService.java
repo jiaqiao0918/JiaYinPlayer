@@ -63,7 +63,7 @@ public class MusicPlayService extends Service {
     public static final int NOTIFICATION_CLOSE = 700000004;
     public static final int MUSIC_PLAY_MODE = 700000005;
     public static final int MUSIC_IS_NOT_LOVE = 700000006;
-    public static final int UPDATE_NOTIFICATION = 700000007;
+//    public static final int UPDATE_NOTIFICATION = 700000007;
 
 
     private MediaPlayer music_media_player;
@@ -656,6 +656,7 @@ public class MusicPlayService extends Service {
                 case MusicPlayService.PLAY_NEXT_MUSIC:
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
                     playNextMusic();
+
                     if (notify_manager != null) {
                         updateNotificationUi();
                         notify_manager.notify(100, notify);//刷新通知
@@ -664,8 +665,12 @@ public class MusicPlayService extends Service {
                     break;
                 case MusicPlayService.START_STOP_MUSIC:
                     startStopMusic();
-                    updateNotificationPlay();
-                    notify_manager.notify(100, notify);
+
+                    if (notify_manager != null) {
+                        updateNotificationPlay();//更新播放状态
+                        notify_manager.notify(100, notify);//刷新通知
+                    }
+
                     break;
                 case MusicPlayService.SEEK_TO:
                     int time = intent.getIntExtra("seek_to_time", -1);
@@ -686,14 +691,20 @@ public class MusicPlayService extends Service {
                     getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
 
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
+
                     Intent temp_intent04 = new Intent();
                     temp_intent04.setAction("com.android.jiaqiao");
-                    temp_intent04.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
-                    temp_intent04.putExtra("auto_update_mode", false);
+                    temp_intent04.putExtra("type", UpdateServiec.TO_UPDATE_UI);
                     sendBroadcast(temp_intent04);
 
-                    updateNotificationUi();
-                    notify_manager.notify(100, notify);//刷新通知
+//                    Intent temp_intent04 = new Intent();
+//                    temp_intent04.setAction("com.android.jiaqiao");
+//                    temp_intent04.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
+//                    temp_intent04.putExtra("auto_update_mode", false);
+//                    sendBroadcast(temp_intent04);
+
+//                    updateNotificationUi();
+//                    notify_manager.notify(100, notify);//刷新通知
 
                     break;
                 case MusicPlayService.MUSCI_PLAY_IS_NOT:
@@ -719,11 +730,16 @@ public class MusicPlayService extends Service {
 
                     Intent temp_intent03 = new Intent();
                     temp_intent03.setAction("com.android.jiaqiao");
-                    temp_intent03.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
+                    temp_intent03.putExtra("type", UpdateServiec.TO_UPDATE_UI);
                     sendBroadcast(temp_intent03);
 
-                    updateNotificationUi();
-                    notify_manager.notify(100, notify);//刷新通知
+//                    Intent temp_intent03 = new Intent();
+//                    temp_intent03.setAction("com.android.jiaqiao");
+//                    temp_intent03.putExtra("type", MainActivity.AUTO_PLAY_NEXT);
+//                    sendBroadcast(temp_intent03);
+//
+//                    updateNotificationUi();
+//                    notify_manager.notify(100, notify);//刷新通知
 
                     break;
                 case MusicPlayService.NOTIFICATION_CLOSE:
@@ -768,6 +784,7 @@ public class MusicPlayService extends Service {
                         }
                         is_love = true;
                     }
+
                     //发送广播
                     Intent temp_intent02 = new Intent();
                     temp_intent02.setAction("com.android.jiaqiao");
@@ -778,12 +795,24 @@ public class MusicPlayService extends Service {
                     updateNotificationLove();
                     notify_manager.notify(100, notify);//刷新通知
                     break;
-                case MusicPlayService.UPDATE_NOTIFICATION:
+//                case MusicPlayService.UPDATE_NOTIFICATION:
+//                    if (notify_manager != null) {
+//                        updateNotificationUi();
+//                        notify_manager.notify(100, notify);//刷新通知
+//                    }
+//                    break;
+
+
+                //Test
+                case UpdateServiec.UPDATE_UI:
+
                     if (notify_manager != null) {
                         updateNotificationUi();
                         notify_manager.notify(100, notify);//刷新通知
                     }
+
                     break;
+
 
             }
         }

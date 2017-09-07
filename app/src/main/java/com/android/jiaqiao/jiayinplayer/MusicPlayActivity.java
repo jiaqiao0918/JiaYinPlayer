@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.MusicPlayService;
+import com.android.jiaqiao.Service.UpdateServiec;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayAlbumImage;
@@ -204,11 +205,19 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
                 getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
 
-                updateActivity();
+
+//                updateActivity();
+
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", MusicPlayService.PLAY_LAST_MUSIC);
+                temp_intent.putExtra("type", UpdateServiec.TO_UPDATE_UI);
                 sendBroadcast(temp_intent);
+
+
+                Intent temp_intent02 = new Intent();
+                temp_intent02.setAction("com.android.jiaqiao");
+                temp_intent02.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                sendBroadcast(temp_intent02);
             }
         });
         play_next.setOnClickListener(new View.OnClickListener() {
@@ -226,11 +235,21 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
                 getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
 
-                updateActivity();
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", MusicPlayService.PLAY_NEXT_MUSIC);
+                temp_intent.putExtra("type", UpdateServiec.TO_UPDATE_UI);
                 sendBroadcast(temp_intent);
+
+                Intent temp_intent02 = new Intent();
+                temp_intent02.setAction("com.android.jiaqiao");
+                temp_intent02.putExtra("type", MusicPlayService.PLAY_MUSIC);
+                sendBroadcast(temp_intent02);
+
+//                updateActivity();
+//                Intent temp_intent = new Intent();
+//                temp_intent.setAction("com.android.jiaqiao");
+//                temp_intent.putExtra("type", MusicPlayService.PLAY_NEXT_MUSIC);
+//                sendBroadcast(temp_intent);
 
             }
         });
@@ -284,7 +303,6 @@ public class MusicPlayActivity extends AppCompatActivity {
                 seek_bar_touch_time = 0;
             }
         });
-
 
 
         //动态注册广播
@@ -435,7 +453,7 @@ public class MusicPlayActivity extends AppCompatActivity {
         image_view.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         image_view.setDrawingCacheEnabled(true);
-        Bitmap image_view_bitmap =null;
+        Bitmap image_view_bitmap = null;
         Drawable start_drawable = new BitmapDrawable(image_view_bitmap);//渐变前的Drawable
         Drawable end_drawable = new BitmapDrawable(blurBitmap);//渐变后的Drawable，bitmap转drawable
         TransitionDrawable mTransitionDrawable = new TransitionDrawable(new Drawable[]{
@@ -622,6 +640,12 @@ public class MusicPlayActivity extends AppCompatActivity {
                     updateStartStopUi();
                     break;
                 case MainActivity.AUTO_PLAY_NEXT:
+                    updateActivity();
+                    break;
+
+
+//Test
+                case UpdateServiec.UPDATE_UI:
                     updateActivity();
                     break;
 
