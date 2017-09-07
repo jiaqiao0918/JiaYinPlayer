@@ -168,6 +168,10 @@ public class ToggleButton extends View{
 		takeEffect(animate);
 	}
 
+	public boolean getToggle(){
+		return toggleOn;
+	}
+
 	/**
 	 * 设置显示成关闭样式，不会触发toggle事件
 	 */

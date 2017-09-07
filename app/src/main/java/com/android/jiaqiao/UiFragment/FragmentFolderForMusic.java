@@ -53,7 +53,6 @@ public class FragmentFolderForMusic extends Fragment {
             }
         });
         list_folder_all = PublicDate.list_folder_all;
-        PublicDate.list_folder_all = list_folder_all;
         adapter = new FolderListViewAdapter(getActivity(), list_folder_all);
         show_all_folder_of_list.setAdapter(adapter);
 

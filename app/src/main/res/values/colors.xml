@@ -7,6 +7,7 @@
     <color name="font_color">#3a3737</color>
     <color name="font_seccend_color">#757575</color>
     <color name="font_thrid_color">#b8b8b8</color>
+    <color name="font_fifth_color">#9a9a9a</color>
     <color name="determine_button_color">#06b1cf</color>
     <color name="image_button_click_color">#88d6d6d6</color>
     <color name="image_button_play_click_color">#87d6d6d6</color>

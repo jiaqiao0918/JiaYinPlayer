@@ -4,7 +4,7 @@
         <shape>
             <size
                 android:height="2dp" />
-            <solid android:color="@color/touming" />
+            <solid android:color="@color/image_button_click_color" />
         </shape>
     </item>
     <item

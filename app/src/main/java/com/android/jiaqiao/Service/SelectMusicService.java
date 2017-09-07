@@ -299,6 +299,7 @@ public class SelectMusicService extends Service {
             listSortPinYin(folder_list_temp);
             map_temp.put("folder_name_list", folder_list_temp);
             map_temp.put("folder_name_path", list_folder.get(i).get("folder_name").toString());
+            map_temp.put("is_click", true);
             list_folder_all_temp.add(map_temp);
         }
 

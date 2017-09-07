@@ -32,328 +32,689 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:orientation="vertical"
+    <ScrollView
+        android:id="@+id/all_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/touming"
-        android:gravity="center_horizontal">
+        android:scrollbars="none">
 
-        <android.support.v7.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/back_ground"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="4dp"
-            app:contentPadding="8dp">
+            android:background="@color/touming"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:gravity="center_vertical"
-                    android:text="主界面"
-                    android:textColor="@color/font_thrid_color"
-                    android:textSize="13sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@color/fengexian_color" />
+                app:cardBackgroundColor="@color/back_ground"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="4dp"
+                app:contentPadding="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="按日期分类"
-                        android:textColor="@color/font_seccend_color"
-                        android:textSize="14sp" />
-
-                    <com.android.jiaqiao.View.ToggleButton.ToggleButton
-                        android:id="@+id/toggle_button_date_time"
-                        style="@style/ToggleButtonStyle"
-                        app:borderWidth="1dp"
-                        app:offBorderColor="@color/image_button_click_color"
-                        app:offColor="@color/back_ground"
-                        app:onColor="@color/all_color"
-                        app:spotColor="@color/back_ground" />
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@color/fengexian_color" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="按文件夹分类"
-                        android:textColor="@color/font_seccend_color"
-                        android:textSize="14sp" />
-
-                    <com.android.jiaqiao.View.ToggleButton.ToggleButton
-                        android:id="@+id/toggle_button_floder"
-                        style="@style/ToggleButtonStyle"
-                        app:borderWidth="1dp"
-                        app:offBorderColor="@color/image_button_click_color"
-                        app:offColor="@color/back_ground"
-                        app:onColor="@color/all_color"
-                        app:spotColor="@color/back_ground" />
-
-                </LinearLayout>
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/back_ground"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="4dp"
-            app:contentPadding="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:gravity="center_vertical"
-                    android:text="排序"
-                    android:textColor="@color/font_thrid_color"
-                    android:textSize="13sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@color/fengexian_color" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="全部音乐"
-                        android:textColor="@color/font_seccend_color"
-                        android:textSize="14sp" />
-
-                    <Spinner
-                        android:id="@+id/music_all_spinner"
                         android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:gravity="center_vertical"
+                        android:text="主界面"
+                        android:textColor="@color/font_thrid_color"
+                        android:textSize="12sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/back_ground"
-                        android:spinnerMode="dropdown"
-                        android:gravity="center"
-                        android:dropDownSelector="@color/back_ground"
-                        />
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="按日期分类"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
 
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_date_time"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="按文件夹分类"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_floder"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@color/fengexian_color" />
+            </android.support.v7.widget.CardView>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="歌单"
-                        android:textColor="@color/font_seccend_color"
-                        android:textSize="14sp" />
-
-                    <Spinner
-                        android:id="@+id/music_sheet_spinner"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@color/back_ground"
-                        android:spinnerMode="dropdown"
-                        android:gravity="center"
-                        android:dropDownSelector="@color/back_ground"
-                        />
-
-                </LinearLayout>
-
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/back_ground"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="4dp"
-            app:contentPadding="8dp">
-
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:gravity="center_vertical"
-                    android:text="文件过滤"
-                    android:textColor="@color/font_thrid_color"
-                    android:textSize="13sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@color/fengexian_color" />
+                app:cardBackgroundColor="@color/back_ground"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="4dp"
+                app:contentPadding="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="时长过滤"
-                        android:textColor="@color/font_seccend_color"
-                        android:textSize="14sp" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:gravity="center_vertical"
+                        android:text="排序"
+                        android:textColor="@color/font_thrid_color"
+                        android:textSize="12sp" />
 
-                    <com.android.jiaqiao.View.ToggleButton.ToggleButton
-                        android:id="@+id/toggle_button_floder_time"
-                        style="@style/ToggleButtonStyle"
-                        app:borderWidth="1dp"
-                        app:offBorderColor="@color/image_button_click_color"
-                        app:offColor="@color/back_ground"
-                        app:onColor="@color/all_color"
-                        app:spotColor="@color/back_ground" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="全部音乐"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <Spinner
+                            android:id="@+id/music_all_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/back_ground"
+                            android:dropDownSelector="@color/back_ground"
+                            android:gravity="center"
+                            android:spinnerMode="dropdown" />
+
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="歌单"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <Spinner
+                            android:id="@+id/music_sheet_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/back_ground"
+                            android:dropDownSelector="@color/back_ground"
+                            android:gravity="center"
+                            android:spinnerMode="dropdown" />
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@color/fengexian_color" />
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/back_ground"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="4dp"
+                app:contentPadding="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="文件大小过滤"
-                        android:textColor="@color/font_seccend_color"
-                        android:textSize="14sp" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:gravity="center_vertical"
+                        android:text="文件过滤"
+                        android:textColor="@color/font_thrid_color"
+                        android:textSize="12sp" />
 
-                    <com.android.jiaqiao.View.ToggleButton.ToggleButton
-                        android:id="@+id/toggle_button_floder_size"
-                        style="@style/ToggleButtonStyle"
-                        app:borderWidth="1dp"
-                        app:offBorderColor="@color/image_button_click_color"
-                        app:offColor="@color/back_ground"
-                        app:onColor="@color/all_color"
-                        app:spotColor="@color/back_ground" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="时长过滤"
+                                android:textColor="@color/font_seccend_color"
+                                android:textSize="14sp" />
+
+                            <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                                android:id="@+id/toggle_button_floder_time"
+                                style="@style/ToggleButtonStyle"
+                                app:borderWidth="1dp"
+                                app:offBorderColor="@color/image_button_click_color"
+                                app:offColor="@color/image_button_click_color"
+                                app:onColor="@color/all_color"
+                                app:spotColor="@color/back_ground" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/toggle_button_floder_time_linear"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/time_seek_bar_text"
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="00:00"
+                                android:textColor="@color/font_fifth_color"
+                                android:textSize="12sp" />
+
+                            <SeekBar
+                                android:id="@+id/toggle_button_floder_time_seek_bar"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="0dp"
+                                android:layout_weight="1"
+                                android:focusable="true"
+                                android:max="90"
+                                android:maxHeight="2dp"
+                                android:minHeight="2dp"
+                                android:padding="0dp"
+                                android:progressDrawable="@drawable/seek_bar_progress_02"
+                                android:thumb="@drawable/seek_bar_oval_02"
+                                android:thumbOffset="0dp" />
+
+                            <TextView
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="01:30"
+                                android:textColor="@color/font_fifth_color"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="文件大小过滤"
+                                android:textColor="@color/font_seccend_color"
+                                android:textSize="14sp" />
+
+                            <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                                android:id="@+id/toggle_button_floder_size"
+                                style="@style/ToggleButtonStyle"
+                                app:borderWidth="1dp"
+                                app:offBorderColor="@color/image_button_click_color"
+                                app:offColor="@color/image_button_click_color"
+                                app:onColor="@color/all_color"
+                                app:spotColor="@color/back_ground" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/toggle_button_floder_size_linear"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/size_seek_bar_text"
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="0.00MB"
+                                android:textColor="@color/font_fifth_color"
+                                android:textSize="12sp" />
+
+                            <SeekBar
+                                android:id="@+id/toggle_button_floder_size_seek_bar"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="0dp"
+                                android:layout_weight="1"
+                                android:focusable="true"
+                                android:max="200"
+                                android:maxHeight="2dp"
+                                android:minHeight="2dp"
+                                android:padding="0dp"
+                                android:progressDrawable="@drawable/seek_bar_progress_02"
+                                android:thumb="@drawable/seek_bar_oval_02"
+                                android:thumbOffset="0dp" />
+
+                            <TextView
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="2.00MB"
+                                android:textColor="@color/font_fifth_color"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="文件夹过滤"
+                                android:textColor="@color/font_seccend_color"
+                                android:textSize="14sp" />
+
+                            <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                                android:id="@+id/toggle_button_floder_name"
+                                style="@style/ToggleButtonStyle"
+                                app:borderWidth="1dp"
+                                app:offBorderColor="@color/image_button_click_color"
+                                app:offColor="@color/image_button_click_color"
+                                app:onColor="@color/all_color"
+                                app:spotColor="@color/back_ground" />
+
+                        </LinearLayout>
+
+
+                        <ListView
+                            android:id="@+id/floder_name_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:divider="@color/fengexian_color"
+                            android:dividerHeight="1dp"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@color/fengexian_color" />
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/back_ground"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="4dp"
+                app:contentPadding="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:gravity="center_vertical"
+                        android:text="自动定时"
+                        android:textColor="@color/font_thrid_color"
+                        android:textSize="12sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="文件夹过滤"
-                        android:textColor="@color/font_seccend_color"
-                        android:textSize="14sp" />
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                    <com.android.jiaqiao.View.ToggleButton.ToggleButton
-                        android:id="@+id/toggle_button_floder_name"
-                        style="@style/ToggleButtonStyle"
-                        app:borderWidth="1dp"
-                        app:offBorderColor="@color/image_button_click_color"
-                        app:offColor="@color/back_ground"
-                        app:onColor="@color/all_color"
-                        app:spotColor="@color/back_ground" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="开启自动定时"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
 
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_auto_timing_time"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/auto_timing_text_001"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="定时方式"
+                                android:textColor="@color/font_seccend_color"
+                                android:textSize="14sp" />
+
+                            <Spinner
+                                android:id="@+id/music_timing_type"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/back_ground"
+                                android:dropDownSelector="@color/back_ground"
+                                android:gravity="center"
+                                android:spinnerMode="dropdown" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/toggle_button_timing_type_linear"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/timing_type_min_text"
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="0分钟"
+                                android:textColor="@color/font_fifth_color"
+                                android:textSize="12sp" />
+
+                            <SeekBar
+                                android:id="@+id/toggle_button_timing_type_seek_bar"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="0dp"
+                                android:layout_weight="1"
+                                android:focusable="true"
+                                android:max="90"
+                                android:maxHeight="2dp"
+                                android:minHeight="2dp"
+                                android:padding="0dp"
+                                android:progressDrawable="@drawable/seek_bar_progress_02"
+                                android:thumb="@drawable/seek_bar_oval_02"
+                                android:thumbOffset="0dp" />
+
+                            <TextView
+                                android:id="@+id/timing_type_max_text"
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:text="90分钟"
+                                android:textColor="@color/font_fifth_color"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/auto_timing_text_002"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="定时结束后播放完当前音乐"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_play_over_auto"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/auto_timing_text_003"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="锁屏状态时开启"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_close_screen_auto"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/auto_timing_text_004"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="插入耳机时开启"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_in_headset_auto"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
                 </LinearLayout>
 
-            </LinearLayout>
+            </android.support.v7.widget.CardView>
 
-        </android.support.v7.widget.CardView>
-
-
-
-
-    </LinearLayout>
-
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

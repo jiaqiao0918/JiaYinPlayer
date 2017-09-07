@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         drawerCenterLayout();
 
         //Test
-//        startActivity(new Intent(this,SetActivity.class));
+        startActivity(new Intent(this,SetActivity.class));
 
 
     }
