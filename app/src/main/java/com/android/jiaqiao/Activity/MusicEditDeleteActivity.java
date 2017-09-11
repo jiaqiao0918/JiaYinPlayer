@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.SelectMusicService;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -113,7 +114,9 @@ public class MusicEditDeleteActivity extends Activity {
             int temp_position = MusicPlayUtil.selectMusicPosition(music_edit_temp,PublicDate.music_play_now);
             if(temp_position>-1){
                 PublicDate.music_play_list_position = temp_position;
-                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+//                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                SharedUtile.putSharedInt(MusicEditDeleteActivity.this,"music_play_list_position", PublicDate.music_play_list_position);
+
             }
             PublicDate.music_play = music_edit_temp;
             PublicDate.music_play_now = PublicDate.music_play.get(PublicDate.music_play_list_position);

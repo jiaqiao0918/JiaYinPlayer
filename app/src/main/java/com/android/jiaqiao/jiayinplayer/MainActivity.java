@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -53,6 +52,7 @@ import com.android.jiaqiao.Utils.DataInfoCache;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayItem;
 
 import java.io.File;
@@ -75,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int LOVE_MUSIC_UPDATE = 3000005;
     public static final int AUTO_PLAY_NEXT = 3000006;
     public static final int UPDATE_FRAGMENT_SHEET = 3000007;
+    public static final int UPDATE_FRAGMENT_MAIN_SET = 3000008;
+    public static final int UPDATE_FRAGMENT_MUSIC_ALL_SET = 3000009;
+    public static final int UPDATE_FRAGMENT_MUSIC_SHEET_SET = 30000010;
 
     public static final String SHARED = "setting";
 
@@ -115,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MainActivityReceiver mReceiver;
     private IntentFilter mFilter;
+
+    private FragmentMain fragment_main;
 
     private String sd_path = Environment.getExternalStorageDirectory().getPath();
 
@@ -165,8 +170,11 @@ public class MainActivity extends AppCompatActivity {
         PublicDate.public_music_all = music_all_temp;
         music_all = music_all_temp;
         PublicDate.list_folder_all = DataInfoCache.loadListCache(this, "list_folder_all");
-        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
-        PublicDate.music_play_list_str = userSettings.getString("music_play_list_str", "");
+
+//        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
+//        PublicDate.music_play_list_str = userSettings.getString("music_play_list_str", "");
+        PublicDate.music_play_list_str = SharedUtile.getSharedString(this, "music_play_list_str", "");
+
         PublicDate.music_play = MusicPlayUtil.getMusicPlayList();
         if (PublicDate.music_play.size() <= 0) {
             if (music_all.size() > 0) {
@@ -177,12 +185,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if (PublicDate.music_play.size() > 0) {
-            PublicDate.music_play_list_position = userSettings.getInt("music_play_list_position", 0);
+
+//            PublicDate.music_play_list_position = userSettings.getInt("music_play_list_position", 0);
+            PublicDate.music_play_list_position = SharedUtile.getSharedInt(this, "music_play_list_position", 0);
             now_show_position = PublicDate.music_play_list_position;
             PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
             music_play_list_temp = PublicDate.music_play;
         }
-        PublicDate.play_mode = userSettings.getInt("play_mode", MusicPlayService.PLAY_MODE_ORDER);
+
+
+//        PublicDate.play_mode = userSettings.getInt("play_mode", MusicPlayService.PLAY_MODE_ORDER);
+        PublicDate.play_mode = SharedUtile.getSharedInt(this, "play_mode", MusicPlayService.PLAY_MODE_ORDER);
+
         if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_RANDOM) {
             is_random = true;
         }
@@ -211,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         drawerCenterLayout();
 
         //Test
-        startActivity(new Intent(this,SetActivity.class));
+//        startActivity(new Intent(this,SetActivity.class));
 
 
     }
@@ -244,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
     public void drawerCenterLayout() {
         drawer_center_view = getLayoutInflater().inflate(
                 R.layout.center_layout, null);
-        FragmentMain fragment_main = new FragmentMain();
+        fragment_main = new FragmentMain();
         FragmentTransaction fragmentTransaction = getFragmentManager()
                 .beginTransaction();
         fragmentTransaction.replace(R.id.fragment_show, fragment_main);
@@ -361,13 +375,19 @@ public class MainActivity extends AppCompatActivity {
         left_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "left_setting", Toast.LENGTH_SHORT).show();
+                if (activity_drawer_layout.isDrawerOpen(Gravity.LEFT) || activity_drawer_layout.isDrawerOpen(Gravity.RIGHT)) {
+                    activity_drawer_layout.closeDrawers();//关闭所有的侧滑栏
+                }
+                startActivity(new Intent(MainActivity.this, SetActivity.class));
             }
         });
         right_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "right_setting", Toast.LENGTH_SHORT).show();
+                if (activity_drawer_layout.isDrawerOpen(Gravity.LEFT) || activity_drawer_layout.isDrawerOpen(Gravity.RIGHT)) {
+                    activity_drawer_layout.closeDrawers();//关闭所有的侧滑栏
+                }
+                startActivity(new Intent(MainActivity.this, SetActivity.class));
             }
         });
         left_break_finish.setOnClickListener(new View.OnClickListener() {
@@ -418,7 +438,10 @@ public class MainActivity extends AppCompatActivity {
 
                     PublicDate.music_play_now = music_now_play_list.get(position);
                     PublicDate.music_play_list_position = position;
-                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+//                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    SharedUtile.putSharedInt(MainActivity.this, "music_play_list_position", PublicDate.music_play_list_position);
+
                     //发送广播
                     Intent temp_intent02 = new Intent();
                     temp_intent02.setAction("com.android.jiaqiao");
@@ -499,7 +522,11 @@ public class MainActivity extends AppCompatActivity {
 
                     PublicDate.music_play_now = music_now_play_list.get(position);
                     PublicDate.music_play_list_position = position;
-                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+//                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    SharedUtile.putSharedInt(MainActivity.this, "music_play_list_position", PublicDate.music_play_list_position);
+
+
                     //发送广播
                     Intent temp_intent02 = new Intent();
                     temp_intent02.setAction("com.android.jiaqiao");
@@ -647,7 +674,11 @@ public class MainActivity extends AppCompatActivity {
                             PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
                             view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                             view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
-                            getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+//                            getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                            SharedUtile.putSharedInt(MainActivity.this, "music_play_list_position", PublicDate.music_play_list_position);
+
+
                             is_need_update = false;
                             play_time = 0;
                             updateViewPagerSeekBar(play_time);
@@ -1004,14 +1035,14 @@ public class MainActivity extends AppCompatActivity {
                             updateViewPagerFragment();
                             view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                             view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
+
                         } else {
                             setViewPager();
                         }
+                        updateLeftRightAllList();
                     } else {
                         show_view_pager_layout.setVisibility(View.INVISIBLE);
                     }
-
-
                     break;
                 case MainActivity.UPDATE_MUSIC_PLAY:
                     if (intent.getBooleanExtra("is_update_music_play", false)) {
@@ -1026,7 +1057,7 @@ public class MainActivity extends AppCompatActivity {
 //                            updateLeftRightAllList();
                             updateLeftRightAllList();
                         } else {
-                            show_view_pager_layout.setVisibility(View.GONE);
+                            show_view_pager_layout.setVisibility(View.INVISIBLE);
                         }
                     }
                     break;
@@ -1067,7 +1098,11 @@ public class MainActivity extends AppCompatActivity {
                         PublicDate.music_play_now = PublicDate.music_play.get(now_show_position);
                         view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                         view_pager_fragment.setCurrentItem(2, false); //设置当前页是第2页，false为不需要过渡动画，默认为true
-                        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+//                        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                        SharedUtile.putSharedInt(MainActivity.this, "music_play_list_position", PublicDate.music_play_list_position);
+
+
                         updateLeftRightListItem();
                         play_time = 0;
                         updateViewPagerSeekBar(play_time);
@@ -1142,7 +1177,7 @@ public class MainActivity extends AppCompatActivity {
                         updateLeftRightAllList();
 
                     } else {
-                        show_view_pager_layout.setVisibility(View.GONE);
+                        show_view_pager_layout.setVisibility(View.INVISIBLE);
                     }
 
                     break;

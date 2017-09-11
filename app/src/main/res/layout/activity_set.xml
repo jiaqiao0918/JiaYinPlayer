@@ -191,7 +191,70 @@
 
 
                     </LinearLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="收藏"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <Spinner
+                            android:id="@+id/music_love_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/back_ground"
+                            android:dropDownSelector="@color/back_ground"
+                            android:gravity="center"
+                            android:spinnerMode="dropdown" />
+
+                    </LinearLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="文件夹"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <Spinner
+                            android:id="@+id/music_floder_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/back_ground"
+                            android:dropDownSelector="@color/back_ground"
+                            android:gravity="center"
+                            android:spinnerMode="dropdown" />
+
+                    </LinearLayout>
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -224,7 +287,6 @@
                             android:spinnerMode="dropdown" />
 
                     </LinearLayout>
-
 
                 </LinearLayout>
 
@@ -397,7 +459,7 @@
                                 android:layout_margin="0dp"
                                 android:layout_weight="1"
                                 android:focusable="true"
-                                android:max="200"
+                                android:max="2000"
                                 android:maxHeight="2dp"
                                 android:minHeight="2dp"
                                 android:padding="0dp"

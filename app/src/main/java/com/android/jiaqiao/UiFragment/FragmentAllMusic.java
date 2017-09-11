@@ -36,6 +36,7 @@ import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -101,6 +102,7 @@ public class FragmentAllMusic extends Fragment {
         all_music_show_album_image = (ImageView) view.findViewById(R.id.all_music_show_album_image);
 
         music_all = PublicDate.public_music_all;
+        updateSetUi();
 
         show_all_list_size.setText((music_all.size()) + "首歌");
 
@@ -188,17 +190,23 @@ public class FragmentAllMusic extends Fragment {
                         PublicDate.music_play_list_str = music_all.toString();
                         PublicDate.music_play = music_all;
                         MusicPlayUtil.saveMusicPlayList();
-                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                        SharedUtile.putSharedInt(getActivity(),"music_play_list_position", PublicDate.music_play_list_position);
+
                     } else {
                         if (!PublicDate.music_play_list_str.equals(music_all.toString())) {
                             PublicDate.music_play_list_str = music_all.toString();
                             PublicDate.music_play = music_all;
                             MusicPlayUtil.saveMusicPlayList();
-                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                            SharedUtile.putSharedInt(getActivity(),"music_play_list_position", PublicDate.music_play_list_position);
+
                         }
                     }
                     PublicDate.music_play_list_position = position;
-                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+//                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    SharedUtile.putSharedInt(getActivity(), "music_play_list_position", PublicDate.music_play_list_position);
+
                     //发送广播
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
@@ -342,6 +350,7 @@ public class FragmentAllMusic extends Fragment {
                         if (music_all != null && music_all.size() > 0) {
                             int temp_num = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
                             if (temp_num > -1) {
+                                music_all.get(last_click_position).setIs_playing(false);
                                 music_all.get(temp_num).setIs_playing(true);
                                 last_click_position = temp_num;
                             }
@@ -351,7 +360,7 @@ public class FragmentAllMusic extends Fragment {
                         handler.sendEmptyMessage(0x123456);
                     }
                     break;
-                case  MainActivity.VIEW_PAGER_UPDATE_LIST:
+                case MainActivity.VIEW_PAGER_UPDATE_LIST:
                     int temp_num = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
                     if (temp_num > -1) {
                         music_all.get(temp_num).setIs_playing(true);
@@ -361,6 +370,18 @@ public class FragmentAllMusic extends Fragment {
                         last_click_position = temp_num;
                     }
 
+                    break;
+                case MainActivity.UPDATE_FRAGMENT_MUSIC_ALL_SET:
+                    updateSetUi();
+                    adapter.notifyDataSetChanged();
+                    int temp_num_02 = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
+                    if (temp_num_02 > -1) {
+                        music_all.get(temp_num_02).setIs_playing(true);
+                        music_all.get(last_click_position).setIs_playing(false);
+                        adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                        adapter.notifyItemChanged(temp_num_02);
+                        last_click_position = temp_num_02;
+                    }
                     break;
             }
         }
@@ -414,17 +435,6 @@ public class FragmentAllMusic extends Fragment {
         return list_folder_all_temp;
     }
 
-    // 自定义的排序
-    public static void listSortPinYin(ArrayList<MusicInfo> resultList) {
-        Collections.sort(resultList, new Comparator<MusicInfo>() {
-            public int compare(MusicInfo o1, MusicInfo o2) {
-                String name1 = o1.getMusic_pinyin();
-                String name2 = o2.getMusic_pinyin();
-                Collator instance = Collator.getInstance(Locale.CHINA);
-                return instance.compare(name1, name2);
-            }
-        });
-    }
 
     public String getStringFolder(String str) {
         String string = str;
@@ -468,4 +478,65 @@ public class FragmentAllMusic extends Fragment {
             }
         });
     }
+
+    // 自定义的排序
+    public static void listSortPinYin(ArrayList<MusicInfo> resultList) {
+        Collections.sort(resultList, new Comparator<MusicInfo>() {
+            public int compare(MusicInfo o1, MusicInfo o2) {
+                String name1 = o1.getMusic_pinyin();
+                String name2 = o2.getMusic_pinyin();
+                Collator instance = Collator.getInstance(Locale.CHINA);
+                return instance.compare(name1, name2);
+            }
+        });
+    }
+
+    public static void listSortAddTimeUp(ArrayList<MusicInfo> resultList) {
+        Collections.sort(resultList, new Comparator<MusicInfo>() {
+            public int compare(MusicInfo o1, MusicInfo o2) {
+                int i1 = (int) o1.getMusic_id();
+                int i2 = (int) o2.getMusic_id();
+                if (i1 < i2) {
+                    return 1;
+                }
+                if (i1 > i2) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+    }
+
+    public static void listSortAddTimeDown(ArrayList<MusicInfo> resultList) {
+        Collections.sort(resultList, new Comparator<MusicInfo>() {
+            public int compare(MusicInfo o1, MusicInfo o2) {
+                int i1 = (int) o1.getMusic_id();
+                int i2 = (int) o2.getMusic_id();
+                if (i1 > i2) {
+                    return 1;
+                }
+                if (i1 < i2) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+    }
+
+    public void updateSetUi() {
+        switch (SharedUtile.getSharedInt(getActivity(),"music_all_num",0)){
+            case 0:
+                listSortPinYin(music_all);
+                break;
+            case 1:
+                listSortAddTimeUp(music_all);
+                break;
+            case 2:
+                listSortAddTimeDown(music_all);
+                break;
+        }
+    }
+
 }

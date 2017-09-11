@@ -2,7 +2,6 @@ package com.android.jiaqiao.Activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.jiaqiao.Service.TimingService;
-import com.android.jiaqiao.jiayinplayer.MainActivity;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
 
@@ -45,9 +44,13 @@ public class TimingTimeNumTooLongActivity extends Activity {
         Point size = new Point();
         display.getSize(size);
 
-        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
-        is_over_play_music = userSettings.getBoolean("is_over_play_music", false);
-        is_over_finish_app = userSettings.getBoolean("is_over_finish_app", false);
+//        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
+//        is_over_play_music = userSettings.getBoolean("is_over_play_music", false);
+//        is_over_finish_app = userSettings.getBoolean("is_over_finish_app", false);
+
+        is_over_play_music = SharedUtile.getSharedBoolean(this, "is_over_play_music", false);
+        is_over_finish_app = SharedUtile.getSharedBoolean(this, "is_over_finish_app", false);
+
         is_time03 = getIntent().getBooleanExtra("is_time03", false);
         timing_time_num = getIntent().getIntExtra("timing_time_num", 0);
         too_long_tittle = (TextView) findViewById(R.id.too_long_tittle);

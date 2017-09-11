@@ -38,6 +38,7 @@ import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -47,7 +48,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,6 +70,7 @@ public class FragmentMusicSheet extends Fragment {
 
     private String path = "";
     private ArrayList<MusicInfo> music_sheet_list = new ArrayList<>();
+    private ArrayList<MusicInfo> music_sheet_temp = new ArrayList<>();
 
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private Toolbar fragment_music_sheet_toolbar;
@@ -74,6 +80,7 @@ public class FragmentMusicSheet extends Fragment {
 
     private int last_click_position = 0;
     private boolean is_update_image = true;
+    private int show_position = 0;
 
     private Palette.Swatch image_color;
 
@@ -92,6 +99,10 @@ public class FragmentMusicSheet extends Fragment {
 
     public void setShow_sheet_info(SheetInfo show_sheet_info) {
         this.show_sheet_info = show_sheet_info;
+    }
+
+    public void setShowPosition(int show_position) {
+        this.show_position = show_position;
     }
 
     @Override
@@ -116,6 +127,7 @@ public class FragmentMusicSheet extends Fragment {
         music_sheet_title.setText(show_sheet_info.getSheet_name().toString());
         path = getPath(show_sheet_info.getSheet_id().toString());
         getMusicSheetToArrayList(path);
+        updateSetUi();
 
         show_sheet_list_size.setText(music_sheet_list.size() + "首歌");
         back_last_fragment01.setOnClickListener(new View.OnClickListener() {
@@ -161,6 +173,7 @@ public class FragmentMusicSheet extends Fragment {
         mFilter = new IntentFilter();
         mFilter.addAction("com.android.jiaqiao");
         getActivity().registerReceiver(mReceiver, mFilter);
+
         if (music_sheet_list != null && music_sheet_list.size() > 0) {
             int num = MusicPlayUtil.selectMusicPosition(music_sheet_list, PublicDate.music_play_now);
             if (num > -1) {
@@ -188,19 +201,16 @@ public class FragmentMusicSheet extends Fragment {
                         PublicDate.music_play_list_str = music_sheet_list.toString();
                         PublicDate.music_play = music_sheet_list;
                         MusicPlayUtil.saveMusicPlayList();
-                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
-
                     } else {
                         if (!PublicDate.music_play_list_str.equals(music_sheet_list.toString())) {
                             PublicDate.music_play_list_str = music_sheet_list.toString();
                             PublicDate.music_play = music_sheet_list;
                             MusicPlayUtil.saveMusicPlayList();
-                            getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
-
                         }
                     }
                     PublicDate.music_play_list_position = position;
-                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+//                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    SharedUtile.putSharedInt(getActivity(), "music_play_list_position", PublicDate.music_play_list_position);
 
                     //发送广播
                     Intent temp_intent = new Intent();
@@ -302,7 +312,7 @@ public class FragmentMusicSheet extends Fragment {
                     if (music_temp.length >= 2) {
                         MusicInfo music_info_temp = getFromListGetMusicInfo(music_temp[0], music_temp[1]);
                         if (music_info_temp != null) {
-                            music_sheet_list.add(music_info_temp);
+                            music_sheet_temp.add(music_info_temp);
                         }
                     }
                 }
@@ -422,6 +432,18 @@ public class FragmentMusicSheet extends Fragment {
 
     }
 
+    // 自定义的排序
+    public static void listSortPinYin(ArrayList<MusicInfo> resultList) {
+        Collections.sort(resultList, new Comparator<MusicInfo>() {
+            public int compare(MusicInfo o1, MusicInfo o2) {
+                String name1 = o1.getMusic_pinyin();
+                String name2 = o2.getMusic_pinyin();
+                Collator instance = Collator.getInstance(Locale.CHINA);
+                return instance.compare(name1, name2);
+            }
+        });
+    }
+
     class FragmentMusicSheetReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -461,7 +483,7 @@ public class FragmentMusicSheet extends Fragment {
                         }
                     }
                     break;
-                case  MainActivity.VIEW_PAGER_UPDATE_LIST:
+                case MainActivity.VIEW_PAGER_UPDATE_LIST:
                     int temp_num = MusicPlayUtil.selectMusicPosition(music_sheet_list, PublicDate.music_play_now);
                     if (temp_num > -1) {
                         music_sheet_list.get(temp_num).setIs_playing(true);
@@ -472,9 +494,33 @@ public class FragmentMusicSheet extends Fragment {
                     }
 
                     break;
+                case MainActivity.UPDATE_FRAGMENT_MUSIC_SHEET_SET:
+                    updateSetUi();
+                    adapter.notifyDataSetChanged();
+                    int temp_num_02 = MusicPlayUtil.selectMusicPosition(music_sheet_list, PublicDate.music_play_now);
+                    if (temp_num_02 > -1) {
+                        music_sheet_list.get(temp_num_02).setIs_playing(true);
+                        music_sheet_list.get(last_click_position).setIs_playing(false);
+                        adapter.notifyItemChanged(last_click_position);//刷新单个数据
+                        adapter.notifyItemChanged(temp_num_02);
+                        last_click_position = temp_num_02;
+                    }
+                    break;
 
             }
         }
-
     }
+
+    public void updateSetUi() {
+        music_sheet_list=music_sheet_temp;
+        switch (SharedUtile.getSharedInt(getActivity(),"sheet_num",1)){
+            case 0:
+                listSortPinYin(music_sheet_list);
+                break;
+            case 1:
+                Collections.reverse(music_sheet_list);
+                break;
+        }
+    }
+
 }

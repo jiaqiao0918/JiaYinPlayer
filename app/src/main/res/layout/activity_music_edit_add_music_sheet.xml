@@ -66,6 +66,7 @@
         android:id="@+id/show_music_sheet_name_list"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:listSelector="@android:color/transparent"
         android:scrollbars="none"
         android:divider="@color/fengexian_color"
         android:dividerHeight="1dp"

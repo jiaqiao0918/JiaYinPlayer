@@ -18,6 +18,7 @@ import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.MusicPlayActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
@@ -428,7 +429,7 @@ public class MusicPlayService extends Service {
 //        PublicDate.music_play.get(temp).setIs_playing(true);
 //        PublicDate.music_play_list_position = temp;
 //        PublicDate.music_play_now = PublicDate.music_play.get(temp);
-//        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+//        SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
 
 
         Intent temp_intent = new Intent();
@@ -460,7 +461,9 @@ public class MusicPlayService extends Service {
         PublicDate.music_play.get(temp).setIs_playing(true);
         PublicDate.music_play_list_position = temp;
         PublicDate.music_play_now = PublicDate.music_play.get(temp);
-        getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+//        SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
+        SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position);
 
         Intent temp_intent = new Intent();
         temp_intent.setAction("com.android.jiaqiao");
@@ -688,7 +691,7 @@ public class MusicPlayService extends Service {
                     PublicDate.music_play.get(temp).setIs_playing(true);
                     PublicDate.music_play_list_position = temp;
                     PublicDate.music_play_now = PublicDate.music_play.get(temp);
-                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
 
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
 
@@ -724,7 +727,7 @@ public class MusicPlayService extends Service {
                     PublicDate.music_play.get(temp02).setIs_playing(true);
                     PublicDate.music_play_list_position = temp02;
                     PublicDate.music_play_now = PublicDate.music_play.get(temp02);
-                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                    SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
 
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
 
@@ -760,13 +763,13 @@ public class MusicPlayService extends Service {
                     } else if (PublicDate.play_mode == MusicPlayService.PLAY_MODE_SINGLE) {
                         PublicDate.play_mode = MusicPlayService.PLAY_MODE_ORDER;
                     }
-                    //发送广播
-                    Intent temp_intent = new Intent();
-                    temp_intent.setAction("com.android.jiaqiao");
-                    temp_intent.putExtra("type", MusicPlayService.UPDATE_PLAY_MODE);
-                    sendBroadcast(temp_intent);
-                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("play_mode", PublicDate.play_mode).commit();
-
+//                    //发送广播
+//                    Intent temp_intent = new Intent();
+//                    temp_intent.setAction("com.android.jiaqiao");
+//                    temp_intent.putExtra("type", MusicPlayService.UPDATE_PLAY_MODE);
+//                    sendBroadcast(temp_intent);
+//                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("play_mode", PublicDate.play_mode).commit();
+                    SharedUtile.putSharedInt(MusicPlayService.this,"play_mode", PublicDate.play_mode);
                     updateNotificationPlayMode();
                     notify_manager.notify(100, notify);//刷新通知
                     break;

@@ -10,7 +10,9 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 
 import com.android.jiaqiao.JavaBean.MusicInfo;
+import com.android.jiaqiao.JavaBean.SheetInfo;
 import com.android.jiaqiao.Utils.DataInfoCache;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 
@@ -21,7 +23,11 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.Collator;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,6 +38,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static com.android.jiaqiao.jiayinplayer.PublicDate.separate_str;
+
+
 /**
  * Created by jiaqiao on 2017/8/2/0002.
  */
@@ -40,6 +49,8 @@ public class SelectMusicService extends Service {
 
     private ArrayList<MusicInfo> music_all = new ArrayList<MusicInfo>();
     private ArrayList<MusicInfo> all_list = new ArrayList<MusicInfo>();
+    private ArrayList<SheetInfo> sheet_name_list = new ArrayList<>();
+    private ArrayList<ArrayList<MusicInfo>> sheet_item_list = new ArrayList<>();
     private boolean is_update_this = false;
 
     private String sd_path = Environment.getExternalStorageDirectory().getPath();
@@ -104,10 +115,14 @@ public class SelectMusicService extends Service {
                 PublicDate.public_music_all.addAll(music_all);
                 PublicDate.list_folder_all.clear();
                 PublicDate.list_folder_all.addAll(listToFolder(music_all));
-                DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
-                DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
+
 
                 if (is_update_this) {
+
+
+                    DataInfoCache.saveListCache(getApplicationContext(), music_all, "music_all");
+                    DataInfoCache.saveListCache(getApplicationContext(), PublicDate.list_folder_all, "list_folder_all");
+
                     //发送广播
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
@@ -116,6 +131,7 @@ public class SelectMusicService extends Service {
                     sendBroadcast(temp_intent);
 
                 }
+
 
                 PublicDate.is_select_music_over = true;
                 PublicDate.is_service_select_music_destroy = false;
@@ -136,8 +152,14 @@ public class SelectMusicService extends Service {
 
     //从SD卡中读取音频文件，无序
     public void getAllMusic() {
+
+        String str_path = "";
+
         all_list.clear();
-        int big_time = 30 * 1000;//过滤小于30秒
+        int min_time = SharedUtile.getSharedInt(this, "floder_time_num", 15) * 1000;//过滤小于30秒
+        int min_size = SharedUtile.getSharedInt(this, "floder_size_num", 0) * 1024;
+        String name_path_str = SharedUtile.getSharedString(this, "floder_name_str", "");
+        boolean is_floder_name = SharedUtile.getSharedBoolean(this,"floder_name",true);
         String[] projection = {
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DATA,
@@ -146,9 +168,10 @@ public class SelectMusicService extends Service {
                 MediaStore.Audio.Media.ALBUM,
                 MediaStore.Audio.Media.ALBUM_ID,
                 MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.DATE_ADDED
+                MediaStore.Audio.Media.DATE_ADDED,
+                MediaStore.Audio.Media.SIZE
         };
-        String where = "mime_type in ('audio/x-wav','application/ogg','audio/mp4','audio/flac','audio/x-ms-wma','audio/x-monkeys-audio','audio/aac','audio/ac3','audio/mpeg')and duration>" + big_time + " and is_music > 0 ";
+        String where = "mime_type in ('audio/x-wav','application/ogg','audio/mp4','audio/flac','audio/x-ms-wma','audio/x-monkeys-audio','audio/aac','audio/ac3','audio/mpeg')and duration>" + min_time + " and _size>" + min_size + " and is_music > 0 ";
         ContentResolver resolver = this.getContentResolver();
         Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, where, null, MediaStore.Audio.Media.TITLE);
         if (cursor == null)
@@ -165,6 +188,14 @@ public class SelectMusicService extends Service {
                 int date_time = Integer.parseInt(getDateFromSeconds(cursor.getString(cursor
                         .getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED))));//添加日期(格式：20170801)
                 int add_time = Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)));//单位：毫秒
+
+                if (is_floder_name) {
+                    String url_temp = url;
+                    url_temp = url_temp.substring(0, url_temp.lastIndexOf("/"));
+                    if (name_path_str.indexOf((url_temp + PublicDate.separate_str)) > -1) {
+                        continue;
+                    }
+                }
 
                 if (artist == "<unknown>" || artist.equals("<unknown>")) {
                     artist = "";
@@ -264,6 +295,7 @@ public class SelectMusicService extends Service {
         for (int i = 0; i < list_temp.size(); i++) {
             String temp = list_temp.get(i).getMusic_path();
             String temp002 = "";
+            String temp003 = temp;
 
             temp = getStringFolder(temp);
             if (i == 0) {
@@ -351,5 +383,87 @@ public class SelectMusicService extends Service {
             string = str.substring(0, str.lastIndexOf("/"));
         }
         return string;
+    }
+
+    public MusicInfo getFromListGetMusicInfo(String music_id, String music_title) {
+        ArrayList<MusicInfo> list_temp = PublicDate.public_music_all;
+        for (int i = 0; i < list_temp.size(); i++) {
+            if ((list_temp.get(i).getMusic_id() + "").equals(music_id) && list_temp.get(i).getMusic_title().equals(music_title)) {
+                return list_temp.get(i);
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<MusicInfo> getMusicSheetItemToList(String path_name) {
+        ArrayList<MusicInfo> music_sheet_list = new ArrayList<>();
+        try {
+            FileReader fr = new FileReader(path_name);
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                String temp = line;
+                if (temp.length() > 0 && temp.indexOf(separate_str) > -1) {
+                    String[] music_temp = temp.split(PublicDate.separate_str);
+                    if (music_temp.length >= 2) {
+                        MusicInfo music_info_temp = getFromListGetMusicInfo(music_temp[0], music_temp[1]);
+                        if (music_info_temp != null) {
+                            music_sheet_list.add(0, music_info_temp);
+                        }
+                    }
+                }
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return music_sheet_list;
+    }
+
+    public String getPath(String sheet_id) {
+        File file = new File(this.getFilesDir() + "/music_sheet_list");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        File file2 = new File(file.getPath() + "/" + sheet_id + ".txt");
+        if (!file2.exists()) {
+            try {
+                file2.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return file2.getPath().toString();
+    }
+
+    public ArrayList<SheetInfo> getMusicSheetInfoToList(String path_name) {
+
+        ArrayList<SheetInfo> list_temp = new ArrayList<>();
+        if (new File(path_name).exists()) {
+            try {
+                FileReader fr = new FileReader(path_name);
+                BufferedReader br = new BufferedReader(fr);
+                String line = "";
+                while ((line = br.readLine()) != null) {
+                    String temp = line;
+                    if (temp.length() > 0 && temp.indexOf(separate_str) > -1) {
+                        String[] name = temp.split(separate_str);
+                        if (name.length >= 2) {
+                            list_temp.add(new SheetInfo(name[0], name[1]));
+                        }
+                    }
+                }
+                br.close();
+                fr.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return list_temp;
     }
 }

@@ -1,7 +1,9 @@
 package com.android.jiaqiao.jiayinplayer;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -21,6 +23,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.jiaqiao.Adapter.SetFolderListViewAdapter;
+import com.android.jiaqiao.Service.SelectMusicService;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.View.ToggleButton.ToggleButton;
 
 import java.util.ArrayList;
@@ -36,7 +40,7 @@ public class SetActivity extends AppCompatActivity {
     private ArrayList<HashMap<String, Object>> list_folder_all = new ArrayList<HashMap<String, Object>>();
 
     private Spinner music_all_spinner, music_sheet_spinner, music_timing_type;
-    private ToggleButton toggle_button_floder_time, toggle_button_floder_size, toggle_button_floder_name, toggle_button_auto_timing_time;
+    private ToggleButton toggle_button_date_time, toggle_button_floder, toggle_button_floder_time, toggle_button_floder_size, toggle_button_floder_name, toggle_button_auto_timing_time;
     private LinearLayout toggle_button_floder_time_linear, toggle_button_floder_size_linear;
     private SeekBar toggle_button_floder_time_seek_bar, toggle_button_floder_size_seek_bar, toggle_button_timing_type_seek_bar;
     private TextView time_seek_bar_text, size_seek_bar_text, timing_type_min_text, timing_type_max_text;
@@ -48,9 +52,12 @@ public class SetActivity extends AppCompatActivity {
     private LinearLayout toggle_button_timing_type_linear;
     private ToggleButton toggle_button_play_over_auto, toggle_button_close_screen_auto, toggle_button_in_headset_auto;
 
-
-    private String[] music_spinner_item_str = new String[]{"歌名", "歌手", "添加日期"};
+    private String sd_path = Environment.getExternalStorageDirectory().getPath();
+    private String[] music_spinner_item_str = new String[]{"歌名", "添加日期(升序)", "添加日期(降序)"};
     private String[] music_timing_type_str = new String[]{"定时", "定曲"};
+    private boolean show_date_time, show_floder, floder_name;
+    private int sheet_num = 0, music_all_num = 0, floder_time_num = 0, floder_size_num = 0;
+    private String floder_name_str = "";
 
     private Handler handler = new Handler() {
         @Override
@@ -62,6 +69,8 @@ public class SetActivity extends AppCompatActivity {
                     offset = 0;
                 }
                 all_scroll_view.scrollTo(0, offset);
+            } else if (msg.what == 0x12345678) {
+                all_scroll_view.scrollTo(0, 0);
             }
         }
     };
@@ -78,10 +87,14 @@ public class SetActivity extends AppCompatActivity {
         music_all_spinner = (Spinner) findViewById(R.id.music_all_spinner);
         music_sheet_spinner = (Spinner) findViewById(R.id.music_sheet_spinner);
         music_timing_type = (Spinner) findViewById(R.id.music_timing_type);
+        toggle_button_floder = (ToggleButton) findViewById(R.id.toggle_button_floder);
+        toggle_button_date_time = (ToggleButton) findViewById(R.id.toggle_button_date_time);
         toggle_button_floder_time = (ToggleButton) findViewById(R.id.toggle_button_floder_time);
         toggle_button_floder_size = (ToggleButton) findViewById(R.id.toggle_button_floder_size);
         toggle_button_floder_name = (ToggleButton) findViewById(R.id.toggle_button_floder_name);
         toggle_button_auto_timing_time = (ToggleButton) findViewById(R.id.toggle_button_auto_timing_time);
+
+
         toggle_button_floder_time_linear = (LinearLayout) findViewById(R.id.toggle_button_floder_time_linear);
         toggle_button_floder_size_linear = (LinearLayout) findViewById(R.id.toggle_button_floder_size_linear);
         toggle_button_floder_time_seek_bar = (SeekBar) findViewById(R.id.toggle_button_floder_time_seek_bar);
@@ -103,24 +116,45 @@ public class SetActivity extends AppCompatActivity {
         toggle_button_close_screen_auto = (ToggleButton) findViewById(R.id.toggle_button_close_screen_auto);
         toggle_button_in_headset_auto = (ToggleButton) findViewById(R.id.toggle_button_in_headset_auto);
 
+
+        show_date_time = SharedUtile.getSharedBoolean(this, "is_show_date_time", false);
+        show_floder = SharedUtile.getSharedBoolean(this, "is_show_floder", false);
+        music_all_num = SharedUtile.getSharedInt(this, "music_all_num", 0);
+        sheet_num = SharedUtile.getSharedInt(this, "sheet_num", 1);
+        floder_time_num = SharedUtile.getSharedInt(this, "floder_time_num", 15);
+        floder_size_num = SharedUtile.getSharedInt(this, "floder_size_num", 0);
+        floder_name_str = SharedUtile.getSharedString(this, "floder_name_str", "");
+        floder_name = SharedUtile.getSharedBoolean(this, "floder_name", true);
+
         list_folder_all = PublicDate.list_folder_all;
         if (list_folder_all.size() > 0) {
+            upDtaeFloderNameList();
             adapter = new SetFolderListViewAdapter(this, list_folder_all);
             floder_name_list.setAdapter(adapter);
             floder_name_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    if ((boolean) list_folder_all.get(position).get("is_click")) {
-                        list_folder_all.get(position).put("is_click", false);
-                    } else {
-                        list_folder_all.get(position).put("is_click", true);
+                    if (floder_name) {
+                        String temp = SharedUtile.getSharedString(SetActivity.this, "floder_name_str", "");
+                        if ((boolean) list_folder_all.get(position).get("is_click")) {
+                            list_folder_all.get(position).put("is_click", false);
+//                        String temp = SharedUtile.getSharedString(SetActivity.this, "floder_name_str", "");
+                            temp = list_folder_all.get(position).get("folder_name_path").toString() + PublicDate.separate_str;
+
+                        } else {
+                            list_folder_all.get(position).put("is_click", true);
+
+                            temp = deleteStrFromStr(temp, list_folder_all.get(position).get("folder_name_path").toString());
+                        }
+                        SharedUtile.putSharedString(SetActivity.this, "floder_name_str", temp);
+                        adapter.updataView(position, floder_name_list);
                     }
-                    adapter.updataView(position, floder_name_list);
                 }
             });
             setListViewHeightBasedOnChildren(floder_name_list);
             setToggleButtonBoolean(toggle_button_floder_name, true);
         } else {
+            toggle_button_floder_name.setToggle(false);
             setToggleButtonBoolean(toggle_button_floder_name, false);
         }
 
@@ -130,14 +164,82 @@ public class SetActivity extends AppCompatActivity {
         setAutoTimingSpinnerItem(music_timing_type, music_timing_type_str, true);
 
         //setting
-        music_all_spinner.setSelection(1);
-        music_sheet_spinner.setSelection(2);
+        music_all_spinner.setSelection(music_all_num);
+        music_sheet_spinner.setSelection(sheet_num);
         music_timing_type.setSelection(1);
 
-        toggle_button_floder_time.toggleOff();
-        toggle_button_floder_size.toggleOn();
-        toggle_button_floder_name.toggleOff();
-        toggle_button_auto_timing_time.toggleOff();
+//        toggle_button_floder_time.toggleOff();
+//        toggle_button_floder_size.toggleOn();
+//        toggle_button_floder_name.toggleOff();
+//        toggle_button_auto_timing_time.toggleOff();
+
+        if (floder_time_num > 0) {
+            toggle_button_floder_time.setToggle(true);
+        } else {
+            toggle_button_floder_time.setToggle(false);
+        }
+        if (floder_size_num > 0) {
+            toggle_button_floder_size.setToggle(true);
+        } else {
+            toggle_button_floder_size.setToggle(false);
+        }
+
+        toggle_button_floder_name.setToggle(floder_name);
+        toggle_button_auto_timing_time.setToggle(false);
+        toggle_button_date_time.setToggle(show_date_time);
+        toggle_button_floder.setToggle(show_floder);
+
+        upDateFloderUiTime(toggle_button_floder_time.getToggle());
+        upDateFloderUiSize(toggle_button_floder_size.getToggle());
+        upDateFloderUiName(toggle_button_floder_name.getToggle());
+        upDateAutoTimingUi(toggle_button_auto_timing_time.getToggle());
+        upDateTimingTypeUi();
+
+        toggle_button_date_time.setOnToggleChanged(new ToggleButton.OnToggleChanged() {
+            @Override
+            public void onToggle(boolean on) {
+                if (on) {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "is_show_date_time", true);
+                } else {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "is_show_date_time", false);
+                }
+            }
+        });
+
+        toggle_button_floder.setOnToggleChanged(new ToggleButton.OnToggleChanged() {
+            @Override
+            public void onToggle(boolean on) {
+                if (on) {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "is_show_floder", true);
+                } else {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "is_show_floder", false);
+                }
+            }
+        });
+
+        music_all_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedUtile.putSharedInt(SetActivity.this, "music_all_num", position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        music_sheet_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedUtile.putSharedInt(SetActivity.this, "sheet_num", position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         toggle_button_floder_time.setOnToggleChanged(new ToggleButton.OnToggleChanged() {
             @Override
@@ -170,7 +272,7 @@ public class SetActivity extends AppCompatActivity {
         music_timing_type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                upDateTimginTypeUi();
+                upDateTimingTypeUi();
             }
 
             @Override
@@ -192,7 +294,7 @@ public class SetActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                SharedUtile.putSharedInt(SetActivity.this, "floder_time_num", seekBar.getProgress());
             }
         });
 
@@ -209,7 +311,7 @@ public class SetActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                SharedUtile.putSharedInt(SetActivity.this, "floder_size_num", seekBar.getProgress());
             }
         });
 
@@ -234,13 +336,36 @@ public class SetActivity extends AppCompatActivity {
             }
         });
 
-        upDateFloderUiTime(toggle_button_floder_time.getToggle());
-        upDateFloderUiSize(toggle_button_floder_size.getToggle());
-        upDateFloderUiName(toggle_button_floder_name.getToggle());
-        upDateAutoTimingUi(toggle_button_auto_timing_time.getToggle());
-        upDateTimginTypeUi();
+//        all_scroll_view.fullScroll(ScrollView.FOCUS_UP);
+        handler.sendEmptyMessage(0x12345678);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (toggle_button_date_time.getToggle() != show_date_time || toggle_button_floder.getToggle() != show_floder) {
+            Intent temp_intent = new Intent();
+            temp_intent.setAction("com.android.jiaqiao");
+            temp_intent.putExtra("type", MainActivity.UPDATE_FRAGMENT_MAIN_SET);
+            sendBroadcast(temp_intent);
+        }
+        if (music_all_num != music_all_spinner.getSelectedItemPosition()) {
+            Intent temp_intent = new Intent();
+            temp_intent.setAction("com.android.jiaqiao");
+            temp_intent.putExtra("type", MainActivity.UPDATE_FRAGMENT_MUSIC_ALL_SET);
+            sendBroadcast(temp_intent);
+        }
+        if (sheet_num != music_sheet_spinner.getSelectedItemPosition()) {
+            Intent temp_intent = new Intent();
+            temp_intent.setAction("com.android.jiaqiao");
+            temp_intent.putExtra("type", MainActivity.UPDATE_FRAGMENT_MUSIC_SHEET_SET);
+            sendBroadcast(temp_intent);
+        }
+        if(floder_time_num != SharedUtile.getSharedInt(this, "floder_time_num", 15)||floder_size_num != SharedUtile.getSharedInt(this, "floder_size_num", 0)||floder_name_str != SharedUtile.getSharedString(this, "floder_name_str", "")||floder_name != SharedUtile.getSharedBoolean(this, "floder_name", true)){
+            Intent select_music_intent = new Intent(SetActivity.this, SelectMusicService.class);
+            startService(select_music_intent);
+        }
+    }
 
     public void setSpinnerItem(Spinner spinner, String[] spinner_item) {
         if (spinner_item.length > 0) {
@@ -267,7 +392,15 @@ public class SetActivity extends AppCompatActivity {
     public void upDateFloderUiTime(boolean is_toggle) {
         if (is_toggle) {
             toggle_button_floder_time_linear.setVisibility(View.VISIBLE);
+            if (floder_time_num <= 0) {
+                SharedUtile.putSharedInt(SetActivity.this, "floder_time_num", 60);
+                toggle_button_floder_time_seek_bar.setProgress(60);
+            } else {
+                toggle_button_floder_time_seek_bar.setProgress(floder_time_num);
+            }
+            time_seek_bar_text.setText(getIntToTime(toggle_button_floder_time_seek_bar.getProgress()));
         } else {
+            SharedUtile.putSharedInt(SetActivity.this, "floder_time_num", 0);
             toggle_button_floder_time_linear.setVisibility(View.GONE);
         }
     }
@@ -275,39 +408,25 @@ public class SetActivity extends AppCompatActivity {
     public void upDateFloderUiSize(boolean is_toggle) {
         if (is_toggle) {
             toggle_button_floder_size_linear.setVisibility(View.VISIBLE);
+            if (SharedUtile.getSharedInt(SetActivity.this, "floder_size_num", 0) <= 0) {
+                SharedUtile.putSharedInt(SetActivity.this, "floder_size_num", 1000);
+                toggle_button_floder_size_seek_bar.setProgress(1000);
+            } else {
+                toggle_button_floder_size_seek_bar.setProgress(SharedUtile.getSharedInt(SetActivity.this, "floder_size_num", 0));
+            }
+            size_seek_bar_text.setText(getIntToMB(toggle_button_floder_size_seek_bar.getProgress()));
         } else {
+            SharedUtile.putSharedInt(SetActivity.this, "floder_size_num", 0);
             toggle_button_floder_size_linear.setVisibility(View.GONE);
         }
     }
 
     public void upDateFloderUiName(boolean is_toggle) {
         if (is_toggle) {
-            if (PublicDate.list_folder_all.size() > 0 && list_folder_all.size() <= 0) {
-                list_folder_all = PublicDate.list_folder_all;
-                adapter = new SetFolderListViewAdapter(this, list_folder_all);
-                floder_name_list.setAdapter(adapter);
-                floder_name_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if ((boolean) list_folder_all.get(position).get("is_click")) {
-                            list_folder_all.get(position).put("is_click", false);
-                        } else {
-                            list_folder_all.get(position).put("is_click", true);
-                        }
-                        adapter.updataView(position, floder_name_list);
-                    }
-                });
-                setListViewHeightBasedOnChildren(floder_name_list);
-                floder_name_list.setVisibility(View.VISIBLE);
-            }
-            if (list_folder_all.size() > 0) {
-                floder_name_list.setVisibility(View.VISIBLE);
-            } else {
-                setToggleButtonBoolean(toggle_button_floder_name, false);
-            }
-
+            floder_name_list.setVisibility(View.VISIBLE);
         } else {
             floder_name_list.setVisibility(View.GONE);
+            SharedUtile.putSharedBoolean(this,"floder_name",false);
         }
     }
 
@@ -346,7 +465,7 @@ public class SetActivity extends AppCompatActivity {
         }
     }
 
-    public void upDateTimginTypeUi() {
+    public void upDateTimingTypeUi() {
         //music_timing_type.getSelectedItemPosition()，获取选中的子项
         if (music_timing_type.getSelectedItemPosition() == 0) {
             timing_type_min_text.setText("0分钟");
@@ -383,11 +502,68 @@ public class SetActivity extends AppCompatActivity {
 
     public String getIntToMB(int num) {
         if (num > 0) {
-            String num01 = new String().format("%01d", num / 100);
-            String num02 = new String().format("%02d", num % 100);
+            String num01 = new String().format("%01d", num / 1000);
+            String num02 = new String().format("%02d", num % 1000 / 10);
             return num01 + "." + num02 + "MB";
         }
         return "0.00MB";
+    }
+
+    public String getInfoString(String string) {
+        if (string.equals(sd_path)) {
+            return "根目录";
+        } else if (string.toLowerCase().indexOf("12530") > -1) {
+            return "咪咕音乐";
+        } else if (string.toLowerCase().indexOf("music") > -1 && string.toLowerCase().indexOf("baidu") > -1) {
+            return "百度音乐";
+        } else if (string.toLowerCase().indexOf("kgmusic") > -1) {
+            return "酷狗音乐";
+        } else if (string.toLowerCase().indexOf("kuwomusic") > -1) {
+            return "酷我音乐";
+        } else if (string.toLowerCase().indexOf("cloudmusic") > -1) {
+            return "网易云音乐";
+        } else if (string.toLowerCase().indexOf("qqmusic") > -1) {
+            return "QQ音乐";
+        } else if (string.toLowerCase().indexOf("xiami") > -1) {
+            return "虾米音乐";
+        } else {
+            return string.substring(string.lastIndexOf("/") + "/".length());
+        }
+
+    }
+
+    public void upDtaeFloderNameList() {
+//        if (list_folder_all.size() > 0 && floder_name_str.length() > 0) {
+//            for (int i = 0; i < list_folder_all.size(); i++) {
+//                if (floder_name_str.indexOf((list_folder_all.get(i).get("folder_name_path")+PublicDate.separate_str)) > -1) {
+//                    list_folder_all.get(i).put("is_click", false);
+//                } else {
+//                    list_folder_all.get(i).put("is_click", true);
+//                }
+//            }
+//        }
+        String name_temp = floder_name_str;
+        while (true) {
+            if (name_temp.length() <= PublicDate.separate_str.length()) {
+                break;
+            }
+            String temp = name_temp.substring(0, name_temp.indexOf("#"));
+            HashMap<String, Object> folder_map = new HashMap<>();
+            folder_map.put("folder_name", getInfoString(temp));
+            folder_map.put("folder_name_list", null);
+            folder_map.put("folder_name_path", temp);
+            folder_map.put("is_click", false);
+            list_folder_all.add(folder_map);
+            name_temp = name_temp.substring(name_temp.indexOf("#") + "#".length());
+        }
+
+
+    }
+
+    public String deleteStrFromStr(String a, String b) {
+        String str01 = a.substring(0, a.indexOf(b));
+        String str02 = a.substring(a.indexOf(b) + b.length() + PublicDate.separate_str.length());
+        return str01 + str02;
     }
 
     public void setListViewHeightBasedOnChildren(ListView listView) {

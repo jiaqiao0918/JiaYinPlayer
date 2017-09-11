@@ -19,7 +19,6 @@ public class PublicDate {
     public static ArrayList<MusicInfo> music_play = new ArrayList<MusicInfo>();
     public static ArrayList<HashMap<String, Object>> list_folder_all = new ArrayList<HashMap<String, Object>>();
 
-
     public static Boolean add_sheet_over = false;
     public static Boolean delete_sheet_over = false;
     public static String files_dir = "";
@@ -65,4 +64,6 @@ public class PublicDate {
     public static int all_timing_time = 100;//单位：秒，计时时间
     public static int all_timing_music_sum=0;
     public static boolean is_timing_over_finish=false;
+
+
 }

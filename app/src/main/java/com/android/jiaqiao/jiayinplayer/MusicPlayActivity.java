@@ -27,6 +27,7 @@ import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Service.UpdateServiec;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayAlbumImage;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayLrc;
 import com.android.jiaqiao.ViewPagerFragment.ViewPagerFragmentMusicPlayShowList;
@@ -163,7 +164,8 @@ public class MusicPlayActivity extends AppCompatActivity {
                 temp_intent.putExtra("type", MusicPlayService.UPDATE_PLAY_MODE);
                 sendBroadcast(temp_intent);
 
-                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("play_mode", PublicDate.play_mode).commit();
+//                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("play_mode", PublicDate.play_mode).commit();
+                SharedUtile.putSharedInt(MusicPlayActivity.this, "play_mode", PublicDate.play_mode);
                 updatePlayMode();
             }
         });
@@ -203,8 +205,10 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play.get(temp).setIs_playing(true);
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
-                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
 
+
+//                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                SharedUtile.putSharedInt(MusicPlayActivity.this,"music_play_list_position", PublicDate.music_play_list_position);
 
 //                updateActivity();
 
@@ -233,7 +237,10 @@ public class MusicPlayActivity extends AppCompatActivity {
                 PublicDate.music_play.get(temp).setIs_playing(true);
                 PublicDate.music_play_list_position = temp;
                 PublicDate.music_play_now = PublicDate.music_play.get(temp);
-                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+
+//                getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                SharedUtile.putSharedInt(MusicPlayActivity.this,"music_play_list_position", PublicDate.music_play_list_position);
+
 
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");

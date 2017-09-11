@@ -2,7 +2,6 @@ package com.android.jiaqiao.Activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.jiaqiao.Service.TimingService;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -72,9 +72,12 @@ public class TimingActivity extends Activity {
         timing_over_finish_app = (LinearLayout) findViewById(R.id.timing_over_finish_app);
 
         is_time = getIntent().getBooleanExtra("is_time", false);
-        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
-        is_over_play_music = userSettings.getBoolean("is_over_play_music", false);
-        is_over_finish_app = userSettings.getBoolean("is_over_finish_app", false);
+//        SharedPreferences userSettings = getSharedPreferences(MainActivity.SHARED, 0);
+//        is_over_play_music = userSettings.getBoolean("is_over_play_music", false);
+//        is_over_finish_app = userSettings.getBoolean("is_over_finish_app", false);
+
+        is_over_play_music = SharedUtile.getSharedBoolean(this, "is_over_play_music", false);
+        is_over_finish_app = SharedUtile.getSharedBoolean(this, "is_over_finish_app", false);
         updateCheakBox();
         intoTimingListDate();
         if (is_time) {
@@ -90,7 +93,7 @@ public class TimingActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position == timing_item.size() - 1) {
-                    startActivity(new Intent(TimingActivity.this, TimingUserNumActivity.class).putExtra("is_time02",is_time));
+                    startActivity(new Intent(TimingActivity.this, TimingUserNumActivity.class).putExtra("is_time02", is_time));
                     finish();
                 } else {
                     Intent timing_intent = new Intent(TimingActivity.this, TimingService.class);
@@ -104,10 +107,10 @@ public class TimingActivity extends Activity {
                         startService(timing_intent);
 
                         String timing_time_str = "";
-                        if(timing_time_num[position]==60){
+                        if (timing_time_num[position] == 60) {
                             timing_time_str = "一小时";
-                        }else{
-                            timing_time_str = timing_time_num[position]+"";
+                        } else {
+                            timing_time_str = timing_time_num[position] + "";
                         }
                         if (is_over_finish_app) {
                             Toast.makeText(TimingActivity.this, "定时 " + timing_time_str + " 分钟后退出应用", Toast.LENGTH_SHORT).show();

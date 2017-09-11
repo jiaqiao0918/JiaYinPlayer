@@ -24,6 +24,7 @@ import com.android.jiaqiao.Activity.DeleteMusicSheetActivity;
 import com.android.jiaqiao.Adapter.MusicSheetAdapter;
 import com.android.jiaqiao.JavaBean.SheetInfo;
 import com.android.jiaqiao.Utils.FragmentTransactionExtended;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -47,6 +48,7 @@ public class FragmentMain extends Fragment {
     private ListView music_all_sheet_list;
     private ScrollView scroll_view;
     private TextView music_all_count;
+    private LinearLayout fragment_to_all_music, fragment_to_love_music, fragment_to_date_for_music, fragment_to_folder_for_music;
 
     private FragmentMainReceiver mReceiver;
     private IntentFilter mFilter;
@@ -66,10 +68,10 @@ public class FragmentMain extends Fragment {
         path = PublicDate.files_dir + "/music_sheet/music_sheet_name.txt";
         scroll_view = (ScrollView) view.findViewById(R.id.scroll_view);
         music_all_sheet_list = (ListView) view.findViewById(R.id.show_music_list);
-        LinearLayout fragment_to_all_music = (LinearLayout) view.findViewById(R.id.fragment_to_all_music);
-        LinearLayout fragment_to_love_music = (LinearLayout) view.findViewById(R.id.fragment_to_love_music);
-        LinearLayout fragment_to_date_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_date_for_music);
-        LinearLayout fragment_to_folder_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_folder_for_music);
+        fragment_to_all_music = (LinearLayout) view.findViewById(R.id.fragment_to_all_music);
+        fragment_to_love_music = (LinearLayout) view.findViewById(R.id.fragment_to_love_music);
+        fragment_to_date_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_date_for_music);
+        fragment_to_folder_for_music = (LinearLayout) view.findViewById(R.id.fragment_to_folder_for_music);
         music_all_count = (TextView) view.findViewById(R.id.music_all_count);
         ImageView add_music_sheet_name = (ImageView) view.findViewById(R.id.add_music_sheet_name);
 //        loading_gif = (ImageView) view.findViewById(loading_gif);
@@ -80,6 +82,7 @@ public class FragmentMain extends Fragment {
 //        }
         music_all_count.setText((PublicDate.public_music_all.size()) + "首");
         music_sheet_info_list = getMusicSheetToArrayList(path);
+
 
         music_sheet_adapter = new MusicSheetAdapter(getActivity(), music_sheet_info_list);
         music_all_sheet_list.setAdapter(music_sheet_adapter);
@@ -96,6 +99,8 @@ public class FragmentMain extends Fragment {
                 is_into_music_sheet = true;
             }
         }, 400);
+
+        updateSetUi();
 
         music_all_sheet_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -216,6 +221,7 @@ public class FragmentMain extends Fragment {
             PublicDate.delete_sheet_over = false;
             scroll_view.smoothScrollTo(0, 0);
         }
+
     }
 
     public ArrayList<SheetInfo> getMusicSheetToArrayList(String path_name) {
@@ -299,8 +305,26 @@ public class FragmentMain extends Fragment {
                     music_all_sheet_list.setAdapter(music_sheet_adapter);
                     setListViewHeightBasedOnChildren(music_all_sheet_list);
                     break;
+                case MainActivity.UPDATE_FRAGMENT_MAIN_SET:
+                    updateSetUi();
+                    break;
             }
         }
 
     }
+
+    public void updateSetUi() {
+        if (SharedUtile.getSharedBoolean(getActivity(), "is_show_date_time", false)) {
+            fragment_to_date_for_music.setVisibility(View.VISIBLE);
+        } else {
+            fragment_to_date_for_music.setVisibility(View.GONE);
+        }
+        if (SharedUtile.getSharedBoolean(getActivity(), "is_show_floder", false)) {
+            fragment_to_folder_for_music.setVisibility(View.VISIBLE);
+        } else {
+            fragment_to_folder_for_music.setVisibility(View.GONE);
+        }
+
+    }
+
 }

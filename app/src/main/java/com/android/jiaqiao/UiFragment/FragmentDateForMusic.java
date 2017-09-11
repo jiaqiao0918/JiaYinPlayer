@@ -17,6 +17,7 @@ import com.android.jiaqiao.Adapter.MyExpandableListAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Utils.MusicPlayUtil;
+import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
 import com.android.jiaqiao.jiayinplayer.PublicDate;
 import com.android.jiaqiao.jiayinplayer.R;
@@ -107,17 +108,22 @@ public class FragmentDateForMusic extends Fragment {
                     PublicDate.music_play_list_str = list_child_date_time.get(groupPosition).toString();
                     PublicDate.music_play = list_child_date_time.get(groupPosition);
                     MusicPlayUtil.saveMusicPlayList();
-                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                    getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                    SharedUtile.putSharedInt(getActivity(), "music_play_list_position", PublicDate.music_play_list_position);
+
                 } else {
                     if (!PublicDate.music_play_list_str.equals(list_child_date_time.get(groupPosition).toString())) {
                         PublicDate.music_play_list_str = list_child_date_time.get(groupPosition).toString();
                         PublicDate.music_play = list_child_date_time.get(groupPosition);
                         MusicPlayUtil.saveMusicPlayList();
-                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                        getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putString("music_play_list_str", PublicDate.music_play_list_str).commit();
+//                        SharedUtile.putSharedInt(getActivity(), "music_play_list_position", PublicDate.music_play_list_position);
                     }
                 }
                 PublicDate.music_play_list_position = childPosition;
-                getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+//                getActivity().getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
+                SharedUtile.putSharedInt(getActivity(),"music_play_list_position", PublicDate.music_play_list_position);
+
                 //发送广播
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
