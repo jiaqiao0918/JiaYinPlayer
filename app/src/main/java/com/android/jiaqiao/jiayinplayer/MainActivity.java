@@ -45,7 +45,7 @@ import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.MusicPlayService;
 import com.android.jiaqiao.Service.SelectMusicService;
 import com.android.jiaqiao.Service.TimingService;
-import com.android.jiaqiao.Service.UpdateServiec;
+import com.android.jiaqiao.Service.UpdateService;
 import com.android.jiaqiao.UiFragment.FragmentMain;
 import com.android.jiaqiao.Utils.ActivityContainer;
 import com.android.jiaqiao.Utils.DataInfoCache;
@@ -78,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int UPDATE_FRAGMENT_MAIN_SET = 3000008;
     public static final int UPDATE_FRAGMENT_MUSIC_ALL_SET = 3000009;
     public static final int UPDATE_FRAGMENT_MUSIC_SHEET_SET = 30000010;
+    public static final int UPDATE_FRAGMENT_MUSIC_LOVE_SET = 30000011;
+    public static final int UPDATE_FRAGMENT_MUSIC_FLODER_SET = 30000012;
 
     public static final String SHARED = "setting";
 
@@ -115,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<MusicInfo> music_now_play_list = new ArrayList<MusicInfo>();
     private int last_click_position = 0;
     private int list_scroll_position = 0;
+    private boolean is_click_left_right = false;
+    private long click_back_time = 0;
 
     private MainActivityReceiver mReceiver;
     private IntentFilter mFilter;
@@ -127,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent select_music_intent;
     private Intent music_play_intent;
     private Intent timing_intent;
+    private Intent update_intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
         music_play_intent = new Intent(MainActivity.this, MusicPlayService.class);
         startService(music_play_intent);
         timing_intent = new Intent(MainActivity.this, TimingService.class);
+
 
 //        PublicDate.is_timing_time = true;
 //        PublicDate.all_timing_time = 15;
@@ -429,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onItemClick(View view, int position) {
                     //item单击事件
 
-
+                    is_click_left_right = true;
                     music_now_play_list.get(last_click_position).setIs_playing(false);
                     music_now_play_list.get(position).setIs_playing(true);
                     left_right_adapter.notifyItemChanged(last_click_position);//刷新单个数据
@@ -439,15 +445,12 @@ public class MainActivity extends AppCompatActivity {
                     PublicDate.music_play_now = music_now_play_list.get(position);
                     PublicDate.music_play_list_position = position;
 
-//                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                     SharedUtile.putSharedInt(MainActivity.this, "music_play_list_position", PublicDate.music_play_list_position);
 
+                    now_show_position = PublicDate.music_play_list_position;
+                    last_click_position = position;
                     //发送广播
-                    Intent temp_intent02 = new Intent();
-                    temp_intent02.setAction("com.android.jiaqiao");
-                    temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY);
-                    temp_intent02.putExtra("is_update_music_play", true);
-                    sendBroadcast(temp_intent02);
+
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
                     temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
@@ -455,16 +458,9 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent temp_intent03 = new Intent();
                     temp_intent03.setAction("com.android.jiaqiao");
-                    temp_intent03.putExtra("type", UpdateServiec.TO_UPDATE_UI);
+                    temp_intent03.putExtra("type", UpdateService.TO_UPDATE_UI);
                     sendBroadcast(temp_intent03);
 
-                    now_show_position = PublicDate.music_play_list_position;
-                    updateIsPlayUi();
-                    updateViewPagerFragment();
-                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-                    updateLeftRightListItem();
-                    last_click_position = position;
                 }
             });
             left_right_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
@@ -512,7 +508,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(View view, int position) {
                     //item单击事件
-
+                    is_click_left_right = true;
                     last_click_position = PublicDate.music_play_list_position;
                     music_now_play_list.get(last_click_position).setIs_playing(false);
                     music_now_play_list.get(position).setIs_playing(true);
@@ -522,17 +518,11 @@ public class MainActivity extends AppCompatActivity {
 
                     PublicDate.music_play_now = music_now_play_list.get(position);
                     PublicDate.music_play_list_position = position;
-
-//                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("music_play_list_position", PublicDate.music_play_list_position).commit();
                     SharedUtile.putSharedInt(MainActivity.this, "music_play_list_position", PublicDate.music_play_list_position);
 
 
+                    now_show_position = PublicDate.music_play_list_position;
                     //发送广播
-                    Intent temp_intent02 = new Intent();
-                    temp_intent02.setAction("com.android.jiaqiao");
-                    temp_intent02.putExtra("type", MusicPlayActivity.UPDATE_MUSIC_PLAY_ACTIVITY);
-                    temp_intent02.putExtra("is_update_music_play", true);
-                    sendBroadcast(temp_intent02);
                     Intent temp_intent = new Intent();
                     temp_intent.setAction("com.android.jiaqiao");
                     temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
@@ -540,17 +530,8 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent temp_intent03 = new Intent();
                     temp_intent03.setAction("com.android.jiaqiao");
-                    temp_intent03.putExtra("type", UpdateServiec.TO_UPDATE_UI);
+                    temp_intent03.putExtra("type", UpdateService.TO_UPDATE_UI);
                     sendBroadcast(temp_intent03);
-
-                    now_show_position = PublicDate.music_play_list_position;
-                    updateIsPlayUi();
-                    updateViewPagerFragment();
-                    view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
-                    view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-//                    updateLeftRightListItem();
-
-                    last_click_position = position;
                 }
             });
             left_right_adapter.setOnItemLongClickListener(new LeftRightRecyclerViewAdapter.OnRecyclerItemLongListener() {
@@ -607,6 +588,8 @@ public class MainActivity extends AppCompatActivity {
                     ((LinearLayoutManager) left_list.getLayoutManager()).setStackFromEnd(true);
                     ((LinearLayoutManager) right_list.getLayoutManager()).scrollToPositionWithOffset(list_scroll_position, 0);
                     ((LinearLayoutManager) right_list.getLayoutManager()).setStackFromEnd(true);
+//                    left_list.scrollToPosition(list_scroll_position);
+//                    right_list.scrollToPosition(list_scroll_position);
                 }
                 left_music_tittle.setText(PublicDate.music_play_now.getMusic_title());
                 right_music_tittle.setText(PublicDate.music_play_now.getMusic_title());
@@ -689,10 +672,10 @@ public class MainActivity extends AppCompatActivity {
                             temp_intent.putExtra("type", MusicPlayService.PLAY_MUSIC);
                             sendBroadcast(temp_intent);
 
-                            Intent temp_intent05 = new Intent();
-                            temp_intent05.setAction("com.android.jiaqiao");
-                            temp_intent05.putExtra("type", UpdateServiec.TO_UPDATE_UI);
-                            sendBroadcast(temp_intent05);
+//                            Intent temp_intent05 = new Intent();
+//                            temp_intent05.setAction("com.android.jiaqiao");
+//                            temp_intent05.putExtra("type", UpdateService.TO_UPDATE_UI);
+//                            sendBroadcast(temp_intent05);
 
                             Intent temp_intent03 = new Intent();
                             temp_intent03.setAction("com.android.jiaqiao");
@@ -725,12 +708,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        //拦截返回键操作，返回桌面，而不是退出应用
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
 
-            //activity_drawer_layout.isDrawerOpen(Gravity.LEFT)，判断左边侧滑栏是否打开
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        //专门的长按事件
+        if(keyCode==KeyEvent.KEYCODE_BACK){
+            if (SharedUtile.getSharedBoolean(this, "close_app", true)) {
+                this.finish();
+                return true;
+            }
+        }
+        return super.onKeyLongPress(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+
+        //单击事件
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (activity_drawer_layout.isDrawerOpen(Gravity.LEFT) || activity_drawer_layout.isDrawerOpen(Gravity.RIGHT)) {
                 activity_drawer_layout.closeDrawers();//关闭所有的侧滑栏
                 return true;
@@ -745,12 +740,13 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         }
-        return super.onKeyDown(keyCode, event);
+        return super.onKeyUp(keyCode, event);
     }
 
     //回值操作
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == WRITE_EXTERNAL_STORAGE_QUANXAN) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //用户同意授权
@@ -763,6 +759,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 给一个ImageView设置高斯模糊的图片,并带有渐变
+
     public void setImageViewImage(ImageView image_view, Bitmap image_bitmap) {
         /*
          * 增大scaleRatio缩放比，使用一样更小的bitmap去虚化可以得到更好的模糊效果，而且有利于占用内存的减小；
@@ -1009,7 +1006,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     class MainActivityReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1164,18 +1160,21 @@ public class MainActivity extends AppCompatActivity {
 
 
                 //Test
-                case UpdateServiec.UPDATE_UI:
+                case UpdateService.UPDATE_UI:
 
                     music_play_list_temp = PublicDate.music_play;
                     if (music_play_list_temp.size() > 0) {
                         now_show_position = PublicDate.music_play_list_position;
                         updateIsPlayUi();
                         updateViewPagerFragment();
+                        updateLeftRightAlbumImage();
                         view_pager_fragment_adapter.UpdateList(view_pager_fragment_list);
                         view_pager_fragment.setCurrentItem(2, false); //设置当前页是第0页，false为不需要过渡动画，默认为true
-
-                        updateLeftRightAllList();
-
+                        if (!is_click_left_right) {
+                            updateLeftRightAllList();
+                        } else {
+                            is_click_left_right = false;
+                        }
                     } else {
                         show_view_pager_layout.setVisibility(View.INVISIBLE);
                     }
@@ -1186,5 +1185,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 
 }

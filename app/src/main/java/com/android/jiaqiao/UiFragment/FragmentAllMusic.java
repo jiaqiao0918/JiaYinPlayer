@@ -374,6 +374,7 @@ public class FragmentAllMusic extends Fragment {
                 case MainActivity.UPDATE_FRAGMENT_MUSIC_ALL_SET:
                     updateSetUi();
                     adapter.notifyDataSetChanged();
+                    getMusicAlbumImage();
                     int temp_num_02 = MusicPlayUtil.selectMusicPosition(music_all, PublicDate.music_play_now);
                     if (temp_num_02 > -1) {
                         music_all.get(temp_num_02).setIs_playing(true);

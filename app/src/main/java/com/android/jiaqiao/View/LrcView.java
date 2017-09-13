@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 @SuppressLint("DrawAllocation")
 public class LrcView extends View {
 	private static final int SCROLL_TIME = 300;
-	private static final String DEFAULT_TEXT = "暂无歌词";
+	private static final String DEFAULT_TEXT = "未找到歌词";
 	
 	private List<String> mLrcs = new ArrayList<String>(); // 存放歌词
 	private List<Long> mTimes = new ArrayList<Long>(); // 存放时间

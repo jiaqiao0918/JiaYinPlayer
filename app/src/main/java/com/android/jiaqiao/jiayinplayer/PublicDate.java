@@ -62,8 +62,11 @@ public class PublicDate {
 
     //定时，定曲
     public static int all_timing_time = 100;//单位：秒，计时时间
-    public static int all_timing_music_sum=0;
-    public static boolean is_timing_over_finish=false;
+    public static int all_timing_music_sum = 0;
+    public static boolean is_timing_over_finish = false;
 
 
+    //耳机
+    public static boolean is_headset = false;
+    public static int clickCount = 0;
 }

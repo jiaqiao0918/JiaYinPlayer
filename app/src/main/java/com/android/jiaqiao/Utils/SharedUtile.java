@@ -2,6 +2,7 @@ package com.android.jiaqiao.Utils;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.android.jiaqiao.jiayinplayer.MainActivity;
@@ -44,6 +45,10 @@ public class SharedUtile {
     }
 
     public static void putSharedInt(Activity activity, String key, int put_bool) {
+        activity.getSharedPreferences(MainActivity.SHARED, 0).edit().putInt(key, put_bool).commit();
+    }
+
+    public static void putSharedInt(Context activity, String key, int put_bool) {
         activity.getSharedPreferences(MainActivity.SHARED, 0).edit().putInt(key, put_bool).commit();
     }
 

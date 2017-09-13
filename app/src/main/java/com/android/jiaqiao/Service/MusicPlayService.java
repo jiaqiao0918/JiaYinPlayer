@@ -5,11 +5,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
@@ -17,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
+import com.android.jiaqiao.Others.MediaButtonReceiver;
 import com.android.jiaqiao.Utils.MusicUtils;
 import com.android.jiaqiao.Utils.SharedUtile;
 import com.android.jiaqiao.jiayinplayer.MainActivity;
@@ -80,10 +84,15 @@ public class MusicPlayService extends Service {
     private MusicPlayReceiver mReceiver;
     private IntentFilter mFilter;
 
+    private HeadsetPlugReceiver headsetPlugReceiver;
+    private IntentFilter intentFilter02;
+
     private RemoteViews notification_64_view, notification_100_view;
     private NotificationManager notify_manager;
     private Notification notify;
 
+    private AudioManager mAudioManager;
+    private ComponentName mComponent;
 
     @Nullable
     @Override
@@ -102,6 +111,20 @@ public class MusicPlayService extends Service {
         registerReceiver(mReceiver, mFilter);
         start_stop_thread = true;
         intentIsPlaying(false);
+
+
+        //耳机插入拔出
+        headsetPlugReceiver = new HeadsetPlugReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.intent.action.HEADSET_PLUG");
+        registerReceiver(headsetPlugReceiver, intentFilter);
+
+        //耳机按键
+        // 获得AudioManager对象
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        //构造一个ComponentName，指向MediaoButtonReceiver类
+        mComponent = new ComponentName(getPackageName(), MediaButtonReceiver.class.getName());
+        mAudioManager.registerMediaButtonEventReceiver(mComponent);
     }
 
     @Override
@@ -111,14 +134,16 @@ public class MusicPlayService extends Service {
             time_thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (start_stop_thread) {
-                        if (music_media_player != null) {
-                            if (music_media_player.isPlaying()) {
-                                Intent temp_intent = new Intent();
-                                temp_intent.setAction("com.android.jiaqiao");
-                                temp_intent.putExtra("type", MusicPlayService.GET_MUSIC_PLAY_TIME);
-                                temp_intent.putExtra("play_time", music_media_player.getCurrentPosition());
-                                sendBroadcast(temp_intent);
+                    while (true) {
+                        if (start_stop_thread) {
+                            if (music_media_player != null) {
+                                if (music_media_player.isPlaying()) {
+                                    Intent temp_intent = new Intent();
+                                    temp_intent.setAction("com.android.jiaqiao");
+                                    temp_intent.putExtra("type", MusicPlayService.GET_MUSIC_PLAY_TIME);
+                                    temp_intent.putExtra("play_time", music_media_player.getCurrentPosition());
+                                    sendBroadcast(temp_intent);
+                                }
                             }
                         }
                         try {
@@ -241,12 +266,17 @@ public class MusicPlayService extends Service {
 
     public void updateNotificationUi() {
         Bitmap album_bitmap = MusicUtils.getArtwork(this, music_play_now.getMusic_id(), music_play_now.getMusic_album_id(), true);
-
-        //将bitmap 分辨率压缩0.5f（一般）
         Matrix matrix = new Matrix();
         matrix.setScale(0.5f, 0.5f);
-        album_bitmap = Bitmap.createBitmap(album_bitmap, 0, 0, album_bitmap.getWidth(),
-                album_bitmap.getHeight(), matrix, true);
+        if (album_bitmap != null) {
+            //将bitmap 分辨率压缩0.5f（一般）
+            album_bitmap = Bitmap.createBitmap(album_bitmap, 0, 0, album_bitmap.getWidth(),
+                    album_bitmap.getHeight(), matrix, true);
+        } else {
+            album_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_album_image);
+            album_bitmap = Bitmap.createBitmap(album_bitmap, 0, 0, album_bitmap.getWidth(),
+                    album_bitmap.getHeight(), matrix, true);
+        }
         if (notification_64_view != null) {
             //设置界面64
             if (album_bitmap != null) {
@@ -348,6 +378,9 @@ public class MusicPlayService extends Service {
             PublicDate.is_notification_running = false;
         }
         unregisterReceiver(mReceiver);
+        unregisterReceiver(headsetPlugReceiver);
+        //注销方法
+        mAudioManager.unregisterMediaButtonEventReceiver(mComponent);
     }
 
     public void playMusicFromPathTime(String path, int time) {
@@ -418,20 +451,6 @@ public class MusicPlayService extends Service {
     }
 
     public void playLastMusic() {
-
-//        int temp = 0;
-//        if (PublicDate.play_mode != MusicPlayService.PLAY_MODE_RANDOM) {
-//            temp = (PublicDate.music_play_list_position - 1 + PublicDate.music_play.size()) % PublicDate.music_play.size();
-//        } else {
-//            temp = PublicDate.play_randoms.get(1);
-//        }
-//        PublicDate.music_play.get(PublicDate.music_play_list_position).setIs_playing(false);
-//        PublicDate.music_play.get(temp).setIs_playing(true);
-//        PublicDate.music_play_list_position = temp;
-//        PublicDate.music_play_now = PublicDate.music_play.get(temp);
-//        SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
-
-
         Intent temp_intent = new Intent();
         temp_intent.setAction("com.android.jiaqiao");
         temp_intent.putExtra("type", MainActivity.SERVICE_UPDATE_MUSIC_PLAY);
@@ -463,7 +482,7 @@ public class MusicPlayService extends Service {
         PublicDate.music_play_now = PublicDate.music_play.get(temp);
 
 //        SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
-        SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position);
+        SharedUtile.putSharedInt(MusicPlayService.this, "music_play_list_position", PublicDate.music_play_list_position);
 
         Intent temp_intent = new Intent();
         temp_intent.setAction("com.android.jiaqiao");
@@ -503,7 +522,9 @@ public class MusicPlayService extends Service {
                 runningNotification();
             }
         } else {
-            playMusicFromPathTime(music_play_now.getMusic_path(), 0);
+            if (PublicDate.music_play_now != null) {
+                playMusicFromPathTime(music_play_now.getMusic_path(), 0);
+            }
         }
     }
 
@@ -691,13 +712,13 @@ public class MusicPlayService extends Service {
                     PublicDate.music_play.get(temp).setIs_playing(true);
                     PublicDate.music_play_list_position = temp;
                     PublicDate.music_play_now = PublicDate.music_play.get(temp);
-                    SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
+                    SharedUtile.putSharedInt(MusicPlayService.this, "music_play_list_position", PublicDate.music_play_list_position);
 
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
 
                     Intent temp_intent04 = new Intent();
                     temp_intent04.setAction("com.android.jiaqiao");
-                    temp_intent04.putExtra("type", UpdateServiec.TO_UPDATE_UI);
+                    temp_intent04.putExtra("type", UpdateService.TO_UPDATE_UI);
                     sendBroadcast(temp_intent04);
 
 //                    Intent temp_intent04 = new Intent();
@@ -727,13 +748,13 @@ public class MusicPlayService extends Service {
                     PublicDate.music_play.get(temp02).setIs_playing(true);
                     PublicDate.music_play_list_position = temp02;
                     PublicDate.music_play_now = PublicDate.music_play.get(temp02);
-                    SharedUtile.putSharedInt(MusicPlayService.this,"music_play_list_position", PublicDate.music_play_list_position); 
+                    SharedUtile.putSharedInt(MusicPlayService.this, "music_play_list_position", PublicDate.music_play_list_position);
 
                     playMusicFromPathTime(music_play_now.getMusic_path(), 0);
 
                     Intent temp_intent03 = new Intent();
                     temp_intent03.setAction("com.android.jiaqiao");
-                    temp_intent03.putExtra("type", UpdateServiec.TO_UPDATE_UI);
+                    temp_intent03.putExtra("type", UpdateService.TO_UPDATE_UI);
                     sendBroadcast(temp_intent03);
 
 //                    Intent temp_intent03 = new Intent();
@@ -769,7 +790,7 @@ public class MusicPlayService extends Service {
 //                    temp_intent.putExtra("type", MusicPlayService.UPDATE_PLAY_MODE);
 //                    sendBroadcast(temp_intent);
 //                    getSharedPreferences(MainActivity.SHARED, 0).edit().putInt("play_mode", PublicDate.play_mode).commit();
-                    SharedUtile.putSharedInt(MusicPlayService.this,"play_mode", PublicDate.play_mode);
+                    SharedUtile.putSharedInt(MusicPlayService.this, "play_mode", PublicDate.play_mode);
                     updateNotificationPlayMode();
                     notify_manager.notify(100, notify);//刷新通知
                     break;
@@ -807,7 +828,7 @@ public class MusicPlayService extends Service {
 
 
                 //Test
-                case UpdateServiec.UPDATE_UI:
+                case UpdateService.UPDATE_UI:
 
                     if (notify_manager != null) {
                         updateNotificationUi();
@@ -817,6 +838,34 @@ public class MusicPlayService extends Service {
                     break;
 
 
+            }
+        }
+    }
+
+    public class HeadsetPlugReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.hasExtra("state")) {
+                if (intent.getIntExtra("state", 0) == 0) {//拔出耳机
+                    PublicDate.is_headset = false;
+                    mAudioManager.unregisterMediaButtonEventReceiver(mComponent);
+
+                    if (SharedUtile.getSharedBoolean(MusicPlayService.this, "headset_stop_play", true)) {
+                        if (PublicDate.is_play) {
+                            startStopMusic();
+                        }
+                    }
+
+                } else if (intent.getIntExtra("state", 0) == 1) {//插入耳机
+                    PublicDate.is_headset = true;
+                    mAudioManager.registerMediaButtonEventReceiver(mComponent);
+
+                    if (SharedUtile.getSharedBoolean(MusicPlayService.this, "headset_start_play", false)) {
+                        if (!PublicDate.is_play) {
+                            startStopMusic();
+                        }
+                    }
+                }
             }
         }
     }

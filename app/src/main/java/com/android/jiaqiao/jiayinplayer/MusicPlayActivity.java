@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.android.jiaqiao.Adapter.ViewPagerFragmentAdapter;
 import com.android.jiaqiao.JavaBean.MusicInfo;
 import com.android.jiaqiao.Service.MusicPlayService;
-import com.android.jiaqiao.Service.UpdateServiec;
+import com.android.jiaqiao.Service.UpdateService;
 import com.android.jiaqiao.Utils.FastBlurUtil;
 import com.android.jiaqiao.Utils.MusicUtils;
 import com.android.jiaqiao.Utils.SharedUtile;
@@ -214,7 +214,7 @@ public class MusicPlayActivity extends AppCompatActivity {
 
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", UpdateServiec.TO_UPDATE_UI);
+                temp_intent.putExtra("type", UpdateService.TO_UPDATE_UI);
                 sendBroadcast(temp_intent);
 
 
@@ -244,7 +244,7 @@ public class MusicPlayActivity extends AppCompatActivity {
 
                 Intent temp_intent = new Intent();
                 temp_intent.setAction("com.android.jiaqiao");
-                temp_intent.putExtra("type", UpdateServiec.TO_UPDATE_UI);
+                temp_intent.putExtra("type", UpdateService.TO_UPDATE_UI);
                 sendBroadcast(temp_intent);
 
                 Intent temp_intent02 = new Intent();
@@ -652,7 +652,7 @@ public class MusicPlayActivity extends AppCompatActivity {
 
 
 //Test
-                case UpdateServiec.UPDATE_UI:
+                case UpdateService.UPDATE_UI:
                     updateActivity();
                     break;
 

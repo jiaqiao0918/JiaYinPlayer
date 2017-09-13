@@ -497,6 +497,7 @@ public class FragmentMusicSheet extends Fragment {
                 case MainActivity.UPDATE_FRAGMENT_MUSIC_SHEET_SET:
                     updateSetUi();
                     adapter.notifyDataSetChanged();
+                    getMusicAlbumImage();
                     int temp_num_02 = MusicPlayUtil.selectMusicPosition(music_sheet_list, PublicDate.music_play_now);
                     if (temp_num_02 > -1) {
                         music_sheet_list.get(temp_num_02).setIs_playing(true);

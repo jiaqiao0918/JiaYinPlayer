@@ -16,9 +16,11 @@
         android:paddingTop="@dimen/acticity_left_right_padding_top">
 
         <ImageView
+            android:id="@+id/close_set_activity"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginLeft="12dp"
+            android:layout_marginRight="4dp"
             android:background="@drawable/click_oval"
             android:padding="10dp"
             android:src="@drawable/set_arrow_right" />
@@ -64,7 +66,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="20dp"
                         android:gravity="center_vertical"
-                        android:text="主界面"
+                        android:text="界面"
                         android:textColor="@color/font_thrid_color"
                         android:textSize="12sp" />
 
@@ -191,6 +193,7 @@
 
 
                     </LinearLayout>
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -223,38 +226,49 @@
                             android:spinnerMode="dropdown" />
 
                     </LinearLayout>
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginTop="6dp"
-                        android:background="@color/fengexian_color" />
 
                     <LinearLayout
+                        android:id="@+id/floder_spinner_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="6dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="文件夹"
-                            android:textColor="@color/font_seccend_color"
-                            android:textSize="14sp" />
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@color/fengexian_color" />
 
-                        <Spinner
-                            android:id="@+id/music_floder_spinner"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@color/back_ground"
-                            android:dropDownSelector="@color/back_ground"
-                            android:gravity="center"
-                            android:spinnerMode="dropdown" />
+                            android:layout_margin="6dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="文件夹"
+                                android:textColor="@color/font_seccend_color"
+                                android:textSize="14sp" />
+
+                            <Spinner
+                                android:id="@+id/music_floder_spinner"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/back_ground"
+                                android:dropDownSelector="@color/back_ground"
+                                android:gravity="center"
+                                android:spinnerMode="dropdown" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -288,6 +302,96 @@
 
                     </LinearLayout>
 
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/back_ground"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="4dp"
+                app:contentPadding="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:gravity="center_vertical"
+                        android:text="耳机"
+                        android:textColor="@color/font_thrid_color"
+                        android:textSize="12sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="插入耳机自动播放"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_headset_start_play"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="拔出耳机停止播放"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_hedaset_stop_play"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
@@ -764,6 +868,63 @@
 
                         <com.android.jiaqiao.View.ToggleButton.ToggleButton
                             android:id="@+id/toggle_button_in_headset_auto"
+                            style="@style/ToggleButtonStyle"
+                            app:borderWidth="1dp"
+                            app:offBorderColor="@color/image_button_click_color"
+                            app:offColor="@color/image_button_click_color"
+                            app:onColor="@color/all_color"
+                            app:spotColor="@color/back_ground" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/back_ground"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="4dp"
+                app:contentPadding="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:gravity="center_vertical"
+                        android:text="软件"
+                        android:textColor="@color/font_thrid_color"
+                        android:textSize="12sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/fengexian_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="长按返回键退出应用"
+                            android:textColor="@color/font_seccend_color"
+                            android:textSize="14sp" />
+
+                        <com.android.jiaqiao.View.ToggleButton.ToggleButton
+                            android:id="@+id/toggle_button_close_app"
                             style="@style/ToggleButtonStyle"
                             app:borderWidth="1dp"
                             app:offBorderColor="@color/image_button_click_color"

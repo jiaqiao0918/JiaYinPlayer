@@ -71,5 +71,11 @@
         <service android:name="com.android.jiaqiao.Service.SelectMusicService" />
         <service android:name="com.android.jiaqiao.Service.MusicPlayService" />
         <service android:name="com.android.jiaqiao.Service.TimingService" />
+
+        <receiver android:name="com.android.jiaqiao.Others.MediaButtonReceiver">
+            <intent-filter >
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

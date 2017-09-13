@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -39,9 +40,10 @@ public class SetActivity extends AppCompatActivity {
 
     private ArrayList<HashMap<String, Object>> list_folder_all = new ArrayList<HashMap<String, Object>>();
 
-    private Spinner music_all_spinner, music_sheet_spinner, music_timing_type;
-    private ToggleButton toggle_button_date_time, toggle_button_floder, toggle_button_floder_time, toggle_button_floder_size, toggle_button_floder_name, toggle_button_auto_timing_time;
-    private LinearLayout toggle_button_floder_time_linear, toggle_button_floder_size_linear;
+    private ImageView close_set_activity;
+    private Spinner music_all_spinner, music_sheet_spinner, music_love_spinner, music_floder_spinner, music_timing_type;
+    private ToggleButton toggle_button_date_time, toggle_button_floder, toggle_button_floder_time, toggle_button_floder_size, toggle_button_floder_name, toggle_button_auto_timing_time, toggle_button_headset_start_play, toggle_button_headset_stop_play, toggle_button_close_app;
+    private LinearLayout toggle_button_floder_time_linear, toggle_button_floder_size_linear, floder_spinner_layout;
     private SeekBar toggle_button_floder_time_seek_bar, toggle_button_floder_size_seek_bar, toggle_button_timing_type_seek_bar;
     private TextView time_seek_bar_text, size_seek_bar_text, timing_type_min_text, timing_type_max_text;
     private ListView floder_name_list;
@@ -55,8 +57,8 @@ public class SetActivity extends AppCompatActivity {
     private String sd_path = Environment.getExternalStorageDirectory().getPath();
     private String[] music_spinner_item_str = new String[]{"歌名", "添加日期(升序)", "添加日期(降序)"};
     private String[] music_timing_type_str = new String[]{"定时", "定曲"};
-    private boolean show_date_time, show_floder, floder_name;
-    private int sheet_num = 0, music_all_num = 0, floder_time_num = 0, floder_size_num = 0;
+    private boolean show_date_time, show_floder, floder_name, headset_start_play, headset_stop_play,close_app;
+    private int sheet_num = 0, music_all_num = 0, floder_time_num = 0, floder_size_num = 0, floder_num = 0, love_num = 0;
     private String floder_name_str = "";
 
     private Handler handler = new Handler() {
@@ -84,8 +86,14 @@ public class SetActivity extends AppCompatActivity {
             WindowManager.LayoutParams localLayoutParams = getWindow().getAttributes();
             localLayoutParams.flags = (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | localLayoutParams.flags);
         }
+
+
+        close_set_activity=(ImageView) findViewById(R.id.close_set_activity);
         music_all_spinner = (Spinner) findViewById(R.id.music_all_spinner);
         music_sheet_spinner = (Spinner) findViewById(R.id.music_sheet_spinner);
+        music_love_spinner = (Spinner) findViewById(R.id.music_love_spinner);
+        music_floder_spinner = (Spinner) findViewById(R.id.music_floder_spinner);
+
         music_timing_type = (Spinner) findViewById(R.id.music_timing_type);
         toggle_button_floder = (ToggleButton) findViewById(R.id.toggle_button_floder);
         toggle_button_date_time = (ToggleButton) findViewById(R.id.toggle_button_date_time);
@@ -93,10 +101,13 @@ public class SetActivity extends AppCompatActivity {
         toggle_button_floder_size = (ToggleButton) findViewById(R.id.toggle_button_floder_size);
         toggle_button_floder_name = (ToggleButton) findViewById(R.id.toggle_button_floder_name);
         toggle_button_auto_timing_time = (ToggleButton) findViewById(R.id.toggle_button_auto_timing_time);
-
+        toggle_button_headset_start_play = (ToggleButton) findViewById(R.id.toggle_button_headset_start_play);
+        toggle_button_headset_stop_play = (ToggleButton) findViewById(R.id.toggle_button_hedaset_stop_play);
+        toggle_button_close_app = (ToggleButton) findViewById(R.id.toggle_button_close_app);
 
         toggle_button_floder_time_linear = (LinearLayout) findViewById(R.id.toggle_button_floder_time_linear);
         toggle_button_floder_size_linear = (LinearLayout) findViewById(R.id.toggle_button_floder_size_linear);
+        floder_spinner_layout = (LinearLayout) findViewById(R.id.floder_spinner_layout);
         toggle_button_floder_time_seek_bar = (SeekBar) findViewById(R.id.toggle_button_floder_time_seek_bar);
         toggle_button_floder_size_seek_bar = (SeekBar) findViewById(R.id.toggle_button_floder_size_seek_bar);
         toggle_button_timing_type_seek_bar = (SeekBar) findViewById(R.id.toggle_button_timing_type_seek_bar);
@@ -121,10 +132,15 @@ public class SetActivity extends AppCompatActivity {
         show_floder = SharedUtile.getSharedBoolean(this, "is_show_floder", false);
         music_all_num = SharedUtile.getSharedInt(this, "music_all_num", 0);
         sheet_num = SharedUtile.getSharedInt(this, "sheet_num", 1);
+        love_num = SharedUtile.getSharedInt(this, "love_num", 1);
+        floder_num = SharedUtile.getSharedInt(this, "floder_num", 0);
         floder_time_num = SharedUtile.getSharedInt(this, "floder_time_num", 15);
         floder_size_num = SharedUtile.getSharedInt(this, "floder_size_num", 0);
         floder_name_str = SharedUtile.getSharedString(this, "floder_name_str", "");
         floder_name = SharedUtile.getSharedBoolean(this, "floder_name", true);
+        headset_start_play = SharedUtile.getSharedBoolean(this, "headset_start_play", false);
+        headset_stop_play = SharedUtile.getSharedBoolean(this, "headset_stop_play", true);
+        close_app = SharedUtile.getSharedBoolean(this, "close_app", true);
 
         list_folder_all = PublicDate.list_folder_all;
         if (list_folder_all.size() > 0) {
@@ -161,11 +177,15 @@ public class SetActivity extends AppCompatActivity {
 
         setSpinnerItem(music_all_spinner, music_spinner_item_str);
         setSpinnerItem(music_sheet_spinner, music_spinner_item_str);
+        setSpinnerItem(music_love_spinner, music_spinner_item_str);
+        setSpinnerItem(music_floder_spinner, music_spinner_item_str);
         setAutoTimingSpinnerItem(music_timing_type, music_timing_type_str, true);
 
         //setting
         music_all_spinner.setSelection(music_all_num);
         music_sheet_spinner.setSelection(sheet_num);
+        music_love_spinner.setSelection(love_num);
+        music_floder_spinner.setSelection(floder_num);
         music_timing_type.setSelection(1);
 
 //        toggle_button_floder_time.toggleOff();
@@ -188,6 +208,15 @@ public class SetActivity extends AppCompatActivity {
         toggle_button_auto_timing_time.setToggle(false);
         toggle_button_date_time.setToggle(show_date_time);
         toggle_button_floder.setToggle(show_floder);
+        toggle_button_headset_start_play.setToggle(headset_start_play);
+        toggle_button_headset_stop_play.setToggle(headset_stop_play);
+        toggle_button_close_app.setToggle(close_app);
+
+        if (show_floder) {
+            floder_spinner_layout.setVisibility(View.VISIBLE);
+        } else {
+            floder_spinner_layout.setVisibility(View.GONE);
+        }
 
         upDateFloderUiTime(toggle_button_floder_time.getToggle());
         upDateFloderUiSize(toggle_button_floder_size.getToggle());
@@ -211,8 +240,41 @@ public class SetActivity extends AppCompatActivity {
             public void onToggle(boolean on) {
                 if (on) {
                     SharedUtile.putSharedBoolean(SetActivity.this, "is_show_floder", true);
+                    floder_spinner_layout.setVisibility(View.VISIBLE);
                 } else {
                     SharedUtile.putSharedBoolean(SetActivity.this, "is_show_floder", false);
+                    floder_spinner_layout.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        toggle_button_headset_start_play.setOnToggleChanged(new ToggleButton.OnToggleChanged() {
+            @Override
+            public void onToggle(boolean on) {
+                if (on) {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "headset_start_play", true);
+                } else {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "headset_start_play", false);
+                }
+            }
+        });
+        toggle_button_headset_stop_play.setOnToggleChanged(new ToggleButton.OnToggleChanged() {
+            @Override
+            public void onToggle(boolean on) {
+                if (on) {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "headset_stop_play", true);
+                } else {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "headset_stop_play", false);
+                }
+            }
+        });
+        toggle_button_close_app.setOnToggleChanged(new ToggleButton.OnToggleChanged() {
+            @Override
+            public void onToggle(boolean on) {
+                if (on) {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "close_app", true);
+                } else {
+                    SharedUtile.putSharedBoolean(SetActivity.this, "close_app", false);
                 }
             }
         });
@@ -233,6 +295,30 @@ public class SetActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 SharedUtile.putSharedInt(SetActivity.this, "sheet_num", position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        music_love_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedUtile.putSharedInt(SetActivity.this, "love_num", position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        music_floder_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedUtile.putSharedInt(SetActivity.this, "floder_num", position);
             }
 
             @Override
@@ -315,6 +401,13 @@ public class SetActivity extends AppCompatActivity {
             }
         });
 
+        close_set_activity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         toggle_button_timing_type_seek_bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -361,7 +454,19 @@ public class SetActivity extends AppCompatActivity {
             temp_intent.putExtra("type", MainActivity.UPDATE_FRAGMENT_MUSIC_SHEET_SET);
             sendBroadcast(temp_intent);
         }
-        if(floder_time_num != SharedUtile.getSharedInt(this, "floder_time_num", 15)||floder_size_num != SharedUtile.getSharedInt(this, "floder_size_num", 0)||floder_name_str != SharedUtile.getSharedString(this, "floder_name_str", "")||floder_name != SharedUtile.getSharedBoolean(this, "floder_name", true)){
+        if (love_num != music_love_spinner.getSelectedItemPosition()) {
+            Intent temp_intent = new Intent();
+            temp_intent.setAction("com.android.jiaqiao");
+            temp_intent.putExtra("type", MainActivity.UPDATE_FRAGMENT_MUSIC_LOVE_SET);
+            sendBroadcast(temp_intent);
+        }
+        if (floder_num != music_floder_spinner.getSelectedItemPosition()) {
+            Intent temp_intent = new Intent();
+            temp_intent.setAction("com.android.jiaqiao");
+            temp_intent.putExtra("type", MainActivity.UPDATE_FRAGMENT_MUSIC_FLODER_SET);
+            sendBroadcast(temp_intent);
+        }
+        if (floder_time_num != SharedUtile.getSharedInt(this, "floder_time_num", 15) || floder_size_num != SharedUtile.getSharedInt(this, "floder_size_num", 0) || floder_name_str != SharedUtile.getSharedString(this, "floder_name_str", "") || floder_name != SharedUtile.getSharedBoolean(this, "floder_name", true)) {
             Intent select_music_intent = new Intent(SetActivity.this, SelectMusicService.class);
             startService(select_music_intent);
         }
@@ -426,7 +531,7 @@ public class SetActivity extends AppCompatActivity {
             floder_name_list.setVisibility(View.VISIBLE);
         } else {
             floder_name_list.setVisibility(View.GONE);
-            SharedUtile.putSharedBoolean(this,"floder_name",false);
+            SharedUtile.putSharedBoolean(this, "floder_name", false);
         }
     }
 
